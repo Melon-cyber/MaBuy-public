@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MaBuy — Shield 5</title>
+  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Inter', 'sans-serif'],
+            mono: ['SF Mono', 'JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #000000;
+      color: #f5f5f7;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Apple Frosted Glass */
+    .apple-glass {
+      background: rgba(22, 22, 26, 0.65);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 40px -20px rgba(0,0,0,0.8);
+    }
+
+    .apple-row {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background-color 0.15s ease;
+    }
+    .apple-row:last-child {
+      border-bottom: none;
+    }
+    .apple-row:active {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Micro-bars */
+    .bar-segment {
+      height: 4px;
+      border-radius: 9999px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <main class="w-full max-w-sm mx-auto space-y-4">
+
+    <!-- ==================================================================== -->
+    <!-- 🍏 APPLE ZEN CARD: 5 GATES SHIELD -->
+    <!-- ==================================================================== -->
+    <div class="apple-glass rounded-3xl p-5 relative overflow-hidden">
+      
+      <!-- Top Bar: Asset + Signal -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <!-- Asset Badge -->
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-xs font-semibold">
+            <span>BTC</span>
+            <span class="text-white/40 font-normal">$64,280</span>
+          </div>
+          <span class="text-[11px] text-white/40 font-mono">v5.2 Titan</span>
+        </div>
+
+        <!-- Master Dot -->
+        <div class="flex items-center gap-1.5">
+          <span id="masterDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="masterStatusText" class="text-xs font-medium text-emerald-400 font-mono">5/5 CLEAR</span>
+        </div>
+      </div>
+
+      <!-- Hero Verdict (Ultra Clean) -->
+      <div class="my-5">
+        <p class="text-[11px] uppercase tracking-wider text-white/40 font-medium">Защитный щит</p>
+        <h2 id="heroVerdictTitle" class="text-2xl font-bold tracking-tight text-white mt-0.5">
+          Вход разрешен
+        </h2>
+        <p id="heroVerdictSub" class="text-xs text-white/60 mt-1">
+          Все институциональные гейты пройдены. Риск минимален.
+        </p>
+      </div>
+
+      <!-- 5 Segments Gauge (Battery / Signal style) -->
+      <div class="grid grid-cols-5 gap-1.5 mb-5" id="segmentsContainer">
+        <div class="bar-segment bg-emerald-400" id="seg-1" title="Gate 1: Circuit Breaker"></div>
+        <div class="bar-segment bg-emerald-400" id="seg-2" title="Gate 2: Funding Bias"></div>
+        <div class="bar-segment bg-emerald-400" id="seg-3" title="Gate 3: Hurst Exponent"></div>
+        <div class="bar-segment bg-emerald-400" id="seg-4" title="Gate 4: Correlation Guard"></div>
+        <div class="bar-segment bg-emerald-400" id="seg-5" title="Gate 5: Astra Lockout"></div>
+      </div>
+
+      <!-- ================================================================== -->
+      <!-- 5 MINIMAL ROWS (No clutter, tap for detail) -->
+      <!-- ================================================================== -->
+      <div class="rounded-2xl bg-black/40 border border-white/5 overflow-hidden">
+        
+        <!-- Gate 1 -->
+        <div class="apple-row p-3 flex items-center justify-between cursor-pointer" onclick="toggleDetail('g1')">
+          <div class="flex items-center gap-2.5">
+            <span id="dot-1" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-white/90 font-medium">Лимит просадки</span>
+          </div>
+          <div class="text-right font-mono text-xs">
+            <span id="val-1" class="text-white font-medium">-0.35%</span>
+            <span class="text-white/30 text-[10px] ml-1">/ 1.5%</span>
+          </div>
+        </div>
+        <div id="detail-g1" class="hidden px-3 pb-2.5 pt-1 text-[11px] text-white/50 bg-white/[0.02] font-mono">
+          Суточный порог адаптивен. При 2 убытках сузится до -1.05%.
+        </div>
+
+        <!-- Gate 2 -->
+        <div class="apple-row p-3 flex items-center justify-between cursor-pointer" onclick="toggleDetail('g2')">
+          <div class="flex items-center gap-2.5">
+            <span id="dot-2" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-white/90 font-medium">Фандинг деривативов</span>
+          </div>
+          <div class="text-right font-mono text-xs">
+            <span id="val-2" class="text-emerald-400 font-medium">+0.008%</span>
+            <span class="text-white/30 text-[10px] ml-1">Норма</span>
+          </div>
+        </div>
+        <div id="detail-g2" class="hidden px-3 pb-2.5 pt-1 text-[11px] text-white/50 bg-white/[0.02] font-mono">
+          Ставка 8h в балансе. Риск ликвидационного сквиза отсутствует.
+        </div>
+
+        <!-- Gate 3 -->
+        <div class="apple-row p-3 flex items-center justify-between cursor-pointer" onclick="toggleDetail('g3')">
+          <div class="flex items-center gap-2.5">
+            <span id="dot-3" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-white/90 font-medium">Режим Херста</span>
+          </div>
+          <div class="text-right font-mono text-xs">
+            <span id="val-3" class="text-emerald-400 font-medium">H = 0.64</span>
+            <span id="sub-3" class="text-white/30 text-[10px] ml-1">Тренд</span>
+          </div>
+        </div>
+        <div id="detail-g3" class="hidden px-3 pb-2.5 pt-1 text-[11px] text-white/50 bg-white/[0.02] font-mono">
+          Персистентный тренд. Динамический тейк расширен до +4.2%.
+        </div>
+
+        <!-- Gate 4 -->
+        <div class="apple-row p-3 flex items-center justify-between cursor-pointer" onclick="toggleDetail('g4')">
+          <div class="flex items-center gap-2.5">
+            <span id="dot-4" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-white/90 font-medium">Кросс-корреляция</span>
+          </div>
+          <div class="text-right font-mono text-xs">
+            <span id="val-4" class="text-white font-medium">ρ = 0.48</span>
+            <span class="text-white/30 text-[10px] ml-1">1.0x</span>
+          </div>
+        </div>
+        <div id="detail-g4" class="hidden px-3 pb-2.5 pt-1 text-[11px] text-white/50 bg-white/[0.02] font-mono">
+          Связка BTC/ETH/SOL сбалансирована. Среза размера позы нет.
+        </div>
+
+        <!-- Gate 5 -->
+        <div class="apple-row p-3 flex items-center justify-between cursor-pointer" onclick="toggleDetail('g5')">
+          <div class="flex items-center gap-2.5">
+            <span id="dot-5" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-white/90 font-medium">Анти-тильт кулдаун</span>
+          </div>
+          <div class="text-right font-mono text-xs">
+            <span id="val-5" class="text-emerald-400 font-medium">Чисто</span>
+            <span class="text-white/30 text-[10px] ml-1">0h</span>
+          </div>
+        </div>
+        <div id="detail-g5" class="hidden px-3 pb-2.5 pt-1 text-[11px] text-white/50 bg-white/[0.02] font-mono">
+          Кулдаун после стопа неактивен. Лонг и шорт доступны.
+        </div>
+
+      </div>
+
+      <p class="text-center text-[10px] text-white/20 mt-3 font-mono">Тапните по строке для детального расчета</p>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- QUICK SWITCHER (FOR TESTING STATES) -->
+    <!-- ==================================================================== -->
+    <div class="flex items-center justify-between p-1.5 rounded-2xl bg-white/[0.04] border border-white/5 text-[11px]">
+      <button onclick="setZenState('clear')" id="btn-clear" class="flex-1 py-1.5 rounded-xl font-medium transition-all bg-white/10 text-white">
+        Норма
+      </button>
+      <button onclick="setZenState('noise')" id="btn-noise" class="flex-1 py-1.5 rounded-xl font-medium transition-all text-white/50 hover:text-white">
+        Шум (Лок)
+      </button>
+      <button onclick="setZenState('drawdown')" id="btn-drawdown" class="flex-1 py-1.5 rounded-xl font-medium transition-all text-white/50 hover:text-white">
+        Просадка
+      </button>
+      <button onclick="setZenState('lockout')" id="btn-lockout" class="flex-1 py-1.5 rounded-xl font-medium transition-all text-white/50 hover:text-white">
+        Кулдаун
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- SCRIPT -->
+  <!-- ==================================================================== -->
+  <script>
+    function triggerHaptic() {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+    }
+
+    function toggleDetail(id) {
+      triggerHaptic();
+      const el = document.getElementById(`detail-${id}`);
+      el.classList.toggle('hidden');
+    }
+
+    function setZenState(state) {
+      triggerHaptic();
+
+      // Reset button styles
+      ['clear', 'noise', 'drawdown', 'lockout'].forEach(s => {
+        const btn = document.getElementById(`btn-${s}`);
+        btn.className = s === state 
+          ? "flex-1 py-1.5 rounded-xl font-medium transition-all bg-white/10 text-white shadow-sm"
+          : "flex-1 py-1.5 rounded-xl font-medium transition-all text-white/50 hover:text-white";
+      });
+
+      const masterDot = document.getElementById('masterDot');
+      const masterText = document.getElementById('masterStatusText');
+      const heroTitle = document.getElementById('heroVerdictTitle');
+      const heroSub = document.getElementById('heroVerdictSub');
+
+      const segs = [
+        document.getElementById('seg-1'),
+        document.getElementById('seg-2'),
+        document.getElementById('seg-3'),
+        document.getElementById('seg-4'),
+        document.getElementById('seg-5')
+      ];
+
+      const dots = [
+        document.getElementById('dot-1'),
+        document.getElementById('dot-2'),
+        document.getElementById('dot-3'),
+        document.getElementById('dot-4'),
+        document.getElementById('dot-5')
+      ];
+
+      // Default All Clear
+      segs.forEach(s => s.className = "bar-segment bg-emerald-400");
+      dots.forEach(d => d.className = "w-1.5 h-1.5 rounded-full bg-emerald-400");
+
+      if (state === 'clear') {
+        masterDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        masterText.className = "text-xs font-medium text-emerald-400 font-mono";
+        masterText.innerText = "5/5 CLEAR";
+
+        heroTitle.innerText = "Вход разрешен";
+        heroTitle.className = "text-2xl font-bold tracking-tight text-white mt-0.5";
+        heroSub.innerText = "Все институциональные гейты пройдены. Риск минимален.";
+
+        document.getElementById('val-1').innerText = "-0.35%";
+        document.getElementById('val-3').innerText = "H = 0.64";
+        document.getElementById('val-3').className = "text-emerald-400 font-medium";
+        document.getElementById('sub-3').innerText = "Тренд";
+        document.getElementById('val-5').innerText = "Чисто";
+        document.getElementById('val-5').className = "text-emerald-400 font-medium";
+
+      } else if (state === 'noise') {
+        // Gate 3 Noise Lock
+        segs[2].className = "bar-segment bg-red-500";
+        dots[2].className = "w-1.5 h-1.5 rounded-full bg-red-500";
+
+        masterDot.className = "w-2 h-2 rounded-full bg-red-500";
+        masterText.className = "text-xs font-medium text-red-400 font-mono";
+        masterText.innerText = "4/5 ВХОД ЗАБЛОКИРОВАН";
+
+        heroTitle.innerText = "Стоп: Белый шум";
+        heroTitle.className = "text-2xl font-bold tracking-tight text-red-400 mt-0.5";
+        heroSub.innerText = "Gate 3: Рынок во флэте без направленного тренда (H=0.49).";
+
+        document.getElementById('val-3').innerText = "H = 0.49";
+        document.getElementById('val-3').className = "text-red-400 font-medium";
+        document.getElementById('sub-3').innerText = "Шум (Лок)";
+
+      } else if (state === 'drawdown') {
+        // Gate 1 Near Drawdown Limit
+        segs[0].className = "bar-segment bg-amber-400";
+        dots[0].className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+
+        masterDot.className = "w-2 h-2 rounded-full bg-amber-400";
+        masterText.className = "text-xs font-medium text-amber-400 font-mono";
+        masterText.innerText = "ВНИМАНИЕ";
+
+        heroTitle.innerText = "Риск просадки";
+        heroTitle.className = "text-2xl font-bold tracking-tight text-amber-400 mt-0.5";
+        heroSub.innerText = "Gate 1: Дневной убыток -1.10%. Лимит сжат до -1.05%.";
+
+        document.getElementById('val-1').innerText = "-1.10%";
+
+      } else if (state === 'lockout') {
+        // Gate 5 Astra Lockout
+        segs[4].className = "bar-segment bg-purple-400";
+        dots[4].className = "w-1.5 h-1.5 rounded-full bg-purple-400";
+
+        masterDot.className = "w-2 h-2 rounded-full bg-purple-400";
+        masterText.className = "text-xs font-medium text-purple-400 font-mono";
+        masterText.innerText = "КУЛДАУН ПОСЛЕ СТОПА";
+
+        heroTitle.innerText = "Пауза: 02:44:12";
+        heroTitle.className = "text-2xl font-bold tracking-tight text-purple-400 mt-0.5";
+        heroSub.innerText = "Gate 5: Защита от тильта после стоп-лосса. Ждем смещения цены.";
+
+        document.getElementById('val-5').innerText = "02:44:12";
+        document.getElementById('val-5').className = "text-purple-400 font-medium";
+      }
+    }
+  </script>
+</body>
+</html>

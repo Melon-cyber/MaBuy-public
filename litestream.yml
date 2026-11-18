@@ -1,0 +1,15 @@
+# Litestream Configuration for MaBuy Real-Time SQLite Streaming Replication
+# RPO < 1s, Zero-Downtime Backup to S3-compatible Object Storage (Cloudflare R2, Backblaze B2, AWS S3, MinIO)
+
+dbs:
+  - path: /app/data/mabuy_prod.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET:-mabuy-database-vault}
+        path: mabuy_prod.db
+        endpoint: ${LITESTREAM_ENDPOINT:-https://storage.googleapis.com}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID:-}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY:-}
+        retention: 168h # 7 days WAL retention
+        sync-interval: 1s # Continuous live WAL sync
+        validation-interval: 1h

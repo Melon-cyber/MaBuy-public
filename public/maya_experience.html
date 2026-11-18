@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>MAYA — Surreal Quant Experience</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --cyan: #71ffe2;
+      --emerald: #23d995;
+      --red: #ff193d;
+      --ink: #020406;
+      --glass: rgba(9, 18, 23, .46);
+      --line: rgba(157, 255, 228, .18);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #020406;
+      color: #eafff7;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      cursor: default;
+    }
+
+    #webgl {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    #cursorCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 15;
+      opacity: .16;
+      pointer-events: none;
+      background-image:
+        radial-gradient(rgba(255,255,255,.23) .55px, transparent .75px),
+        radial-gradient(rgba(126,255,218,.16) .55px, transparent .75px);
+      background-position: 0 0, 11px 13px;
+      background-size: 4px 4px, 5px 5px;
+      mix-blend-mode: soft-light;
+      animation: grainMove .18s steps(2) infinite;
+    }
+
+    @keyframes grainMove {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(-2%, 1%); }
+      50% { transform: translate(1%, -2%); }
+      75% { transform: translate(2%, 2%); }
+      100% { transform: translate(0,0); }
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 14;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 45%, transparent 26%, rgba(0,0,0,.15) 58%, rgba(0,0,0,.84) 100%),
+        linear-gradient(180deg, rgba(0,0,0,.18), transparent 25%, transparent 70%, rgba(0,0,0,.68));
+    }
+
+    #flash {
+      position: fixed;
+      inset: 0;
+      z-index: 16;
+      pointer-events: none;
+      opacity: 0;
+      background: #cffff0;
+      mix-blend-mode: screen;
+    }
+
+    .hud {
+      position: fixed;
+      z-index: 30;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .brand {
+      top: 24px;
+      left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: .2em;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(170,255,229,.72);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      position: relative;
+      box-shadow: 0 0 18px rgba(81,255,203,.35), inset 0 0 14px rgba(81,255,203,.16);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 17px;
+      height: 1px;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .brand-mark::after { transform: rotate(90deg); }
+
+    .status {
+      top: 26px;
+      right: 28px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: rgba(220,255,246,.65);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 9px;
+      letter-spacing: .11em;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #67ffcf;
+      box-shadow: 0 0 12px #55ffd3;
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      50% { opacity: .35; transform: scale(.68); }
+    }
+
+    .scene-copy {
+      left: 7vw;
+      top: 50%;
+      transform: translateY(-50%);
+      width: min(560px, 78vw);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .scene-copy.out {
+      opacity: 0;
+      transform: translateY(-45%);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: rgba(175,255,231,.78);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      letter-spacing: .22em;
+    }
+
+    .eyebrow i {
+      display: inline-block;
+      width: 31px;
+      height: 1px;
+      background: currentColor;
+      box-shadow: 0 0 9px currentColor;
+    }
+
+    #sceneTitle {
+      max-width: 600px;
+      margin: 0;
+      font-size: clamp(37px, 6vw, 88px);
+      font-weight: 200;
+      line-height: .88;
+      letter-spacing: -.07em;
+      text-transform: uppercase;
+      text-shadow: 0 0 35px rgba(92,255,217,.16);
+    }
+
+    #sceneTitle em {
+      color: var(--cyan);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    #sceneText {
+      max-width: 430px;
+      margin: 23px 0 0;
+      color: rgba(219,250,242,.68);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.75;
+      letter-spacing: .03em;
+    }
+
+    .coordinates {
+      left: 29px;
+      bottom: 126px;
+      color: rgba(197,255,238,.45);
+      font: 9px/1.8 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .1em;
+    }
+
+    .coordinates strong {
+      color: rgba(150,255,220,.95);
+      font-weight: 500;
+    }
+
+    .audio-button {
+      position: fixed;
+      z-index: 45;
+      right: 28px;
+      bottom: 119px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(155,255,222,.2);
+      border-radius: 50%;
+      color: #cffff0;
+      background: rgba(4,12,14,.48);
+      box-shadow: inset 0 0 22px rgba(55,255,190,.08), 0 0 22px rgba(0,0,0,.25);
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: .35s ease;
+    }
+
+    .audio-button:hover {
+      border-color: rgba(155,255,222,.8);
+      box-shadow: inset 0 0 22px rgba(55,255,190,.18), 0 0 25px rgba(70,255,190,.19);
+      transform: scale(1.08);
+    }
+
+    .audio-bars {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+      height: 13px;
+    }
+
+    .audio-bars b {
+      width: 2px;
+      background: currentColor;
+      animation: bars .8s ease-in-out infinite alternate;
+    }
+
+    .audio-bars b:nth-child(1) { height: 5px; animation-delay: -.3s; }
+    .audio-bars b:nth-child(2) { height: 12px; animation-delay: -.1s; }
+    .audio-bars b:nth-child(3) { height: 8px; animation-delay: -.5s; }
+    .audio-bars b:nth-child(4) { height: 4px; animation-delay: -.2s; }
+
+    .audio-button.muted .audio-bars b { animation-play-state: paused; height: 2px; }
+
+    @keyframes bars { to { transform: scaleY(.35); opacity: .4; } }
+
+    #dock {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      width: min(920px, calc(100vw - 34px));
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      border: 1px solid rgba(171,255,230,.19);
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(110deg, rgba(9,21,24,.72), rgba(8,13,20,.48));
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      box-shadow: 0 22px 80px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.04);
+    }
+
+    .nav-item {
+      appearance: none;
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      padding: 16px 11px 15px;
+      border: 0;
+      color: rgba(210,245,235,.43);
+      background: transparent;
+      font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: .35s ease;
+    }
+
+    .nav-item::before {
+      content: "";
+      position: absolute;
+      left: 14%;
+      right: 14%;
+      top: 0;
+      height: 1px;
+      opacity: 0;
+      background: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan);
+      transition: .35s ease;
+    }
+
+    .nav-item:hover { color: rgba(225,255,245,.9); background: rgba(80,255,201,.04); }
+    .nav-item.active { color: #dffff4; background: rgba(80,255,201,.09); }
+    .nav-item.active::before { opacity: 1; }
+
+    #mayaPanel {
+      position: fixed;
+      z-index: 35;
+      right: 7vw;
+      top: 50%;
+      width: min(310px, 71vw);
+      transform: translateY(-50%) translateX(25px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 22px;
+      border: 1px solid rgba(170,255,230,.2);
+      border-radius: 16px;
+      background: rgba(5,15,19,.44);
+      box-shadow: inset 0 0 35px rgba(70,255,205,.06), 0 18px 60px rgba(0,0,0,.25);
+      backdrop-filter: blur(18px);
+      transition: .55s ease;
+    }
+
+    #mayaPanel.visible {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+      pointer-events: auto;
+    }
+
+    .maya-name {
+      margin: 0;
+      color: #d9fff2;
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: .22em;
+    }
+
+    .maya-sub {
+      margin: 8px 0 16px;
+      color: rgba(134,255,211,.67);
+      font: 9px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .12em;
+    }
+
+    .maya-line {
+      min-height: 43px;
+      margin: 0;
+      color: rgba(235,255,248,.78);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .maya-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 17px;
+    }
+
+    .maya-controls button {
+      border: 1px solid rgba(148,255,215,.25);
+      border-radius: 999px;
+      color: #baffdf;
+      background: rgba(42,255,185,.06);
+      padding: 8px 12px;
+      font: 9px ui-monospace, monospace;
+      letter-spacing: .09em;
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .maya-controls button:hover {
+      color: #00160e;
+      background: #8dffd7;
+      box-shadow: 0 0 20px rgba(112,255,206,.38);
+    }
+
+    #terminal {
+      position: fixed;
+      z-index: 37;
+      left: 50%;
+      top: 50%;
+      width: min(720px, calc(100vw - 36px));
+      transform: translate(-50%, -46%);
+      opacity: 0;
+      pointer-events: none;
+      border: 1px solid rgba(63,255,175,.22);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(1,10,10,.78);
+      box-shadow: 0 0 70px rgba(0,255,155,.09), inset 0 0 40px rgba(23,255,164,.035);
+      backdrop-filter: blur(18px);
+      transition: .55s ease;
+    }
+
+    #terminal.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+    }
+
+    .terminal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+      padding: 0 15px;
+      border-bottom: 1px solid rgba(66,255,176,.16);
+      color: rgba(131,255,194,.75);
+      font: 10px ui-monospace, monospace;
+      letter-spacing: .12em;
+      background: rgba(35,255,163,.04);
+    }
+
+    .terminal-lights {
+      display: flex;
+      gap: 6px;
+    }
+
+    .terminal-lights i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #55ffc3;
+      box-shadow: 0 0 8px #55ffc3;
+    }
+
+    #terminalLog {
+      height: min(43vh, 340px);
+      overflow: auto;
+      padding: 18px;
+      color: rgba(194,255,217,.84);
+      font: 11px/1.78 ui-monospace, SFMono-Regular, Menlo, monospace;
+      scrollbar-width: thin;
+    }
+
+    .terminal-row { display: flex; gap: 10px; }
+    .terminal-time { color: rgba(100,255,183,.42); }
+    .terminal-ok { color: #64ffc4; }
+    .terminal-warn { color: #ff5f6f; }
+
+    .terminal-input {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(66,255,176,.16);
+      color: #65ffc1;
+      font: 11px ui-monospace, monospace;
+    }
+
+    #commandInput {
+      width: 100%;
+      outline: none;
+      border: 0;
+      color: #d8ffeb;
+      background: transparent;
+      font: inherit;
+      cursor: text;
+    }
+
+    #intro {
+      position: fixed;
+      z-index: 90;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020506;
+      transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), visibility 1.1s;
+    }
+
+    #intro.dismissed {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .intro-core {
+      text-align: center;
+      transform: translateY(-8px);
+    }
+
+    .intro-orbit {
+      position: relative;
+      width: 126px;
+      height: 126px;
+      margin: 0 auto 25px;
+      border: 1px solid rgba(130,255,211,.28);
+      border-radius: 50%;
+      animation: spin 5s linear infinite;
+      box-shadow: 0 0 50px rgba(87,255,197,.12), inset 0 0 35px rgba(87,255,197,.07);
+    }
+
+    .intro-orbit::before,
+    .intro-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(130,255,211,.34);
+      border-radius: 50%;
+    }
+
+    .intro-orbit::after {
+      inset: 46px;
+      background: #a7ffe2;
+      box-shadow: 0 0 35px #78ffca;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .intro-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: .8em;
+      padding-left: .8em;
+    }
+
+    .intro-copy {
+      margin: 14px 0 25px;
+      color: rgba(205,255,234,.54);
+      font: 9px ui-monospace, monospace;
+      letter-spacing: .18em;
+    }
+
+    #enter {
+      border: 1px solid rgba(143,255,215,.48);
+      border-radius: 999px;
+      color: #d7fff0;
+      background: rgba(74,255,189,.08);
+      padding: 13px 24px;
+      font: 700 10px ui-monospace, monospace;
+      letter-spacing: .16em;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(65,255,183,.12);
+      transition: .3s;
+    }
+
+    #enter:hover {
+      color: #00180e;
+      background: #a4ffd9;
+      box-shadow: 0 0 44px rgba(77,255,186,.45);
+      transform: scale(1.06);
+    }
+
+    @media (max-width: 650px) {
+      .brand { top: 17px; left: 17px; }
+      .status { top: 20px; right: 16px; font-size: 8px; }
+      .scene-copy { left: 24px; top: 44%; }
+      #sceneText { font-size: 11px; max-width: 315px; }
+      .coordinates { left: 18px; bottom: 105px; font-size: 8px; }
+      .audio-button { right: 17px; bottom: 101px; }
+      #dock { bottom: 12px; border-radius: 14px; }
+      .nav-item { padding: 13px 4px; font-size: 7px; letter-spacing: .03em; }
+      #mayaPanel { top: auto; right: 18px; bottom: 106px; transform: translateY(20px); }
+      #mayaPanel.visible { transform: translateY(0); }
+      #terminal { top: 43%; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="webgl"></canvas>
+  <canvas id="cursorCanvas"></canvas>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+  <div id="flash"></div>
+
+  <header class="hud brand">
+    <div class="brand-mark"></div>
+    <span>MAYA // NEURAL SANCTUM</span>
+  </header>
+
+  <div class="hud status">
+    <span class="status-dot"></span>
+    <span id="networkStatus">SYSTEM / SYNCHRONIZED</span>
+  </div>
+
+  <section class="hud scene-copy" id="sceneCopy">
+    <div class="eyebrow"><i></i><span id="sceneIndex">01 / 05 — GENESIS PROTOCOL</span></div>
+    <h1 id="sceneTitle">THE <em>AWAKENING</em></h1>
+    <p id="sceneText">Between ancient form and synthetic consciousness, a new signal reaches across the luminous void.</p>
+  </section>
+
+  <div class="hud coordinates">
+    <div>LOC <strong id="coordReadout">34.0522° N / 118.2437° W</strong></div>
+    <div>TIME <strong id="timeReadout">00:00:00 UTC</strong></div>
+  </div>
+
+  <button class="audio-button" id="audioButton" aria-label="Toggle sound">
+    <span class="audio-bars"><b></b><b></b><b></b><b></b></span>
+  </button>
+
+  <aside id="mayaPanel">
+    <h2 class="maya-name">MAYA_01</h2>
+    <p class="maya-sub">CYBERNETIC ORACLE / TSUNDERE MODE</p>
+    <p class="maya-line" id="mayaLine">D-don't stare. I am monitoring your probability field, that's all.</p>
+    <div class="maya-controls">
+      <button id="mayaSpeak">SPEAK</button>
+      <button id="mayaFocus">FOCUS EYES</button>
+    </div>
+  </aside>
+
+  <section id="terminal">
+    <div class="terminal-head">
+      <span>MABUY // QUANTUM ROUTER v4.32</span>
+      <span class="terminal-lights"><i></i><i></i><i></i></span>
+    </div>
+    <div id="terminalLog"></div>
+    <label class="terminal-input">
+      <span>maya@citadel:~$</span>
+      <input id="commandInput" autocomplete="off" spellcheck="false" placeholder="type: help, status, quote, clear" />
+    </label>
+  </section>
+
+  <nav id="dock" aria-label="Experience navigation">
+    <button class="nav-item active" data-scene="0">01 AWAKENING</button>
+    <button class="nav-item" data-scene="1">02 RED VOID</button>
+    <button class="nav-item" data-scene="2">03 QUANT CITADEL</button>
+    <button class="nav-item" data-scene="3">04 MAYA 3D</button>
+    <button class="nav-item" data-scene="4">05 TERMINAL</button>
+  </nav>
+
+  <div id="intro">
+    <div class="intro-core">
+      <div class="intro-orbit"></div>
+      <h1 class="intro-title">MAYA</h1>
+      <p class="intro-copy">DIVINE COMPUTATION // 432Hz</p>
+      <button id="enter">ENTER THE SIGNAL</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("webgl");
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: false,
+        powerPreference: "high-performance"
+      });
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.25;
+      renderer.setClearColor(0x020506, 1);
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x06100f, 0.0085);
+
+      const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 0.1, 1200);
+      camera.position.set(0, 5, 20);
+
+      const cameraTarget = new THREE.Vector3(0, 3, 0);
+      const lookProxy = { x: 0, y: 3, z: 0 };
+      const clock = new THREE.Clock();
+      const pointer = { x: 0, y: 0, nx: 0, ny: 0, worldX: 0, worldY: 0 };
+
+      const world = new THREE.Group();
+      scene.add(world);
+
+      const ambient = new THREE.HemisphereLight(0x8affd5, 0x071015, 0.52);
+      scene.add(ambient);
+
+      const keyLight = new THREE.PointLight(0x7dffd7, 2.3, 110, 2);
+      keyLight.position.set(0, 11, 5);
+      scene.add(keyLight);
+
+      const redLight = new THREE.PointLight(0xff1238, 0, 100, 2);
+      redLight.position.set(0, 8, -118);
+      scene.add(redLight);
+
+      const emeraldLight = new THREE.PointLight(0x00ff9d, 0, 110, 2);
+      emeraldLight.position.set(0, 11, -240);
+      scene.add(emeraldLight);
+
+      const mayaLight = new THREE.PointLight(0x73ffd7, 0, 50, 2);
+      mayaLight.position.set(0, 8, -355);
+      scene.add(mayaLight);
+
+      const softFill = new THREE.PointLight(0x6db9ff, 0.65, 65, 2);
+      softFill.position.set(-12, 6, -354);
+      scene.add(softFill);
+
+      const vertexGlow = `
+        precision highp float;
+
+        varying vec3 vNormal;
+        varying vec3 vWorld;
+        varying vec2 vUv;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `;
+
+      const handFragment = `
+        precision highp float;
+
+        uniform float uTime;
+        uniform vec3 uColor;
+        uniform float uPulse;
+        varying vec3 vNormal;
+        varying vec3 vWorld;
+        varying vec2 vUv;
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - vWorld);
+          float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 2.4);
+          float veins = sin(vWorld.y * 14.0 + sin(vWorld.x * 8.0) + uTime * 1.8) * .5 + .5;
+          float circuit = smoothstep(.86, .97, sin((vWorld.x + vWorld.z) * 12.0 + uTime * 2.2));
+          vec3 base = mix(vec3(.015, .08, .07), uColor, .48 + .28 * veins);
+          vec3 emission = uColor * (fresnel * 2.3 + circuit * .85 + uPulse * .3);
+          gl_FragColor = vec4(base + emission, .95);
+        }
+      `;
+
+      const glassFragment = `
+        precision highp float;
+
+        uniform float uTime;
+        uniform vec3 uTint;
+        varying vec3 vNormal;
+        varying vec3 vWorld;
+        varying vec2 vUv;
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - vWorld);
+          float rim = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 2.0);
+          float streak = sin((vUv.y + vUv.x * .35) * 35.0 + uTime * 1.5) * .5 + .5;
+          vec3 col = uTint * (.16 + rim * 1.25 + streak * .1);
+          gl_FragColor = vec4(col, .18 + rim * .55);
+        }
+      `;
+
+      const toonVertex = `
+        precision highp float;
+
+        varying vec3 vNormal;
+        varying vec3 vWorld;
+        varying vec2 vUv;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `;
+
+      const toonFragment = `
+        precision highp float;
+
+        uniform vec3 uBase;
+        uniform vec3 uGlow;
+        uniform float uTime;
+        varying vec3 vNormal;
+        varying vec3 vWorld;
+        varying vec2 vUv;
+        void main() {
+          vec3 lightDir = normalize(vec3(-.3, .8, .6));
+          float diffuse = dot(vNormal, lightDir) * .5 + .5;
+          diffuse = floor(diffuse * 4.0) / 4.0;
+          vec3 viewDir = normalize(cameraPosition - vWorld);
+          float rim = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 3.0);
+          float scan = smoothstep(.92, 1.0, sin(vWorld.y * 18.0 - uTime * 2.2)) * .12;
+          vec3 col = uBase * (.32 + diffuse * .78) + uGlow * (rim * 1.4 + scan);
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `;
+
+      const particleVertex = `
+        precision highp float;
+
+        uniform float uTime;
+        uniform float uSize;
+        attribute float aSeed;
+        varying float vAlpha;
+        void main() {
+          vec3 p = position;
+          p.x += sin(uTime * .22 + aSeed * 9.0 + position.y * .15) * .55;
+          p.y += sin(uTime * .35 + aSeed * 4.0) * .35;
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_PointSize = uSize * (150.0 / -mv.z) * (0.65 + fract(aSeed * 13.7));
+          gl_Position = projectionMatrix * mv;
+          vAlpha = .25 + .75 * fract(aSeed * 11.3);
+        }
+      `;
+
+      const particleFragment = `
+        precision highp float;
+
+        uniform vec3 uColor;
+        varying float vAlpha;
+        void main() {
+          vec2 p = gl_PointCoord - .5;
+          float d = length(p);
+          float a = smoothstep(.5, .0, d);
+          gl_FragColor = vec4(uColor, a * vAlpha * .48);
+        }
+      `;
+
+      const handMat = (color) => new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uColor: { value: new THREE.Color(color) },
+          uPulse: { value: 0 }
+        },
+        vertexShader: vertexGlow,
+        fragmentShader: handFragment,
+        transparent: true
+      });
+
+      const glassMat = (color) => new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uTint: { value: new THREE.Color(color) }
+        },
+        vertexShader: vertexGlow,
+        fragmentShader: glassFragment,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+
+      function makeParticles(count, color, size, bounds, zCenter) {
+        const geometry = new THREE.BufferGeometry();
+        const pos = new Float32Array(count * 3);
+        const seeds = new Float32Array(count);
+        for (let i = 0; i < count; i++) {
+          pos[i * 3] = (Math.random() - .5) * bounds.x;
+          pos[i * 3 + 1] = (Math.random() - .5) * bounds.y + 5;
+          pos[i * 3 + 2] = zCenter + (Math.random() - .5) * bounds.z;
+          seeds[i] = Math.random();
+        }
+        geometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+        geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+        const material = new THREE.ShaderMaterial({
+          uniforms: {
+            uTime: { value: 0 },
+            uSize: { value: size },
+            uColor: { value: new THREE.Color(color) }
+          },
+          vertexShader: particleVertex,
+          fragmentShader: particleFragment,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+        return new THREE.Points(geometry, material);
+      }
+
+      const mist = makeParticles(1450, 0x58ffd2, 15, { x: 100, y: 36, z: 90 }, 0);
+      const redDust = makeParticles(850, 0xff1239, 13, { x: 68, y: 38, z: 70 }, -120);
+      const quantDust = makeParticles(850, 0x00f59c, 10, { x: 74, y: 34, z: 72 }, -240);
+      scene.add(mist, redDust, quantDust);
+
+      function createPillar(x, y, z, s, tilt) {
+        const g = new THREE.Group();
+        const stone = new THREE.MeshStandardMaterial({
+          color: 0xa8d5ca,
+          roughness: .45,
+          metalness: .25,
+          emissive: 0x0a2922,
+          emissiveIntensity: .65
+        });
+
+        const shaft = new THREE.Mesh(new THREE.CylinderGeometry(.58 * s, .72 * s, 8 * s, 18), stone);
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(.98 * s, .98 * s, .42 * s, 4), stone);
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(1.05 * s, .92 * s, .52 * s, 4), stone);
+        const ring1 = new THREE.Mesh(new THREE.TorusGeometry(.73 * s, .07 * s, 7, 18), stone);
+        const ring2 = ring1.clone();
+
+        base.position.y = -4.15 * s;
+        cap.position.y = 4.15 * s;
+        ring1.position.y = 3.52 * s;
+        ring2.position.y = -3.52 * s;
+        ring1.rotation.x = ring2.rotation.x = Math.PI / 2;
+
+        g.add(shaft, base, cap, ring1, ring2);
+        g.position.set(x, y, z);
+        g.rotation.set(tilt.x, tilt.y, tilt.z);
+        g.userData.floatOffset = Math.random() * Math.PI * 2;
+        world.add(g);
+        return g;
+      }
+
+      const pillars = [
+        createPillar(-14, 5, -4, 1.25, { x: .16, y: .3, z: -.25 }),
+        createPillar(14, 10, -12, .93, { x: -.12, y: -.15, z: .28 }),
+        createPillar(-22, -1, -20, .72, { x: .8, y: .4, z: -.1 }),
+        createPillar(18, -3, 12, .58, { x: .3, y: -.65, z: .55 })
+      ];
+
+      function createHand(side) {
+        const hand = new THREE.Group();
+        const material = handMat(side > 0 ? 0x64ffd5 : 0x42d7ff);
+        const palm = new THREE.Mesh(new THREE.SphereGeometry(1.75, 28, 22), material);
+        palm.scale.set(.72, 1.15, .34);
+        hand.add(palm);
+
+        const wrist = new THREE.Mesh(new THREE.CylinderGeometry(.72, 1.08, 3.2, 18), material);
+        wrist.position.y = -2.15;
+        wrist.rotation.z = side * .12;
+        hand.add(wrist);
+
+        const knuckleY = [.9, .52, .05, -.45, -.88];
+        const lengths = [2.65, 3.1, 2.85, 2.45, 1.9];
+
+        for (let i = 0; i < 5; i++) {
+          const finger = new THREE.Group();
+          const radius = i === 0 ? .29 : .26 - i * .012;
+          const digit = new THREE.Mesh(new THREE.CapsuleGeometry(radius, lengths[i], 8, 14), material);
+          digit.position.y = lengths[i] * .42;
+          finger.add(digit);
+          finger.position.set(side * (i === 0 ? -1.12 : (-.88 + i * .48)), knuckleY[i], .02);
+          finger.rotation.z = side * ([.82, .09, .02, -.08, -.2][i]);
+          finger.rotation.x = (i === 0 ? -.65 : -.12 + i * .05);
+          hand.add(finger);
+        }
+
+        const halo = new THREE.Mesh(
+          new THREE.TorusGeometry(3.9, .014, 4, 80),
+          new THREE.MeshBasicMaterial({ color: side > 0 ? 0x7dffe0 : 0x48e9ff, transparent: true, opacity: .34 })
+        );
+        halo.rotation.x = Math.PI / 2;
+        halo.position.y = .3;
+        hand.add(halo);
+        hand.userData.material = material;
+        hand.userData.halo = halo;
+        return hand;
+      }
+
+      const handLeft = createHand(1);
+      handLeft.position.set(-7.1, 1.7, -4);
+      handLeft.rotation.set(.05, -.35, -.72);
+      handLeft.scale.setScalar(1.18);
+      world.add(handLeft);
+
+      const handRight = createHand(-1);
+      handRight.position.set(7.3, 2.3, -4);
+      handRight.rotation.set(-.1, .35, .67);
+      handRight.scale.setScalar(1.18);
+      world.add(handRight);
+
+      const genesisOrb = new THREE.Mesh(
+        new THREE.SphereGeometry(.33, 24, 24),
+        new THREE.MeshBasicMaterial({ color: 0xc8fff0 })
+      );
+      genesisOrb.position.set(.1, 2.2, -3.45);
+      const orbLight = new THREE.PointLight(0x98ffe1, 2.5, 25, 2);
+      orbLight.position.copy(genesisOrb.position);
+      world.add(genesisOrb, orbLight);
+
+      const genesisRing = new THREE.Mesh(
+        new THREE.TorusGeometry(2.2, .017, 6, 80),
+        new THREE.MeshBasicMaterial({ color: 0x96ffe1, transparent: true, opacity: .55 })
+      );
+      genesisRing.position.copy(genesisOrb.position);
+      genesisRing.rotation.x = Math.PI * .5;
+      world.add(genesisRing);
+
+      const redWorld = new THREE.Group();
+      redWorld.position.z = -120;
+      world.add(redWorld);
+
+      const redCore = new THREE.Mesh(
+        new THREE.SphereGeometry(2.1, 32, 32),
+        new THREE.MeshBasicMaterial({ color: 0xff1638, transparent: true, opacity: .72 })
+      );
+      redCore.position.y = 3;
+      redWorld.add(redCore);
+
+      const redRing = new THREE.Mesh(
+        new THREE.TorusGeometry(5.7, .075, 8, 100),
+        new THREE.MeshBasicMaterial({ color: 0xff2147, transparent: true, opacity: .7 })
+      );
+      redRing.position.y = 3;
+      redRing.rotation.x = Math.PI / 2.3;
+      redWorld.add(redRing);
+
+      const shards = [];
+      for (let i = 0; i < 42; i++) {
+        const shard = new THREE.Mesh(
+          new THREE.PlaneGeometry(.8 + Math.random() * 2.8, .9 + Math.random() * 4.2),
+          glassMat(i % 3 === 0 ? 0xff4060 : 0xffb3bd)
+        );
+        shard.position.set((Math.random() - .5) * 30, (Math.random() - .5) * 20 + 3, (Math.random() - .5) * 30);
+        shard.rotation.set(Math.random() * 5, Math.random() * 5, Math.random() * 5);
+        shard.userData.spin = new THREE.Vector3((Math.random()-.5)*.5, (Math.random()-.5)*.5, (Math.random()-.5)*.5);
+        shard.userData.floatOffset = Math.random() * 6.28;
+        redWorld.add(shard);
+        shards.push(shard);
+      }
+
+      function banknoteTexture() {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 250;
+        const ctx = c.getContext("2d");
+        const grad = ctx.createLinearGradient(0, 0, 512, 250);
+        grad.addColorStop(0, "#14362a");
+        grad.addColorStop(.5, "#78e3a4");
+        grad.addColorStop(1, "#0a221b");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 250);
+        ctx.strokeStyle = "rgba(236,255,230,.82)";
+        ctx.lineWidth = 7;
+        ctx.strokeRect(12, 12, 488, 226);
+        ctx.strokeStyle = "rgba(5,35,23,.72)";
+        ctx.lineWidth = 2;
+        for (let x = 25; x < 500; x += 19) {
+          ctx.beginPath();
+          ctx.moveTo(x, 17);
+          ctx.lineTo(x - 38, 231);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#eaffdb";
+        ctx.font = "bold 46px serif";
+        ctx.fillText("MABUY", 40, 78);
+        ctx.font = "bold 95px serif";
+        ctx.fillText("∞", 218, 160);
+        ctx.font = "bold 24px monospace";
+        ctx.fillText("NON-RUIN NOTE // 432", 39, 215);
+        ctx.beginPath();
+        ctx.arc(257, 126, 65, 0, Math.PI * 2);
+        ctx.strokeStyle = "#eaffdb";
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        return new THREE.CanvasTexture(c);
+      }
+
+      const noteTexture = banknoteTexture();
+      const notes = [];
+      for (let i = 0; i < 15; i++) {
+        const note = new THREE.Mesh(
+          new THREE.PlaneGeometry(4.2, 2.05),
+          new THREE.MeshBasicMaterial({ map: noteTexture, transparent: true, side: THREE.DoubleSide, opacity: .9 })
+        );
+        note.position.set((Math.random() - .5) * 27, (Math.random() - .5) * 16 + 3, (Math.random() - .5) * 22);
+        note.rotation.set(Math.random() * 5, Math.random() * 5, Math.random() * 5);
+        note.userData.spin = new THREE.Vector3((Math.random()-.5)*.7, (Math.random()-.5)*.7, (Math.random()-.5)*.7);
+        note.userData.floatOffset = Math.random() * 6.28;
+        redWorld.add(note);
+        notes.push(note);
+      }
+
+      const quantWorld = new THREE.Group();
+      quantWorld.position.z = -240;
+      world.add(quantWorld);
+
+      const citadelFloor = new THREE.GridHelper(86, 40, 0x16d889, 0x0c6746);
+      citadelFloor.position.y = -7;
+      citadelFloor.material.transparent = true;
+      citadelFloor.material.opacity = .31;
+      quantWorld.add(citadelFloor);
+
+      const depthCubes = [];
+      const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+      for (let x = -10; x <= 10; x++) {
+        for (let z = -7; z <= 7; z++) {
+          if (Math.random() < .17) continue;
+          const h = .3 + Math.pow(Math.random(), 1.7) * 8.2;
+          const isBid = x < 0;
+          const material = new THREE.MeshStandardMaterial({
+            color: isBid ? 0x00e28a : 0x055947,
+            emissive: isBid ? 0x009d61 : 0x003d30,
+            emissiveIntensity: 1.2,
+            roughness: .34,
+            metalness: .52,
+            transparent: true,
+            opacity: .68
+          });
+          const cube = new THREE.Mesh(cubeGeo, material);
+          cube.position.set(x * 1.52, -6.5 + h * .5, z * 1.85);
+          cube.scale.set(1.04, h, 1.24);
+          cube.userData.baseH = h;
+          cube.userData.phase = Math.random() * 6.28;
+          quantWorld.add(cube);
+          depthCubes.push(cube);
+        }
+      }
+
+      const orderLines = new THREE.Group();
+      for (let i = 0; i < 16; i++) {
+        const pts = [];
+        for (let j = 0; j < 9; j++) {
+          pts.push(new THREE.Vector3(-16 + j * 4, -5 + Math.random() * 8, -13 + i * 1.7));
+        }
+        const line = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(pts),
+          new THREE.LineBasicMaterial({ color: i % 2 ? 0x00ff99 : 0x4effcc, transparent: true, opacity: .17 })
+        );
+        orderLines.add(line);
+      }
+      quantWorld.add(orderLines);
+
+      const quantMonolith = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 10, .45),
+        new THREE.MeshStandardMaterial({
+          color: 0x062e25,
+          emissive: 0x00d883,
+          emissiveIntensity: .9,
+          metalness: .7,
+          roughness: .25,
+          transparent: true,
+          opacity: .72
+        })
+      );
+      quantMonolith.position.set(0, 2, -13);
+      quantWorld.add(quantMonolith);
+
+      function labelSprite(text, color = "#a7ffe1") {
+        const c = document.createElement("canvas");
+        c.width = 760;
+        c.height = 150;
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "rgba(0,0,0,.0)";
+        ctx.fillRect(0,0,c.width,c.height);
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 18;
+        ctx.font = "bold 45px monospace";
+        ctx.fillText(text, 18, 88);
+        const tex = new THREE.CanvasTexture(c);
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+        sprite.scale.set(8, 1.57, 1);
+        return sprite;
+      }
+
+      const quantLabels = [
+        labelSprite("MABUY / LIVE DEPTH", "#82ffcb"),
+        labelSprite("NON-RUIN PROBABILITY  99.982%", "#8dffd4"),
+        labelSprite("VOLATILITY ABSORBED  0.0031", "#73f5be")
+      ];
+      quantLabels[0].position.set(0, 7.8, -11.8);
+      quantLabels[1].position.set(-7, 4.5, 7);
+      quantLabels[2].position.set(8, 1.8, 10);
+      quantLabels.forEach(s => quantWorld.add(s));
+
+      const mayaWorld = new THREE.Group();
+      mayaWorld.position.set(0, -1.1, -360);
+      world.add(mayaWorld);
+
+      const mayaToon = (base, glow) => new THREE.ShaderMaterial({
+        uniforms: {
+          uBase: { value: new THREE.Color(base) },
+          uGlow: { value: new THREE.Color(glow) },
+          uTime: { value: 0 }
+        },
+        vertexShader: toonVertex,
+        fragmentShader: toonFragment
+      });
+
+      const skinMat = mayaToon(0xd8b7b8, 0xff9ebd);
+      const hairMat = mayaToon(0x071f31, 0x35e6ff);
+      const suitMat = mayaToon(0x06161e, 0x48ffba);
+      const neonMat = new THREE.MeshBasicMaterial({ color: 0x72ffd5 });
+
+      const maya = new THREE.Group();
+      maya.scale.setScalar(1.48);
+      mayaWorld.add(maya);
+
+      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(1.38, 2.7, 10, 20), suitMat);
+      torso.position.y = -1.25;
+      torso.scale.set(.92, 1.08, .62);
+      maya.add(torso);
+
+      const collar = new THREE.Mesh(new THREE.TorusGeometry(1.14, .095, 10, 28), neonMat);
+      collar.position.y = .35;
+      collar.rotation.x = Math.PI / 2;
+      maya.add(collar);
+
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(.46, .54, .9, 18), skinMat);
+      neck.position.y = 1.05;
+      maya.add(neck);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(1.72, 32, 28), skinMat);
+      head.position.y = 2.72;
+      head.scale.set(.9, 1.07, .84);
+      maya.add(head);
+
+      const jaw = new THREE.Mesh(new THREE.SphereGeometry(1.35, 28, 20), skinMat);
+      jaw.position.set(0, 2.28, .04);
+      jaw.scale.set(.92, .62, .76);
+      maya.add(jaw);
+
+      const eyeGroup = new THREE.Group();
+      eyeGroup.position.y = 2.86;
+      maya.add(eyeGroup);
+
+      const eyes = [];
+      [-.61, .61].forEach(x => {
+        const eyeSocket = new THREE.Mesh(new THREE.SphereGeometry(.49, 20, 16), new THREE.MeshBasicMaterial({ color: 0xeaffff }));
+        eyeSocket.position.set(x, 0, 1.32);
+        eyeSocket.scale.set(1.18, .72, .35);
+        eyeGroup.add(eyeSocket);
+
+        const iris = new THREE.Mesh(new THREE.SphereGeometry(.23, 20, 16), new THREE.MeshBasicMaterial({ color: 0x2fffd1 }));
+        iris.position.set(x, -.015, 1.62);
+        iris.scale.set(1, 1.12, .35);
+        eyeGroup.add(iris);
+
+        const pupil = new THREE.Mesh(new THREE.SphereGeometry(.09, 16, 12), new THREE.MeshBasicMaterial({ color: 0x001314 }));
+        pupil.position.set(x, -.015, 1.705);
+        pupil.scale.set(.9, 1.45, .25);
+        eyeGroup.add(pupil);
+
+        eyes.push({ iris, pupil, x });
+      });
+
+      const mouth = new THREE.Mesh(
+        new THREE.TorusGeometry(.31, .035, 8, 20, Math.PI),
+        new THREE.MeshBasicMaterial({ color: 0x731a34 })
+      );
+      mouth.position.set(0, 1.99, 1.42);
+      mouth.rotation.z = Math.PI;
+      maya.add(mouth);
+
+      const hairCap = new THREE.Mesh(new THREE.SphereGeometry(1.78, 30, 22, 0, Math.PI * 2, 0, 1.55), hairMat);
+      hairCap.position.y = 3.08;
+      hairCap.scale.set(.96, 1.04, .89);
+      maya.add(hairCap);
+
+      const hairStrands = [];
+      for (let i = 0; i < 17; i++) {
+        const angle = (i / 16) * Math.PI * 1.25 + Math.PI * .88;
+        const strand = new THREE.Group();
+        const length = 1.5 + Math.random() * 1.8;
+        const piece = new THREE.Mesh(new THREE.CapsuleGeometry(.16 + Math.random() * .09, length, 5, 10), hairMat);
+        piece.position.y = -length * .37;
+        strand.add(piece);
+        strand.position.set(Math.cos(angle) * 1.33, 3.58 + Math.sin(angle) * .25, Math.sin(angle) * .55);
+        strand.rotation.z = Math.cos(angle) * .6;
+        strand.rotation.x = -.2 + Math.random() * .4;
+        strand.userData.baseRot = strand.rotation.clone();
+        strand.userData.phase = Math.random() * 6.28;
+        maya.add(strand);
+        hairStrands.push(strand);
+      }
+
+      const earL = new THREE.Mesh(new THREE.ConeGeometry(.32, .85, 4), hairMat);
+      earL.position.set(-1.25, 4.31, 0);
+      earL.rotation.z = -.35;
+      const earR = earL.clone();
+      earR.position.x = 1.25;
+      earR.rotation.z = .35;
+      maya.add(earL, earR);
+
+      const armMat = suitMat;
+      [-1, 1].forEach(side => {
+        const arm = new THREE.Mesh(new THREE.CapsuleGeometry(.42, 2.8, 8, 16), armMat);
+        arm.position.set(side * 1.6, -1.1, .05);
+        arm.rotation.z = side * -.12;
+        maya.add(arm);
+
+        const glove = new THREE.Mesh(new THREE.SphereGeometry(.48, 18, 16), hairMat);
+        glove.position.set(side * 1.87, -2.6, .06);
+        maya.add(glove);
+      });
+
+      const mayaHalo = new THREE.Mesh(
+        new THREE.TorusGeometry(3.45, .025, 6, 80),
+        new THREE.MeshBasicMaterial({ color: 0x66ffd9, transparent: true, opacity: .45 })
+      );
+      mayaHalo.position.y = 2.75;
+      mayaHalo.rotation.x = Math.PI / 2;
+      mayaWorld.add(mayaHalo);
+
+      const mayaGlyphs = new THREE.Group();
+      for (let i = 0; i < 24; i++) {
+        const glyph = new THREE.Mesh(
+          new THREE.PlaneGeometry(.12 + Math.random() * .25, .6 + Math.random() * 1.2),
+          new THREE.MeshBasicMaterial({ color: i % 2 ? 0x48ffbe : 0x49b8ff, transparent: true, opacity: .5, side: THREE.DoubleSide })
+        );
+        glyph.position.set((Math.random()-.5)*17, Math.random()*13 - 4, (Math.random()-.5)*5);
+        glyph.userData.phase = Math.random()*6.28;
+        mayaGlyphs.add(glyph);
+      }
+      mayaWorld.add(mayaGlyphs);
+
+      const terminalWorld = new THREE.Group();
+      terminalWorld.position.z = -480;
+      world.add(terminalWorld);
+
+      const terminalGrid = new THREE.GridHelper(90, 48, 0x0eff94, 0x073c2b);
+      terminalGrid.position.y = -9;
+      terminalGrid.material.transparent = true;
+      terminalGrid.material.opacity = .32;
+      terminalWorld.add(terminalGrid);
+
+      for (let i = 0; i < 60; i++) {
+        const node = new THREE.Mesh(
+          new THREE.OctahedronGeometry(.11 + Math.random()*.22, 0),
+          new THREE.MeshBasicMaterial({ color: i % 4 === 0 ? 0xff4261 : 0x48ffc5 })
+        );
+        node.position.set((Math.random()-.5)*48, (Math.random()-.5)*24 + 3, (Math.random()-.5)*30);
+        node.userData.phase = Math.random()*6.28;
+        terminalWorld.add(node);
+      }
+
+      const routeLinePoints = [];
+      for (let i = 0; i < 120; i++) {
+        const z = -i * 4.05;
+        routeLinePoints.push(new THREE.Vector3(Math.sin(i * .22) * 1.8, 1.2 + Math.cos(i * .17) * .6, z));
+      }
+
+      const route = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(routeLinePoints),
+        new THREE.LineBasicMaterial({ color: 0x2dffb7, transparent: true, opacity: .21 })
+      );
+      world.add(route);
+
+      const sceneData = [
+        {
+          index: "01 / 05 — GENESIS PROTOCOL",
+          title: "THE <em>AWAKENING</em>",
+          text: "Between ancient form and synthetic consciousness, a new signal reaches across the luminous void.",
+          camera: { x: 0, y: 4.8, z: 19.5 },
+          target: { x: 0, y: 2.3, z: -3.2 },
+          color: 0x68ffe0,
+          fog: 0x06120f
+        },
+        {
+          index: "02 / 05 — VOLATILITY CHAMBER",
+          title: "THE <em>RED VOID</em>",
+          text: "Ruin has no jurisdiction here. Fractured value suspends in zero-G while the protocol measures every impossible outcome.",
+          camera: { x: 0, y: 4.2, z: -100.5 },
+          target: { x: 0, y: 2.6, z: -120 },
+          color: 0xff183c,
+          fog: 0x190207
+        },
+        {
+          index: "03 / 05 — MABUY DEPTH ENGINE",
+          title: "QUANT <em>CITADEL</em>",
+          text: "A living orderbook rises into architecture. Every cube is a decision, every pulse an executed probability.",
+          camera: { x: 0, y: 5.7, z: -219.5 },
+          target: { x: 0, y: -1.5, z: -240 },
+          color: 0x00f19a,
+          fog: 0x03130e
+        },
+        {
+          index: "04 / 05 — ORACLE INSTANCE",
+          title: "MEET <em>MAYA</em>",
+          text: "An adaptive cybernetic oracle. Move your cursor: Maya is already watching the future you are choosing.",
+          camera: { x: 0, y: 3.2, z: -344.5 },
+          target: { x: 0, y: 2.1, z: -360 },
+          color: 0x74ffe0,
+          fog: 0x06131b
+        },
+        {
+          index: "05 / 05 — SECURE SHELL",
+          title: "THE <em>TERMINAL</em>",
+          text: "Direct access to the non-ruin operating layer. Ask carefully. The system answers in consequences.",
+          camera: { x: 0, y: 3.4, z: -459.5 },
+          target: { x: 0, y: 1.3, z: -480 },
+          color: 0x28ff9d,
+          fog: 0x02110b
+        }
+      ];
+
+      let activeScene = 0;
+      let transitioning = false;
+
+      function sceneFly(index) {
+        if (index === activeScene || transitioning) return;
+        transitioning = true;
+        activeScene = index;
+        const data = sceneData[index];
+
+        document.querySelectorAll(".nav-item").forEach((button, i) => button.classList.toggle("active", i === index));
+        const sceneCopy = document.getElementById("sceneCopy");
+        sceneCopy.classList.add("out");
+
+        document.getElementById("mayaPanel").classList.toggle("visible", index === 3);
+        document.getElementById("terminal").classList.toggle("visible", index === 4);
+
+        triggerWhoosh();
+        if (index === 1) triggerBassDrop();
+        if (index === 0) triggerChime();
+
+        gsap.to(document.getElementById("flash"), {
+          opacity: .22,
+          duration: .18,
+          yoyo: true,
+          repeat: 1,
+          ease: "power2.out"
+        });
+
+        gsap.to(camera.position, {
+          x: data.camera.x,
+          y: data.camera.y,
+          z: data.camera.z,
+          duration: 2.45,
+          ease: "power3.inOut"
+        });
+
+        gsap.to(lookProxy, {
+          x: data.target.x,
+          y: data.target.y,
+          z: data.target.z,
+          duration: 2.45,
+          ease: "power3.inOut"
+        });
+
+        gsap.to(scene.fog.color, {
+          r: new THREE.Color(data.fog).r,
+          g: new THREE.Color(data.fog).g,
+          b: new THREE.Color(data.fog).b,
+          duration: 1.5
+        });
+
+        gsap.to(redLight, { intensity: index === 1 ? 5.4 : .08, duration: 1.1 });
+        gsap.to(emeraldLight, { intensity: index === 2 || index === 4 ? 4.1 : .12, duration: 1.1 });
+        gsap.to(mayaLight, { intensity: index === 3 ? 4.3 : .15, duration: 1.1 });
+        gsap.to(keyLight, { color: data.color, duration: 1.1 });
+
+        setTimeout(() => {
+          document.getElementById("sceneIndex").textContent = data.index;
+          document.getElementById("sceneTitle").innerHTML = data.title;
+          document.getElementById("sceneText").textContent = data.text;
+          sceneCopy.classList.remove("out");
+          transitioning = false;
+          if (index === 4) document.getElementById("commandInput").focus();
+        }, 540);
+      }
+
+      document.querySelectorAll(".nav-item").forEach(button => {
+        button.addEventListener("click", () => sceneFly(Number(button.dataset.scene)));
+      });
+
+      window.addEventListener("keydown", event => {
+        if (event.key === "ArrowRight") sceneFly(Math.min(4, activeScene + 1));
+        if (event.key === "ArrowLeft") sceneFly(Math.max(0, activeScene - 1));
+        if (event.key >= "1" && event.key <= "5") sceneFly(Number(event.key) - 1);
+      });
+
+      let touchStartX = null;
+      window.addEventListener("touchstart", e => touchStartX = e.touches[0].clientX, { passive: true });
+      window.addEventListener("touchend", e => {
+        if (touchStartX === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 55) sceneFly(Math.max(0, Math.min(4, activeScene + (dx < 0 ? 1 : -1))));
+        touchStartX = null;
+      }, { passive: true });
+
+      function updatePointerCoords(cx, cy) {
+        pointer.x = cx;
+        pointer.y = cy;
+        pointer.nx = cx / window.innerWidth * 2 - 1;
+        pointer.ny = -(cy / window.innerHeight) * 2 + 1;
+        pointer.worldX = pointer.nx * 4;
+        pointer.worldY = pointer.ny * 3;
+      }
+
+      window.addEventListener("pointermove", e => {
+        updatePointerCoords(e.clientX, e.clientY);
+      });
+
+      window.addEventListener("touchmove", e => {
+        if (e.touches && e.touches[0]) {
+          updatePointerCoords(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      window.addEventListener("touchstart", e => {
+        if (e.touches && e.touches[0]) {
+          updatePointerCoords(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      const cursorCanvas = document.getElementById("cursorCanvas");
+      const cctx = cursorCanvas.getContext("2d");
+      let dpr = Math.min(window.devicePixelRatio, 2);
+      const worm = Array.from({ length: 38 }, () => ({ x: window.innerWidth / 2, y: window.innerHeight / 2 }));
+
+      function resizeCursor() {
+        dpr = Math.min(window.devicePixelRatio, 2);
+        cursorCanvas.width = window.innerWidth * dpr;
+        cursorCanvas.height = window.innerHeight * dpr;
+        cursorCanvas.style.width = window.innerWidth + "px";
+        cursorCanvas.style.height = window.innerHeight + "px";
+      }
+
+      function drawCursor() {
+        cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        worm[0].x = pointer.x;
+        worm[0].y = pointer.y;
+
+        for (let i = 1; i < worm.length; i++) {
+          const prev = worm[i - 1];
+          const node = worm[i];
+          const dx = prev.x - node.x;
+          const dy = prev.y - node.y;
+          node.x += dx * (.36 - i * .0035);
+          node.y += dy * (.36 - i * .0035);
+        }
+
+        for (let i = worm.length - 1; i > 0; i--) {
+          const p = worm[i];
+          const n = worm[i - 1];
+          const alpha = 1 - i / worm.length;
+          cctx.beginPath();
+          cctx.moveTo(p.x, p.y);
+          cctx.lineTo(n.x, n.y);
+          cctx.strokeStyle = `rgba(${Math.floor(85 + alpha * 100)}, 255, ${Math.floor(185 + alpha * 60)}, ${alpha * .65})`;
+          cctx.lineWidth = Math.max(1, alpha * 4.2);
+          cctx.shadowColor = "#4affc1";
+          cctx.shadowBlur = 8;
+          cctx.stroke();
+        }
+
+        cctx.shadowBlur = 18;
+        cctx.fillStyle = "#e5fff6";
+        cctx.beginPath();
+        cctx.arc(worm[0].x, worm[0].y, 3.1, 0, Math.PI * 2);
+        cctx.fill();
+
+        cctx.strokeStyle = "rgba(111,255,207,.75)";
+        cctx.lineWidth = 1;
+        cctx.beginPath();
+        cctx.arc(worm[0].x, worm[0].y, 10 + Math.sin(performance.now() * .008) * 1.4, 0, Math.PI * 2);
+        cctx.stroke();
+      }
+
+      resizeCursor();
+
+      const audio = {
+        ctx: null,
+        master: null,
+        droneGain: null,
+        started: false,
+        muted: false
+      };
+
+      function createAudio() {
+        if (audio.started) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+
+        audio.ctx = new AudioContext();
+        audio.master = audio.ctx.createGain();
+        audio.master.gain.value = .22;
+        audio.master.connect(audio.ctx.destination);
+
+        const droneGain = audio.ctx.createGain();
+        droneGain.gain.value = .045;
+        droneGain.connect(audio.master);
+        audio.droneGain = droneGain;
+
+        [54, 81, 108, 162].forEach((freq, i) => {
+          const osc = audio.ctx.createOscillator();
+          const gain = audio.ctx.createGain();
+          osc.type = i % 2 ? "sine" : "triangle";
+          osc.frequency.value = freq;
+          gain.gain.value = i === 0 ? .72 : .25;
+          osc.connect(gain).connect(droneGain);
+          osc.start();
+        });
+
+        const lfo = audio.ctx.createOscillator();
+        const lfoGain = audio.ctx.createGain();
+        lfo.frequency.value = .085;
+        lfoGain.gain.value = .024;
+        lfo.connect(lfoGain).connect(droneGain.gain);
+        lfo.start();
+
+        audio.started = true;
+      }
+
+      function synthTone(freq, duration, type = "sine", gainValue = .16, slide = null) {
+        if (!audio.ctx || audio.muted) return;
+        const now = audio.ctx.currentTime;
+        const osc = audio.ctx.createOscillator();
+        const gain = audio.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slide) osc.frequency.exponentialRampToValueAtTime(Math.max(1, slide), now + duration);
+        gain.gain.setValueAtTime(.0001, now);
+        gain.gain.exponentialRampToValueAtTime(gainValue, now + .02);
+        gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+        osc.connect(gain).connect(audio.master);
+        osc.start(now);
+        osc.stop(now + duration + .03);
+      }
+
+      function triggerChime() {
+        if (!audio.started || audio.muted) return;
+        synthTone(432, 1.8, "sine", .13);
+        setTimeout(() => synthTone(648, 1.45, "sine", .09), 110);
+        setTimeout(() => synthTone(864, 1.1, "sine", .07), 230);
+      }
+
+      function triggerWhoosh() {
+        if (!audio.started || audio.muted) return;
+        synthTone(110, .62, "sawtooth", .055, 820);
+      }
+
+      function triggerBassDrop() {
+        if (!audio.started || audio.muted) return;
+        synthTone(115, 1.2, "sine", .24, 34);
+      }
+
+      function speakMaya(text) {
+        document.getElementById("mayaLine").textContent = text;
+        if (!audio.started || audio.muted) return;
+        const now = audio.ctx.currentTime;
+        [392, 450, 384, 528].forEach((f, i) => {
+          setTimeout(() => synthTone(f, .14 + i * .025, i % 2 ? "triangle" : "sine", .055), i * 145);
+        });
+
+        if ("speechSynthesis" in window) {
+          speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.08;
+          utterance.pitch = 1.42;
+          utterance.volume = .38;
+          const voices = speechSynthesis.getVoices();
+          const preferred = voices.find(v => /female|zira|samantha|google us english/i.test(v.name));
+          if (preferred) utterance.voice = preferred;
+          speechSynthesis.speak(utterance);
+        }
+      }
+
+      const mayaLines = [
+        "D-don't stare. I am monitoring your probability field, that's all.",
+        "Your cursor is noisy. Still... I can work with noisy signals.",
+        "I projected twelve futures. You made the most interesting mistake.",
+        "The non-ruin threshold is stable. Try not to ruin that.",
+        "You are late. I was not waiting. The system was."
+      ];
+
+      document.getElementById("mayaSpeak").addEventListener("click", () => {
+        speakMaya(mayaLines[Math.floor(Math.random() * mayaLines.length)]);
+      });
+
+      document.getElementById("mayaFocus").addEventListener("click", () => {
+        sceneFly(3);
+        gsap.to(mayaWorld.scale, { x: 1.12, y: 1.12, z: 1.12, duration: .35, yoyo: true, repeat: 1 });
+        speakMaya("Focus lock engaged. Please do not make this emotionally significant.");
+      });
+
+      document.getElementById("audioButton").addEventListener("click", () => {
+        createAudio();
+        if (!audio.ctx) return;
+        if (audio.ctx.state === "suspended") audio.ctx.resume();
+        audio.muted = !audio.muted;
+        audio.master.gain.setTargetAtTime(audio.muted ? 0 : .22, audio.ctx.currentTime, .08);
+        document.getElementById("audioButton").classList.toggle("muted", audio.muted);
+        if (!audio.muted) triggerChime();
+      });
+
+      function dismissIntro() {
+        const introEl = document.getElementById("intro");
+        if (!introEl || introEl.classList.contains("dismissed")) return;
+        createAudio();
+        if (audio.ctx && audio.ctx.state === "suspended") audio.ctx.resume();
+        introEl.classList.add("dismissed");
+        triggerChime();
+        speakMaya("Neural sanctum synchronized. Citadel online.");
+      }
+
+      const enterBtn = document.getElementById("enter");
+      if (enterBtn) {
+        enterBtn.addEventListener("click", dismissIntro);
+        enterBtn.addEventListener("touchstart", dismissIntro, { passive: true });
+      }
+      const introEl = document.getElementById("intro");
+      if (introEl) {
+        introEl.addEventListener("click", dismissIntro);
+        introEl.addEventListener("touchstart", dismissIntro, { passive: true });
+      }
+      // Safety auto-dismiss after 3.5 seconds so black screen is never permanent
+      setTimeout(dismissIntro, 3500);
+
+      const terminalLog = document.getElementById("terminalLog");
+      const commandInput = document.getElementById("commandInput");
+
+      function logTerminal(message, status = "") {
+        const time = new Date().toISOString().slice(11, 19);
+        const row = document.createElement("div");
+        row.className = "terminal-row";
+        row.innerHTML = `<span class="terminal-time">${time}</span><span class="${status}">${message}</span>`;
+        terminalLog.appendChild(row);
+        terminalLog.scrollTop = terminalLog.scrollHeight;
+      }
+
+      logTerminal("MAYA ROUTER INITIALIZED", "terminal-ok");
+      logTerminal("Linking MaBuy depth engine...");
+      logTerminal("Risk surface: NON-RUIN / CALIBRATED", "terminal-ok");
+      logTerminal("Type <span class='terminal-ok'>help</span> to query the citadel.");
+
+      commandInput.addEventListener("keydown", e => {
+        if (e.key !== "Enter") return;
+        const command = commandInput.value.trim().toLowerCase();
+        if (!command) return;
+        logTerminal(`maya@citadel:~$ ${command}`, "terminal-ok");
+
+        if (command === "help") {
+          logTerminal("commands: help, status, quote, depth, maya, clear");
+        } else if (command === "status") {
+          logTerminal("SYSTEM SYNCHRONIZED // latency 17ms // entropy 0.031 // non-ruin 99.982%", "terminal-ok");
+        } else if (command === "quote") {
+          logTerminal(`MABUY INDEX ${marketData.price} // Δ ${marketData.change} // confidence ${marketData.confidence}`, "terminal-ok");
+        } else if (command === "depth") {
+          logTerminal(`BIDS ${marketData.bids} | ASKS ${marketData.asks} | IMBALANCE ${marketData.imbalance}`, "terminal-ok");
+        } else if (command === "maya") {
+          const line = mayaLines[Math.floor(Math.random() * mayaLines.length)];
+          logTerminal(`MAYA: "${line}"`);
+          speakMaya(line);
+        } else if (command === "clear") {
+          terminalLog.innerHTML = "";
+        } else {
+          logTerminal(`Unknown vector "${command}". Try: help`, "terminal-warn");
+        }
+        commandInput.value = "";
+      });
+
+      const marketData = {
+        price: "4,320.88",
+        change: "+3.17%",
+        confidence: "99.982%",
+        bids: "12.4M",
+        asks: "11.9M",
+        imbalance: "+4.2%"
+      };
+
+      async function fetchMaBuyData() {
+        const status = document.getElementById("networkStatus");
+        const endpoint = "/api/v1/dashboard/state";
+        try {
+          const response = await fetch(endpoint, {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+          });
+          if (!response.ok) throw new Error("Gateway unavailable");
+          const data = await response.json();
+          if (data.signals && data.signals.length > 0) {
+            const s = data.signals[0];
+            marketData.price = s.entry || "Live";
+            marketData.change = (s.dir === 'BULLISH' ? '+' : '-') + (s.conf || '75%');
+            marketData.confidence = s.conf || "75.0%";
+          }
+          if (data.equity !== undefined) {
+            marketData.bids = "$" + data.equity.toFixed(2) + " USDT";
+          }
+          if (data.risk_gates && data.risk_gates.ofi) {
+            marketData.imbalance = (data.risk_gates.ofi.value >= 0 ? '+' : '') + data.risk_gates.ofi.value + " (" + data.risk_gates.ofi.bias + ")";
+          }
+          status.textContent = "MABUY API // LIVE TELEMETRY";
+          logTerminal(`MABUY LIVE SYNC: Equity $${(data.equity || 40.20).toFixed(2)} USDT | WR: ${data.win_rate_pct || 53.8}% | PF: ${data.profit_factor || 0.91}`, "terminal-ok");
+        } catch (error) {
+          status.textContent = "SYSTEM // AUTONOMOUS MESH";
+        }
+      }
+
+      fetchMaBuyData();
+      setInterval(fetchMaBuyData, 30000);
+
+      window.addEventListener("resize", () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        resizeCursor();
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+
+        document.getElementById("timeReadout").textContent = new Date().toISOString().slice(11, 19) + " UTC";
+        document.getElementById("coordReadout").textContent =
+          `${(34.0522 + Math.sin(t * .08) * .004).toFixed(4)}° N / ${(118.2437 + Math.cos(t * .08) * .004).toFixed(4)}° W`;
+
+        mist.material.uniforms.uTime.value = t;
+        redDust.material.uniforms.uTime.value = t;
+        quantDust.material.uniforms.uTime.value = t;
+
+        handLeft.userData.material.uniforms.uTime.value = t;
+        handRight.userData.material.uniforms.uTime.value = t;
+        handLeft.userData.material.uniforms.uPulse.value = .3 + Math.sin(t * 2.4) * .2;
+        handRight.userData.material.uniforms.uPulse.value = .3 + Math.sin(t * 2.4 + 1.5) * .2;
+
+        handLeft.position.y = 1.7 + Math.sin(t * .65) * .32;
+        handRight.position.y = 2.3 + Math.sin(t * .65 + 1.4) * .32;
+        handLeft.rotation.z = -.72 + Math.sin(t * .45) * .09;
+        handRight.rotation.z = .67 - Math.sin(t * .45) * .09;
+        handLeft.userData.halo.rotation.z = t * .25;
+        handRight.userData.halo.rotation.z = -t * .22;
+
+        genesisOrb.scale.setScalar(1 + Math.sin(t * 2.6) * .13);
+        genesisRing.rotation.z = t * .42;
+        orbLight.intensity = 2.3 + Math.sin(t * 2.2) * .8;
+
+        pillars.forEach(p => {
+          p.position.y += Math.sin(t * .38 + p.userData.floatOffset) * .005;
+          p.rotation.y += .0018;
+        });
+
+        shards.forEach((shard, i) => {
+          shard.rotation.x += shard.userData.spin.x * .012;
+          shard.rotation.y += shard.userData.spin.y * .012;
+          shard.rotation.z += shard.userData.spin.z * .012;
+          shard.position.y += Math.sin(t * .7 + shard.userData.floatOffset) * .008;
+          shard.material.uniforms.uTime.value = t;
+        });
+
+        notes.forEach(note => {
+          note.rotation.x += note.userData.spin.x * .01;
+          note.rotation.y += note.userData.spin.y * .01;
+          note.rotation.z += note.userData.spin.z * .01;
+          note.position.y += Math.sin(t * .72 + note.userData.floatOffset) * .01;
+        });
+
+        redCore.scale.setScalar(1 + Math.sin(t * 2.2) * .1);
+        redRing.rotation.z = t * .2;
+        redRing.rotation.y = t * .14;
+
+        depthCubes.forEach(cube => {
+          const target = cube.userData.baseH * (1 + Math.sin(t * 1.45 + cube.userData.phase) * .13);
+          cube.scale.y += (target - cube.scale.y) * .06;
+          cube.position.y = -6.5 + cube.scale.y * .5;
+        });
+
+        citadelFloor.position.z = (t * .38) % 1.85;
+        orderLines.rotation.y = Math.sin(t * .16) * .06;
+        quantMonolith.material.emissiveIntensity = 0.75 + Math.sin(t * 2.2) * .22;
+        quantLabels.forEach((label, i) => {
+          label.material.opacity = .66 + Math.sin(t * 1.1 + i) * .17;
+        });
+
+        maya.rotation.y += ((pointer.worldX * .07) - maya.rotation.y) * .035;
+        maya.rotation.x += ((-pointer.worldY * .025) - maya.rotation.x) * .03;
+        maya.position.y = Math.sin(t * 1.1) * .08;
+
+        eyeGroup.rotation.y += ((pointer.worldX * .085) - eyeGroup.rotation.y) * .11;
+        eyeGroup.rotation.x += ((pointer.worldY * .055) - eyeGroup.rotation.x) * .11;
+        eyes.forEach((eye, i) => {
+          eye.iris.position.x = eye.x + pointer.worldX * .018;
+          eye.pupil.position.x = eye.x + pointer.worldX * .025;
+          eye.iris.position.y = pointer.worldY * .012;
+          eye.pupil.position.y = pointer.worldY * .016;
+        });
+
+        hairStrands.forEach(strand => {
+          const base = strand.userData.baseRot;
+          const cursorInfluence = pointer.worldX * .018;
+          strand.rotation.z = base.z + Math.sin(t * 2.2 + strand.userData.phase) * .085 + cursorInfluence;
+          strand.rotation.x = base.x + Math.cos(t * 1.7 + strand.userData.phase) * .05;
+        });
+
+        mayaHalo.rotation.z = t * .25;
+        mayaGlyphs.children.forEach(glyph => {
+          glyph.position.y += Math.sin(t * 1.2 + glyph.userData.phase) * .006;
+          glyph.rotation.z = Math.sin(t + glyph.userData.phase) * .4;
+        });
+
+        terminalWorld.children.forEach(child => {
+          if (child.userData.phase !== undefined) {
+            child.position.y += Math.sin(t * 1.2 + child.userData.phase) * .008;
+          }
+        });
+
+        route.material.opacity = .13 + Math.sin(t * 1.4) * .08;
+        cameraTarget.set(lookProxy.x, lookProxy.y, lookProxy.z);
+        camera.lookAt(cameraTarget);
+        drawCursor();
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    })();
+  </script>
+</body>
+</html>

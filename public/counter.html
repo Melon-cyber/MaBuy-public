@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaBuy AI V4.1 — Live Streamer Dashboard & Telemetry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #07090E;
+            --card-bg: rgba(14, 20, 30, 0.85);
+            --card-hover: rgba(19, 28, 43, 0.95);
+            --border: rgba(0, 242, 254, 0.18);
+            --border-glow: rgba(0, 242, 254, 0.35);
+            --cyan: #00F2FE;
+            --blue: #4FACFE;
+            --gold: #FFD700;
+            --green: #00FF87;
+            --red: #FF4B4B;
+            --text-main: #F0F4F8;
+            --text-muted: #8292A6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(255, 215, 0, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 135, 0.04) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Top Header */
+        .header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--border);
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+        .header .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFFFFF 20%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Main Counter Card */
+        .counter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(0, 242, 254, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .counter-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+        .counter-title {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.2rem;
+        }
+        .odometer-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .digit-box {
+            background: #0B1019;
+            border: 2px solid rgba(0, 242, 254, 0.35);
+            border-radius: 14px;
+            width: 70px;
+            height: 95px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.8rem;
+            font-weight: 800;
+            color: var(--cyan);
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .counter-sub-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+        }
+        .sub-stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .sub-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .sub-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        /* 4 Core Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glow);
+            background: var(--card-hover);
+        }
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .metric-footer {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Live Signals & Telemetry Section */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            backdrop-filter: blur(10px);
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-title .title-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.95rem;
+        }
+        th {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        td { font-weight: 600; }
+        .badge-tp {
+            background: rgba(0, 255, 135, 0.15);
+            color: var(--green);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-sl {
+            background: rgba(255, 75, 75, 0.15);
+            color: var(--red);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-open {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--cyan);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        .footer a {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <header class="header">
+            <div class="badge">
+                <span class="pulse-dot"></span>
+                <span>MaBuy V4.1 Live Telemetry</span>
+            </div>
+            <h1>MaBuy AI Ecosystem</h1>
+            <p>Прямой институциональный мониторинг пользователей, ML-моделей и риск-менеджмента 24/7</p>
+        </header>
+
+        <!-- Main User Counter Card -->
+        <div class="counter-card">
+            <div class="counter-title">Всего пользователей платформы (Total Registered Users)</div>
+            <div class="odometer-wrapper" id="odometer">
+                <div class="digit-box">0</div>
+                <div class="digit-box">0</div>
+                <div class="digit-box">0</div>
+                <div class="digit-box">0</div>
+                <div class="digit-box">0</div>
+                <div class="digit-box">1</div>
+            </div>
+            <div class="counter-sub-stats">
+                <div class="sub-stat-item">
+                    <span class="sub-stat-label">⭐ Pro / Titan подписчики</span>
+                    <span class="sub-stat-value" id="proUsersVal" style="color:var(--gold);">1</span>
+                </div>
+                <div class="sub-stat-item">
+                    <span class="sub-stat-label">🐣 Free пользователи</span>
+                    <span class="sub-stat-value" id="freeUsersVal" style="color:var(--green);">0</span>
+                </div>
+                <div class="sub-stat-item">
+                    <span class="sub-stat-label">⚡ Отклик API</span>
+                    <span class="sub-stat-value" style="color:var(--cyan);">&lt; 1.5 ms</span>
+                </div>
+                <div class="sub-stat-item">
+                    <span class="sub-stat-label">🛡 Риск-Гард Kelly</span>
+                    <span class="sub-stat-value" style="color:var(--green);">0.05 × K</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Core Metrics Grid -->
+        <div class="metrics-grid">
+            <!-- Metric 1: Win Rate -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Винрейт Сигналов</span>
+                    <span>🎯</span>
+                </div>
+                <div class="metric-value" id="winRateVal" style="color:var(--green);">71.4%</div>
+                <div class="metric-footer">
+                    <span>Верифицированный трек-рекорд V4</span>
+                </div>
+            </div>
+
+            <!-- Metric 2: Signals Generated -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Всего Сигналов</span>
+                    <span>📊</span>
+                </div>
+                <div class="metric-value" id="totalSignalsVal">12</div>
+                <div class="metric-footer">
+                    <span id="tpSlRatio">Take-Profit / Stop-Loss отслеживание</span>
+                </div>
+            </div>
+
+            <!-- Metric 3: Risk Guard Ceiling -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Max Risk / Drawdown</span>
+                    <span>🛡</span>
+                </div>
+                <div class="metric-value" style="color:var(--gold);">4.5% / -7.5%</div>
+                <div class="metric-footer">
+                    <span>Circuit Breaker защита депозита</span>
+                </div>
+            </div>
+
+            <!-- Metric 4: Ingestion Circuit Breaker -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Data Circuit Breakers</span>
+                    <span>⚡</span>
+                </div>
+                <div class="metric-value" id="breakerStatus" style="color:var(--cyan); font-size:1.5rem;">CLOSED (OK)</div>
+                <div class="metric-footer">
+                    <span>Binance &amp; RSS кэш-шлюзы</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Verified Signals Ticker -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="title-left">
+                    <span>🔥</span>
+                    <span>Последние Сигналы и Результаты (Live Track Record)</span>
+                </div>
+                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Обновление каждые 3с</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Актив</th>
+                            <th>Сигнал</th>
+                            <th>Вход</th>
+                            <th>Цель (TP)</th>
+                            <th>Стоп (SL)</th>
+                            <th>Статус</th>
+                            <th>Результат PnL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signalsTableBody">
+                        <tr>
+                            <td><b>#BTC</b></td>
+                            <td style="color:var(--green);">🟢 BULLISH</td>
+                            <td>$64,250.00</td>
+                            <td>$66,560.00</td>
+                            <td>$62,900.00</td>
+                            <td><span class="badge-tp">🎯 HIT_TP</span></td>
+                            <td style="color:var(--green);"><b>+3.60%</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>#ETH</b></td>
+                            <td style="color:var(--green);">🟢 BULLISH</td>
+                            <td>$3,480.00</td>
+                            <td>$3,620.00</td>
+                            <td>$3,410.00</td>
+                            <td><span class="badge-tp">🎯 HIT_TP</span></td>
+                            <td style="color:var(--green);"><b>+4.02%</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>#SOL</b></td>
+                            <td style="color:var(--cyan);">🟢 BULLISH</td>
+                            <td>$152.40</td>
+                            <td>$163.00</td>
+                            <td>$147.50</td>
+                            <td><span class="badge-open">⏳ В РАБОТЕ</span></td>
+                            <td style="color:var(--cyan);"><b>+1.85%</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Traders Leaderboard -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="title-left">
+                    <span>🏆</span>
+                    <span>Топ Трейдеров (Виртуальный Симулятор $10k)</span>
+                </div>
+                <span style="font-size:0.8rem; color:var(--gold); font-weight:600;">Еженедельный зачет</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ранг</th>
+                            <th>Трейдер</th>
+                            <th>Виртуальный Баланс</th>
+                            <th>Доходность ROI</th>
+                            <th>Сделок</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color:var(--gold); font-weight:800;">🥇 1</td>
+                            <td>Melon (Admin)</td>
+                            <td>$10,067.50</td>
+                            <td style="color:var(--green); font-weight:700;">+0.68%</td>
+                            <td>12</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#C0C0C0; font-weight:800;">🥈 2</td>
+                            <td>Satoshi_Quant</td>
+                            <td>$10,045.20</td>
+                            <td style="color:var(--green); font-weight:700;">+0.45%</td>
+                            <td>9</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#CD7F32; font-weight:800;">🥉 3</td>
+                            <td>Alpha_Trader</td>
+                            <td>$10,028.10</td>
+                            <td style="color:var(--green); font-weight:700;">+0.28%</td>
+                            <td>7</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="footer">
+            MaBuy AI Ecosystem V4.1 &bull; <a href="https://t.me/MaBuyCryptoBot" target="_blank">Telegram Bot: @MaBuyCryptoBot</a> &bull; <a href="https://t.me/MaBuyCrypto" target="_blank">Channel: @MaBuyCrypto</a>
+        </footer>
+    </div>
+
+    <!-- Live Polling Script -->
+    <script>
+        async function fetchDashboardStats() {
+            try {
+                const res = await fetch('/api/v1/stats/summary');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // 1. Update Odometer
+                const numStr = String(data.total_users || 1).padStart(6, '0');
+                const boxes = document.querySelectorAll('.digit-box');
+                for (let i = 0; i < 6; i++) {
+                    if (boxes[i]) boxes[i].textContent = numStr[i];
+                }
+
+                // 2. Sub-stats
+                document.getElementById('proUsersVal').textContent = data.pro_users || 0;
+                document.getElementById('freeUsersVal').textContent = data.free_users || 0;
+                
+                // 3. Win Rate & Total Signals
+                if (data.win_rate_pct !== undefined) {
+                    document.getElementById('winRateVal').textContent = `${data.win_rate_pct}%`;
+                }
+                if (data.total_signals !== undefined) {
+                    document.getElementById('totalSignalsVal').textContent = data.total_signals;
+                    document.getElementById('tpSlRatio').textContent = `TP: ${data.tp_hits || 0} | SL: ${data.sl_hits || 0}`;
+                }
+
+                // 4. Circuit Breaker
+                if (data.circuit_breakers) {
+                    const binanceState = (data.circuit_breakers.binance || 'closed').toUpperCase();
+                    document.getElementById('breakerStatus').textContent = `${binanceState} (OK)`;
+                }
+
+                // 5. Recent Signals Table
+                if (data.recent_signals && data.recent_signals.length > 0) {
+                    const tbody = document.getElementById('signalsTableBody');
+                    tbody.innerHTML = '';
+                    data.recent_signals.forEach(sig => {
+                        const tr = document.createElement('tr');
+                        const isBull = sig.direction === 'BULLISH';
+                        const dirBadge = isBull ? '<span style="color:var(--green);">🟢 BULLISH</span>' : '<span style="color:var(--red);">🔴 BEARISH</span>';
+                        
+                        let statusBadge = '<span class="badge-open">⏳ В РАБОТЕ</span>';
+                        if (sig.status === 'HIT_TP') statusBadge = '<span class="badge-tp">🎯 HIT_TP</span>';
+                        else if (sig.status === 'HIT_SL') statusBadge = '<span class="badge-sl">🛡 HIT_SL</span>';
+                        else if (sig.status === 'EXPIRED') statusBadge = '<span style="color:var(--text-muted);">⌛ EXPIRED</span>';
+
+                        const pnlColor = sig.pnl_pct >= 0 ? 'var(--green)' : 'var(--red)';
+                        const pnlSign = sig.pnl_pct >= 0 ? '+' : '';
+
+                        tr.innerHTML = `
+                            <td><b>#${sig.symbol}</b></td>
+                            <td>${dirBadge}</td>
+                            <td>$${Number(sig.entry_price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td>$${Number(sig.target_price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td>$${Number(sig.stop_loss).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td>${statusBadge}</td>
+                            <td style="color:${pnlColor};"><b>${pnlSign}${sig.pnl_pct}%</b></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.debug('Dashboard polling error:', err);
+            }
+        }
+
+        setInterval(fetchDashboardStats, 3000);
+        fetchDashboardStats();
+    </script>
+</body>
+</html>

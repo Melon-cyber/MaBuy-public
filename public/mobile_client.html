@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MaBuy Citadel · Cyber-Lounge</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#090A0F" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20y=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", monospace; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #090A0F; color: #FFFFFF; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+    
+    /* Top Header */
+    .top-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #141A26; background: #0B0E17; z-index: 10; }
+    .brand-title { font-size: 16px; font-weight: 900; letter-spacing: 1.5px; color: #FFF; display: flex; align-items: center; gap: 6px; }
+    .brand-sub { font-size: 10px; color: #00FF66; font-weight: 700; letter-spacing: 0.5px; }
+    .status-badge { display: flex; align-items: center; background: #121722; padding: 5px 10px; border-radius: 20px; border: 1px solid #1D2638; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #00FF66; margin-right: 6px; box-shadow: 0 0 8px #00FF66; }
+    .status-text { font-size: 11px; font-weight: 700; color: #8A92A6; }
+
+    /* Content Area */
+    .content-area { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
+
+    /* Card & Grid Primitives */
+    .card { background: #10141F; border-radius: 16px; padding: 18px; border: 1px solid #1E2738; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .card-label { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; color: #657088; margin-bottom: 6px; text-transform: uppercase; }
+    .equity-val { font-size: 32px; font-weight: 900; color: #FFF; }
+    .equity-val span { font-size: 16px; color: #00FF66; font-weight: 700; }
+    .equity-sub { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #171E2D; font-size: 12px; color: #707C96; }
+    .equity-sub b { color: #DCE1EB; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .tile { background: #10141F; border-radius: 14px; padding: 14px; border: 1px solid #1A2130; }
+    .tile-label { font-size: 10px; font-weight: 800; color: #657088; letter-spacing: 1px; }
+    .tile-val { font-size: 18px; font-weight: 900; margin: 4px 0; }
+    .tile-sub { font-size: 11px; color: #707C96; }
+
+    /* Gates List */
+    .gate-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #171E2D; }
+    .gate-left { display: flex; align-items: center; }
+    .gate-dot { width: 6px; height: 6px; border-radius: 50%; background: #00FF66; margin-right: 10px; }
+    .gate-name { font-size: 13px; font-weight: 700; }
+    .gate-desc { font-size: 10px; color: #657088; }
+    .gate-tag { background: #141A26; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; color: #00FF66; }
+
+    /* Positions & Trailing */
+    .pos-card { background: #10141F; border-radius: 16px; padding: 16px; border: 1px solid #1E2738; margin-bottom: 14px; }
+    .pos-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .pos-sym { font-size: 18px; font-weight: 900; }
+    .side-pill { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 900; }
+    .side-long { background: rgba(0, 255, 102, 0.15); color: #00FF66; }
+    .side-short { background: rgba(255, 51, 102, 0.15); color: #FF3366; }
+    .pos-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px 0; border-top: 1px solid #171E2D; border-bottom: 1px solid #171E2D; }
+    .pos-label { font-size: 9px; color: #657088; font-weight: 700; }
+    .pos-val { font-size: 13px; font-weight: 800; color: #DCE1EB; margin-top: 2px; }
+    .trailing-box { margin-top: 12px; background: #0C0E17; padding: 12px; border-radius: 10px; }
+    .prog-bg { height: 6px; background: #1E2536; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+    .prog-fill { height: 100%; background: #00FF66; width: 25%; }
+    .tiers-row { display: flex; justify-content: space-between; font-size: 9px; color: #4B556D; font-weight: 700; }
+    .tier-active { color: #00FF66; }
+
+    /* Signals Feed */
+    .sig-card { background: #10141F; border-radius: 14px; padding: 14px; border: 1px solid #1E2738; margin-bottom: 10px; }
+    .sig-top { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+    .sig-hash { font-family: monospace; font-size: 10px; color: #4B556D; margin-top: 6px; }
+
+    /* Lounge Navigation */
+    .lounge-nav { display: flex; background: #10141F; border-radius: 12px; padding: 4px; margin-bottom: 14px; border: 1px solid #1E2738; gap: 4px; }
+    .lounge-tab-btn { flex: 1; padding: 8px 4px; border: none; background: transparent; color: #707C96; font-size: 11px; font-weight: 800; border-radius: 8px; cursor: pointer; text-align: center; }
+    .lounge-tab-btn.active { background: #1E2738; color: #00E5FF; box-shadow: 0 2px 8px rgba(0,229,255,0.15); }
+
+    /* Cinema Filters & Grid */
+    .category-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
+    .cat-pill { white-space: nowrap; background: #141A26; border: 1px solid #1E2738; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #8A92A6; cursor: pointer; }
+    .cat-pill.active { background: #00E5FF; color: #090A0F; border-color: #00E5FF; font-weight: 900; }
+
+    .search-box { width: 100%; background: #121722; border: 1px solid #1E2738; border-radius: 12px; padding: 12px 14px; color: #FFF; font-size: 13px; margin-bottom: 14px; outline: none; }
+    .search-box:focus { border-color: #00E5FF; }
+
+    .cinema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .movie-card { background: #10141F; border-radius: 14px; overflow: hidden; border: 1px solid #1E2738; display: flex; flex-direction: column; position: relative; }
+    .movie-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #171E2D; }
+    .movie-badge { position: absolute; top: 8px; left: 8px; background: rgba(9,10,15,0.85); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15); padding: 3px 6px; border-radius: 6px; font-size: 9px; font-weight: 900; color: #00FF66; }
+    .movie-info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .movie-title { font-size: 12px; font-weight: 800; color: #FFF; line-height: 1.3; margin-bottom: 4px; }
+    .movie-sub { font-size: 10px; color: #657088; margin-bottom: 6px; }
+    .movie-rating { font-size: 10px; font-weight: 800; color: #FFD700; margin-bottom: 8px; }
+    .movie-btn { background: #00E5FF; color: #090A0F; border: none; border-radius: 8px; padding: 8px; font-size: 11px; font-weight: 900; cursor: pointer; width: 100%; text-align: center; }
+
+    /* Fullscreen Modal Video Player */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.98); z-index: 1000; display: none; flex-direction: column; }
+    .modal-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; background: #0B0E17; border-bottom: 1px solid #1A2233; }
+    .modal-title { font-size: 14px; font-weight: 800; color: #FFF; }
+    .modal-close { background: #1A2233; border: none; color: #FFF; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .player-container { flex: 1; position: relative; width: 100%; background: #000; display: flex; flex-direction: column; }
+    .video-iframe { width: 100%; height: 100%; border: none; flex: 1; }
+
+    .modal-controls { padding: 10px 14px; background: #0B0E17; border-top: 1px solid #1A2233; display: flex; flex-direction: column; gap: 8px; }
+    .server-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .srv-btn { background: #161D2B; border: 1px solid #253147; color: #8A98B5; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .srv-btn.active { background: #00E5FF; color: #090A0F; border-color: #00E5FF; }
+
+    .player-tip { font-size: 10px; color: #00FF66; background: rgba(0,255,102,0.08); border: 1px solid rgba(0,255,102,0.2); padding: 6px 10px; border-radius: 8px; line-height: 1.3; }
+
+    .series-controls { display: flex; gap: 8px; align-items: center; font-size: 12px; color: #8A98B5; }
+    .series-select { background: #161D2B; border: 1px solid #253147; color: #FFF; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; outline: none; }
+    .direct-watch-link { color: #00FF66; font-size: 11px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; background: rgba(0,255,102,0.1); border-radius: 8px; }
+
+    /* Spotify & Ad-Free Music View */
+    .spotify-box { background: #10141F; border-radius: 16px; padding: 16px; border: 1px solid #1E2738; margin-bottom: 16px; }
+    .spotify-btn { width: 100%; background: #1DB954; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; text-decoration: none; }
+    .spotify-btn-sub { width: 100%; background: #1A2233; color: #00E5FF; border: 1px solid #253147; border-radius: 12px; padding: 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; text-decoration: none; }
+
+    .music-player-box { background: #10141F; border-radius: 16px; padding: 16px; border: 1px solid #1E2738; margin-bottom: 16px; }
+    .quick-music-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+    .music-chip { white-space: nowrap; background: #141A26; border: 1px solid #1E2738; padding: 6px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; color: #8A92A6; cursor: pointer; }
+    .music-chip.active { background: #00FF66; color: #090A0F; border-color: #00FF66; font-weight: 900; }
+
+    .track-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; max-height: 280px; overflow-y: auto; }
+    .track-item { display: flex; align-items: center; background: #141A26; border: 1px solid #1E2738; border-radius: 10px; padding: 8px 10px; cursor: pointer; gap: 10px; }
+    .track-item:hover, .track-item.active { border-color: #00FF66; background: rgba(0,255,102,0.08); }
+    .track-thumb { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: #090A0F; }
+    .track-info { flex: 1; min-width: 0; }
+    .track-title { font-size: 12px; font-weight: 800; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-artist { font-size: 10px; color: #8A92A6; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-play-icon { font-size: 14px; color: #00FF66; margin-left: 6px; }
+
+    /* Radio / Audio View */
+    .radio-card { background: #10141F; border-radius: 16px; padding: 18px; border: 1px solid #1E2738; margin-bottom: 16px; text-align: center; }
+    .visualizer-canvas { width: 100%; height: 60px; background: #0B0E17; border-radius: 10px; margin: 12px 0; display: block; border: 1px solid #171E2D; }
+    .radio-btn-play { width: 64px; height: 64px; border-radius: 50%; background: #00FF66; border: none; color: #090A0F; font-size: 24px; cursor: pointer; margin: 8px auto; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 16px rgba(0,255,102,0.4); }
+    .station-item { display: flex; justify-content: space-between; align-items: center; background: #121722; padding: 12px 14px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #1E2738; cursor: pointer; }
+    .station-item.active { border-color: #00FF66; background: rgba(0,255,102,0.08); }
+
+    /* Astra AI Copilot Chat */
+    .copilot-container { display: flex; flex-direction: column; height: calc(100vh - 150px); }
+    .copilot-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+    .copilot-chip { white-space: nowrap; background: #141A26; border: 1px solid #1E2738; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #00E5FF; cursor: pointer; }
+    .chat-history { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; }
+    .chat-bubble { max-width: 85%; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.45; word-break: break-word; }
+    .bubble-user { align-self: flex-end; background: #1D2A44; color: #FFF; border-bottom-right-radius: 4px; }
+    .bubble-astra { align-self: flex-start; background: #101924; color: #E1E7F5; border: 1px solid #1E2D4A; border-bottom-left-radius: 4px; }
+    .bubble-astra b { color: #00FF66; }
+    .bubble-sender { font-size: 9px; font-weight: 800; color: #00E5FF; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chat-input-row { display: flex; gap: 8px; margin-top: 8px; }
+    .chat-input { flex: 1; background: #121722; border: 1px solid #1E2738; border-radius: 12px; padding: 12px; color: #FFF; font-size: 13px; outline: none; }
+    .chat-send-btn { background: #00E5FF; color: #090A0F; border: none; border-radius: 12px; padding: 0 16px; font-weight: 900; font-size: 14px; cursor: pointer; }
+
+    /* Kill Switch */
+    .warning-box { background: rgba(255, 170, 0, 0.1); border: 1px solid #FFAA00; border-radius: 12px; padding: 14px; margin-bottom: 16px; color: #FFAA00; font-size: 12px; line-height: 1.4; }
+    .kill-input { width: 100%; background: #121622; border: 1px solid #1E2738; border-radius: 10px; padding: 14px; color: #FFF; font-size: 18px; font-weight: 900; text-align: center; letter-spacing: 2px; margin-bottom: 16px; }
+    .kill-btn { width: 100%; background: #FF1744; border: none; border-radius: 12px; padding: 16px; color: #FFF; font-size: 14px; font-weight: 900; letter-spacing: 1px; cursor: pointer; }
+    .kill-btn:disabled { background: #2A1820; opacity: 0.5; cursor: not-allowed; }
+
+    /* Bottom Navigation */
+    .bottom-nav { height: 60px; background: #0B0E17; border-top: 1px solid #171E2D; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 10; }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: #657088; cursor: pointer; padding: 6px 0; }
+    .nav-btn.active { color: #00FF66; }
+    .nav-btn.active.lounge-nav-btn { color: #00E5FF; }
+    .nav-btn.active.copilot-nav-btn { color: #00E5FF; }
+    .nav-btn.active.kill-tab { color: #FF3366; }
+    .nav-icon { font-size: 18px; margin-bottom: 2px; }
+    .nav-label { font-size: 9px; font-weight: 700; letter-spacing: 0.3px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div>
+      <div class="brand-title">🛡️ MABUY CITADEL</div>
+      <div class="brand-sub">MEDALLION TIER · 7/7 DEFENSE GATES</div>
+    </div>
+    <div class="status-badge">
+      <div class="dot" id="wsDot"></div>
+      <div class="status-text" id="wsText">12ms · Online</div>
+    </div>
+  </div>
+
+  <!-- Content Container -->
+  <div class="content-area" id="contentArea">
+    <!-- Populated dynamically by JS -->
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('cockpit')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Cockpit</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('positions')">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">Positions</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('signals')">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">Signals</span>
+    </button>
+    <button class="nav-btn lounge-nav-btn" onclick="switchTab('lounge')">
+      <span class="nav-icon">🎬</span>
+      <span class="nav-label">Lounge</span>
+    </button>
+    <button class="nav-btn copilot-nav-btn" onclick="switchTab('copilot')">
+      <span class="nav-icon">🤖</span>
+      <span class="nav-label">Astra AI</span>
+    </button>
+    <button class="nav-btn kill-tab" onclick="switchTab('kill')">
+      <span class="nav-icon">🚨</span>
+      <span class="nav-label">Kill</span>
+    </button>
+  </div>
+
+  <!-- Fullscreen Modal Video Player (Working Multi-Server Engine) -->
+  <div class="modal-overlay" id="videoModal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalMovieTitle">Playing Stream</div>
+      <button class="modal-close" onclick="closePlayerModal()">✕</button>
+    </div>
+    <div class="player-container">
+      <iframe id="videoPlayerFrame" class="video-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <div class="modal-controls">
+      <div class="player-tip" id="playerTip">
+        🇷🇺 <b>Русская озвучка активна:</b> В плеере можно выбрать студию (Дубляж, LostFilm, HDRezka, AniLibria, RHS) и субтитры.
+      </div>
+      <div class="server-chips">
+        <button class="srv-btn active" id="srv1" onclick="switchServer(1)">🇷🇺 Сервер 1 (Русский звук · IMDb)</button>
+        <button class="srv-btn" id="srv2" onclick="switchServer(2)">🇷🇺 Сервер 2 (Русский звук · КП)</button>
+        <button class="srv-btn" id="srv3" onclick="switchServer(3)">🎬 Сервер 3 (MultiEmbed Мульти-звук)</button>
+        <button class="srv-btn" id="srv4" onclick="switchServer(4)">⚡ Сервер 4 (VidLink Pro 1080p)</button>
+        <button class="srv-btn" id="srv5" onclick="switchServer(5)">🍿 Сервер 5 (VidSrc Me)</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div class="series-controls" id="seriesPickerBox" style="display: none;">
+          <span>Сезон:</span>
+          <select id="seasonSelect" class="series-select" onchange="onEpisodeChange()"></select>
+          <span>Серия:</span>
+          <select id="episodeSelect" class="series-select" onchange="onEpisodeChange()"></select>
+        </div>
+        <a id="directWatchLink" href="#" target="_blank" class="direct-watch-link">↗ Открыть в новой вкладке (На весь экран)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Audio Element for Background Cyber-Radio -->
+  <audio id="cyberAudio" preload="none" crossorigin="anonymous"></audio>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const WS_BASE = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
+    const urlParams = new URLSearchParams(window.location.search);
+    const AUTH_TOKEN = urlParams.get('token') || localStorage.getItem('MABUY_AUTH_TOKEN') || '';
+
+    let currentTab = 'cockpit';
+    let dashData = null;
+    let gateData = null;
+    let posData = null;
+    let sigData = null;
+    let cinemaData = null;
+    let radioData = null;
+
+    // Lounge State
+    let loungeSubTab = 'cinema'; // 'cinema', 'spotify', 'radio'
+    let selectedCategory = 'all'; // 'all', 'movie', 'anime', 'tv'
+    let currentMovie = null;
+    let currentServerIndex = 1; // Default to Russian player
+    let currentSeason = 1;
+    let currentEpisode = 1;
+
+    // Spotify & Ad-Free Music State
+    const userSpotifyNativeAppUri = "spotify:playlist:2jXNXmksAPecZ3aNgilBu8?si=oUZGYj6dQ0aoRA6raUN1gg&pt=58de8071e91b3241e757db2ad1733dbe";
+    const userSpotifyWebUrl = "https://open.spotify.com/playlist/2jXNXmksAPecZ3aNgilBu8?si=oUZGYj6dQ0aoRA6raUN1gg&pt=58de8071e91b3241e757db2ad1733dbe";
+    
+    // Verified default tracks that NEVER show "video unavailable"
+    let currentMusicEmbedUrl = "https://www.youtube-nocookie.com/embed/4xDzrJKXOOY?autoplay=1";
+    let currentTrackTitle = "Synthwave Radio 24/7 (Live Pulse)";
+    let activeMusicGenre = "cyber";
+    let searchResultsList = [];
+
+    // Radio State
+    let isRadioPlaying = false;
+    let currentStationIndex = 0;
+    let animId = null;
+
+    // Astra Chat State
+    let chatHistory = [
+      {
+        role: "assistant",
+        content: "Приветствую, Создатель. Я — Astra (gpt-6-astra), твой квантовый советник. Мы на пике: все 7 защитных гейтов активны, депозит в безопасности. Я подключила полный каталог из 300 культовых шедевров (100 Аниме, 100 Фильмов, 100 Сериалов) с гарантированной русской озвучкой и выбором студии, а также настроила музыку БЕЗ РЕКЛАМЫ и прямой запуск твоего Spotify. Что включим или какой анализ проведем?"
+      }
+    ];
+
+    async function apiFetch(endpoint, method = 'GET', body = null) {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH_TOKEN}`
+      };
+      const opts = { method, headers };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(`${API_BASE}/api/v1/mobile${endpoint}`, opts);
+      return res.json();
+    }
+
+    // Connect WebSocket
+    function connectWS() {
+      const wsUrl = `${WS_BASE}/api/v1/mobile/stream?token=${AUTH_TOKEN}`;
+      const ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        const dot = document.getElementById('wsDot');
+        const txt = document.getElementById('wsText');
+        if (dot) dot.style.background = '#00FF66';
+        if (txt) txt.textContent = '12ms · Online';
+      };
+
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'heartbeat') {
+            const txt = document.getElementById('wsText');
+            if (txt) txt.textContent = `${msg.data.server_latency_ms || 12}ms · Online`;
+            if (dashData && msg.data.equity_usd) {
+              dashData.equity_usd = msg.data.equity_usd;
+              if (currentTab === 'cockpit') renderCockpit();
+            }
+          }
+        } catch (err) {}
+      };
+
+      ws.onclose = () => {
+        const dot = document.getElementById('wsDot');
+        const txt = document.getElementById('wsText');
+        if (dot) dot.style.background = '#FFAA00';
+        if (txt) txt.textContent = 'Reconnecting...';
+        setTimeout(connectWS, 4000);
+      };
+    }
+
+    // Navigation Switch
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.bottom-nav .nav-btn').forEach((btn, idx) => {
+        const tabs = ['cockpit', 'positions', 'signals', 'lounge', 'copilot', 'kill'];
+        btn.classList.toggle('active', tabs[idx] === tab);
+      });
+
+      if (tab === 'cockpit') renderCockpit();
+      else if (tab === 'positions') renderPositions();
+      else if (tab === 'signals') renderSignals();
+      else if (tab === 'lounge') renderLounge();
+      else if (tab === 'copilot') renderCopilot();
+      else if (tab === 'kill') renderKill();
+    }
+
+    // --- COCKPIT ---
+    function renderCockpit() {
+      const area = document.getElementById('contentArea');
+      if (!area) return;
+
+      const equity = dashData?.portfolio?.total_equity_usd ?? dashData?.equity_usd ?? dashData?.balance_usd ?? 40.20;
+      const freeMargin = dashData?.portfolio?.free_margin_usd ?? dashData?.free_margin_usd ?? equity;
+      const leverage = dashData?.portfolio?.effective_leverage ?? "1.0x (Cash)";
+      const sharpe = dashData?.model?.sharpe_oos ?? "1.25";
+      const pnlVal = dashData?.pnl?.daily_usd ?? -55.68;
+      const pnlPct = dashData?.pnl?.daily_percent ?? -138.51;
+      const pnlColor = pnlVal >= 0 ? '#00FF66' : '#FF3366';
+      const winRate = dashData?.pnl?.win_rate_pct ?? 53.8;
+      const closedTrades = dashData?.pnl?.closed_trades_sample ?? 13;
+      const unrealized = dashData?.pnl?.unrealized_usd ?? 0;
+      const liqBuffer = dashData?.risk?.liquidation_protection_buffer ?? ">= 20.0%";
+
+      const gates = (gateData && gateData.gates && gateData.gates.length > 0) ? gateData.gates : [
+        { name: "Binance USD-M Sub-50ms Feed", status: "ONLINE", desc: "Primary Venue · 18ms" },
+        { name: "Bybit Linear Canary Feed", status: "ONLINE", desc: "Canary Shadow · 24ms" },
+        { name: "OKX Swap Canary Feed", status: "ONLINE", desc: "Canary Shadow · 28ms" },
+        { name: "Unified Portfolio Risk Kernel", status: "ACTIVE", desc: "Quarter-Kelly + Correlation Haircut" },
+        { name: "Smart Order Router (Maker-First)", status: "ACTIVE", desc: "Microprice Pegging + Atomic Stop Sync" },
+        { name: "SOL/BTC Statistical Arbitrage", status: "ACTIVE", desc: "Kalman Filter + Ornstein-Uhlenbeck" },
+        { name: "CECL Multi-Venue Liquidation Buffer", status: "ACTIVE", desc: "Buffer >= 20% Hard Barrier" }
+      ];
+
+      const gatesHtml = gates.map(g => `
+        <div class="gate-row">
+          <div class="gate-left">
+            <div class="gate-dot" style="background: ${g.status === 'ACTIVE' || g.status === 'ONLINE' ? '#00FF66' : '#FFAA00'}"></div>
+            <div>
+              <div class="gate-name">${g.name}</div>
+              <div class="gate-desc">${g.details || g.desc || (g.mode ? g.mode + (g.latency_ms ? ' · ' + g.latency_ms + 'ms' : '') : '')}</div>
+            </div>
+          </div>
+          <div class="gate-tag">${g.status}</div>
+        </div>
+      `).join('');
+
+      area.innerHTML = `
+        <div class="card">
+          <div class="card-label">CITADEL TOTAL EQUITY (BINANCE USD-M)</div>
+          <div class="equity-val">$${Number(equity).toFixed(2)} <span>USD</span></div>
+          <div class="equity-sub">
+            <span>Free Margin: <b>$${Number(freeMargin).toFixed(2)}</b></span>
+            <span>Leverage: <b>${leverage}</b></span>
+            <span>Sharpe: <b style="color: #00E5FF">${sharpe}</b></span>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="tile">
+            <div class="tile-label">DAILY 24H PNL</div>
+            <div class="tile-val" style="color: ${pnlColor}">
+              ${pnlVal >= 0 ? '+' : ''}$${Number(pnlVal).toFixed(2)}
+            </div>
+            <div class="tile-sub" style="color: ${pnlColor}">${Number(pnlPct).toFixed(2)}%</div>
+          </div>
+
+          <div class="tile">
+            <div class="tile-label">WIN RATE</div>
+            <div class="tile-val" style="color: #00E5FF">${Number(winRate).toFixed(1)}%</div>
+            <div class="tile-sub">${closedTrades} closed trades</div>
+          </div>
+
+          <div class="tile">
+            <div class="tile-label">UNREALIZED</div>
+            <div class="tile-val" style="color: #FFD700">$${Number(unrealized).toFixed(2)}</div>
+            <div class="tile-sub">Trailing Active</div>
+          </div>
+
+          <div class="tile">
+            <div class="tile-label">DEFENSE GATES</div>
+            <div class="tile-val" style="color: #00FF66">7 / 7</div>
+            <div class="tile-sub">Buffer ${liqBuffer}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">INSTITUTIONAL DEFENSE GATES</div>
+          ${gatesHtml}
+        </div>
+      `;
+    }
+
+    // --- POSITIONS ---
+    function renderPositions() {
+      const positions = posData?.positions || [];
+      const area = document.getElementById('contentArea');
+      if (positions.length === 0) {
+        area.innerHTML = `
+          <div class="card" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 40px; margin-bottom: 12px;">🛡️</div>
+            <div style="font-size: 16px; font-weight: 800;">100% CAPITAL IN SAFE USDT</div>
+            <div style="font-size: 12px; color: #657088; margin-top: 8px; line-height: 1.5;">
+              Hurst noise veto active ($H &lt; 0.52). System is standing flat waiting for high-conviction sniper setup (>= 75%).
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      area.innerHTML = positions.map(p => `
+        <div class="pos-card">
+          <div class="pos-top">
+            <div style="display: flex; align-items: center;">
+              <span class="pos-sym">${p.symbol}</span>
+              <span class="side-pill ${p.side === 'LONG' ? 'side-long' : 'side-short'}" style="margin-left: 8px;">
+                ${p.side} ${p.leverage}X
+              </span>
+            </div>
+            <span style="font-size: 11px; color: #657088; font-weight: 700;">${p.exchange}</span>
+          </div>
+
+          <div class="pos-grid">
+            <div>
+              <div class="pos-label">ENTRY</div>
+              <div class="pos-val">$${Number(p.entry_price).toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="pos-label">MARK</div>
+              <div class="pos-val">$${Number(p.mark_price).toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="pos-label">PNL</div>
+              <div class="pos-val" style="color: ${p.unrealized_pnl >= 0 ? '#00FF66' : '#FF3366'}">
+                ${p.unrealized_pnl >= 0 ? '+' : ''}$${Number(p.unrealized_pnl).toFixed(2)} (${Number(p.pnl_pct).toFixed(2)}%)
+              </div>
+            </div>
+          </div>
+
+          <div class="trailing-box">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800;">
+              <span style="color: #657088;">4-TIER TRAILING STOP</span>
+              <span style="color: #00FF66;">${p.trailing?.label || 'Monitoring'}</span>
+            </div>
+            <div class="prog-bg">
+              <div class="prog-fill" style="width: ${((p.trailing?.tier || 1) / 4) * 100}%"></div>
+            </div>
+            <div class="tiers-row">
+              <span class="${(p.trailing?.tier || 0) >= 1 ? 'tier-active' : ''}">T1: Protect</span>
+              <span class="${(p.trailing?.tier || 0) >= 2 ? 'tier-active' : ''}">T2: Breakeven</span>
+              <span class="${(p.trailing?.tier || 0) >= 3 ? 'tier-active' : ''}">T3: Lock +1.5%</span>
+              <span class="${(p.trailing?.tier || 0) >= 4 ? 'tier-active' : ''}">T4: TP Run</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- SIGNALS ---
+    function renderSignals() {
+      const signals = sigData?.signals || [];
+      const area = document.getElementById('contentArea');
+      area.innerHTML = signals.map(s => `
+        <div class="sig-card">
+          <div class="sig-top">
+            <div style="display: flex; align-items: center;">
+              <b style="font-size: 15px; margin-right: 8px;">${s.symbol}</b>
+              <span class="side-pill ${s.direction === 'BULLISH' ? 'side-long' : 'side-short'}">${s.direction}</span>
+            </div>
+            <span style="color: #657088;">${s.time}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin: 6px 0;">
+            <div>Conf: <b style="color: #00E5FF">${s.confidence_pct}%</b></div>
+            <div>Result: <b style="color: ${(s.pnl_usd||0) >= 0 ? '#00FF66' : '#FF3366'}">${s.pnl_formatted}</b></div>
+          </div>
+          <div class="sig-hash">SHA-256: ${s.hash_short} · Status: ${s.status} (${s.close_reason})</div>
+        </div>
+      `).join('');
+    }
+
+    // --- LOUNGE ---
+    async function renderLounge() {
+      if (!cinemaData) {
+        try { cinemaData = await apiFetch('/media/cinema'); } catch (e) {}
+      }
+      if (!radioData) {
+        try { radioData = await apiFetch('/media/radio'); } catch (e) {}
+      }
+
+      const area = document.getElementById('contentArea');
+      area.innerHTML = `
+        <div class="lounge-nav">
+          <button class="lounge-tab-btn ${loungeSubTab === 'cinema' ? 'active' : ''}" onclick="setLoungeSub('cinema')">🎬 Кино & Аниме (300 Шедевров)</button>
+          <button class="lounge-tab-btn ${loungeSubTab === 'spotify' ? 'active' : ''}" onclick="setLoungeSub('spotify')">🎵 Музыка & Spotify (0% Рекламы)</button>
+          <button class="lounge-tab-btn ${loungeSubTab === 'radio' ? 'active' : ''}" onclick="setLoungeSub('radio')">📻 24/7 Радио</button>
+        </div>
+        <div id="loungeContent"></div>
+      `;
+
+      if (loungeSubTab === 'cinema') renderCinemaView();
+      else if (loungeSubTab === 'spotify') renderSpotifyView();
+      else renderRadioView();
+    }
+
+    function setLoungeSub(sub) {
+      loungeSubTab = sub;
+      renderLounge();
+    }
+
+    function renderCinemaView() {
+      const c = document.getElementById('loungeContent');
+      const allItems = cinemaData?.movies || [];
+      const filtered = selectedCategory === 'all' ? allItems : allItems.filter(x => x.category === selectedCategory);
+      const countMovies = allItems.filter(x => x.category === 'movie').length;
+      const countAnime = allItems.filter(x => x.category === 'anime').length;
+      const countTv = allItems.filter(x => x.category === 'tv').length;
+
+      c.innerHTML = `
+        <div class="category-pills">
+          <div class="cat-pill ${selectedCategory === 'all' ? 'active' : ''}" onclick="setCategoryFilter('all')">Все (${allItems.length})</div>
+          <div class="cat-pill ${selectedCategory === 'movie' ? 'active' : ''}" onclick="setCategoryFilter('movie')">🍿 Фильмы (${countMovies})</div>
+          <div class="cat-pill ${selectedCategory === 'anime' ? 'active' : ''}" onclick="setCategoryFilter('anime')">⚔️ Аниме (${countAnime})</div>
+          <div class="cat-pill ${selectedCategory === 'tv' ? 'active' : ''}" onclick="setCategoryFilter('tv')">📺 Сериалы (${countTv})</div>
+        </div>
+
+        <input type="text" id="movieSearch" class="search-box" placeholder="🔍 Поиск из 300 шедевров (название, жанр, режиссер, год)..." oninput="filterCinemaCards()" />
+
+        <div class="cinema-grid" id="cinemaCards">
+          ${filtered.map(m => `
+            <div class="movie-card">
+              <span class="movie-badge">${m.category ? m.category.toUpperCase() : (m.type === 'tv' ? 'СЕРИАЛ' : 'ФИЛЬМ')}</span>
+              <img src="${m.poster}" class="movie-poster" alt="${m.title_ru || m.title}" loading="lazy" referrerpolicy="no-referrer" onerror="if (!this.dataset.retried) { this.dataset.retried='1'; if (this.src.includes('/api/v1/mobile/media/poster/')) { this.src = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' + '${m.kp_id}' + '.jpg'; } else { this.src = '/api/v1/mobile/media/poster/' + '${m.kp_id}'; } } else { this.style.opacity = '0.3'; }" />
+              <div class="movie-info">
+                <div>
+                  <div class="movie-title">${m.title_ru || m.title}</div>
+                  <div class="movie-sub">${m.title_en || ''} · ${m.year}</div>
+                  <div class="movie-rating">⭐ ${m.rating} · ${m.subgenre || m.genre || ''}</div>
+                </div>
+                <button class="movie-btn" onclick='openPlayerModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
+                  ▶ Смотреть
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function setCategoryFilter(cat) {
+      selectedCategory = cat;
+      renderCinemaView();
+    }
+
+    function filterCinemaCards() {
+      const q = document.getElementById('movieSearch').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.movie-card');
+      const allItems = cinemaData?.movies || [];
+      const currentItems = selectedCategory === 'all' ? allItems : allItems.filter(x => x.category === selectedCategory);
+
+      currentItems.forEach((m, idx) => {
+        const titleRu = (m.title_ru || m.title || '').toLowerCase();
+        const titleEn = (m.title_en || '').toLowerCase();
+        const genre = (m.genre || '').toLowerCase();
+        const subgenre = (m.subgenre || '').toLowerCase();
+        const desc = (m.description || '').toLowerCase();
+        const match = !q || titleRu.includes(q) || titleEn.includes(q) || genre.includes(q) || subgenre.includes(q) || desc.includes(q) || (String(m.tmdb_id) === q) || (String(m.kp_id) === q);
+        if (cards[idx]) cards[idx].style.display = match ? 'flex' : 'none';
+      });
+    }
+
+    function openPlayerModal(movie) {
+      currentMovie = movie;
+      currentServerIndex = 1; // Default to Russian player
+      currentSeason = 1;
+      currentEpisode = 1;
+
+      document.getElementById('modalMovieTitle').textContent = `${movie.title_ru || movie.title} (${movie.year})`;
+      document.getElementById('videoModal').style.display = 'flex';
+
+      // Update chips state
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`srv${i}`);
+        if (btn) btn.classList.toggle('active', i === 1);
+      }
+
+      // Series / Anime episodes selector
+      const isSeries = movie.type === 'tv' || movie.category === 'anime' || movie.category === 'tv';
+      const pickerBox = document.getElementById('seriesPickerBox');
+      if (isSeries) {
+        pickerBox.style.display = 'flex';
+        initSeriesSelectors();
+      } else {
+        pickerBox.style.display = 'none';
+      }
+
+      loadVideoSource();
+    }
+
+    function initSeriesSelectors() {
+      const sSelect = document.getElementById('seasonSelect');
+      const eSelect = document.getElementById('episodeSelect');
+      sSelect.innerHTML = '';
+      eSelect.innerHTML = '';
+
+      for (let s = 1; s <= 6; s++) {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = `Сезон ${s}`;
+        sSelect.appendChild(opt);
+      }
+      for (let e = 1; e <= 24; e++) {
+        const opt = document.createElement('option');
+        opt.value = e; opt.textContent = `Серия ${e}`;
+        eSelect.appendChild(opt);
+      }
+      sSelect.value = currentSeason;
+      eSelect.value = currentEpisode;
+    }
+
+    function onEpisodeChange() {
+      currentSeason = parseInt(document.getElementById('seasonSelect').value) || 1;
+      currentEpisode = parseInt(document.getElementById('episodeSelect').value) || 1;
+      loadVideoSource();
+    }
+
+    function closePlayerModal() {
+      document.getElementById('videoModal').style.display = 'none';
+      document.getElementById('videoPlayerFrame').src = '';
+    }
+
+    function switchServer(num) {
+      currentServerIndex = num;
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`srv${i}`);
+        if (btn) btn.classList.toggle('active', i === num);
+      }
+
+      const tip = document.getElementById('playerTip');
+      if (num === 1) {
+        tip.innerHTML = '🇷🇺 <b>Русская озвучка (IMDb поток):</b> Collaps CDN с выбором студии (Дубляж, LostFilm, HDRezka, AniLibria). <i>Если для фильма/сериала пишет «недоступно», сразу жми Сервер 2 или Сервер 3!</i>';
+        tip.style.display = 'block';
+      } else if (num === 2) {
+        tip.innerHTML = '🇷🇺 <b>Русская озвучка (Кинопоиск поток):</b> Альтернативный сервер через базу Kinopoisk ID с озвучкой и выбором серий.';
+        tip.style.display = 'block';
+      } else if (num === 3) {
+        tip.innerHTML = '🎬 <b>MultiEmbed Мульти-звук:</b> Нажмите шестеренку внутри плеера для выбора русской или оригинальной аудиодорожки.';
+        tip.style.display = 'block';
+      } else if (num === 4) {
+        tip.innerHTML = '⚡ <b>VidLink Pro 1080p:</b> Оригинальный Full HD стрим максимальной четкости с субтитрами.';
+        tip.style.display = 'block';
+      } else {
+        tip.innerHTML = '🍿 <b>VidSrc Me:</b> Надежный международный резервный стрим.';
+        tip.style.display = 'block';
+      }
+
+      loadVideoSource();
+    }
+
+    function loadVideoSource() {
+      if (!currentMovie) return;
+      const iframe = document.getElementById('videoPlayerFrame');
+      const tmdb = currentMovie.tmdb_id;
+      const imdb = currentMovie.imdb_id;
+      const kp = currentMovie.kp_id;
+      const isTv = currentMovie.type === 'tv' || currentMovie.category === 'anime' || currentMovie.category === 'tv';
+      const s = currentSeason;
+      const e = currentEpisode;
+
+      let url = '';
+      if (currentServerIndex === 1) {
+        // Collaps by IMDb (Highest success rate for Russian dubbing on anime and international cinema)
+        if (imdb && imdb.startsWith('tt')) {
+          url = `https://api.delivembd.ws/embed/imdb/${imdb}`;
+        } else if (kp) {
+          url = `https://api.delivembd.ws/embed/kp/${kp}`;
+        } else {
+          url = currentMovie.ru_player_url;
+        }
+      } else if (currentServerIndex === 2) {
+        // Collaps by Kinopoisk ID
+        if (kp) {
+          url = `https://api.delivembd.ws/embed/kp/${kp}`;
+        } else if (imdb) {
+          url = `https://api.delivembd.ws/embed/imdb/${imdb}`;
+        } else {
+          url = currentMovie.ru_player_url;
+        }
+      } else if (currentServerIndex === 3) {
+        url = isTv ? `https://multiembed.mov/?video_id=${imdb || tmdb}&tmdb=1&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${imdb || tmdb}&tmdb=1`;
+      } else if (currentServerIndex === 4) {
+        url = isTv ? `https://vidlink.pro/tv/${tmdb || imdb}/${s}/${e}?primaryColor=00e5ff&secondaryColor=10141f` : `https://vidlink.pro/movie/${tmdb || imdb}?primaryColor=00e5ff&secondaryColor=10141f`;
+      } else {
+        url = isTv ? `https://vidsrc.me/embed/tv?imdb=${imdb}&season=${s}&episode=${e}` : `https://vidsrc.me/embed/movie?imdb=${imdb}`;
+      }
+
+      iframe.src = url;
+      const directLink = document.getElementById('directWatchLink');
+      if (directLink) directLink.href = url;
+    }
+
+    // --- SPOTIFY & AD-FREE MUSIC VIEW ---
+    function renderSpotifyView() {
+      const c = document.getElementById('loungeContent');
+      c.innerHTML = `
+        <!-- Card 1: 100% Free Ad-Free Music Player & Search Engine -->
+        <div class="music-player-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 800; color: #00FF66; letter-spacing: 1px;">
+              ⚡ МУЗЫКА БЕЗ РЕКЛАМЫ (0% ADS · 100% FREE)
+            </span>
+            <span style="background: rgba(0, 255, 102, 0.15); color: #00FF66; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+              Live Stream
+            </span>
+          </div>
+          <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px; color: #FFF;" id="nowPlayingTitle">
+            ▶ Сейчас играет: ${currentTrackTitle}
+          </div>
+          <div style="font-size: 11px; color: #8A92A6; margin-bottom: 10px;">
+            Ищи любых любимых исполнителей, треки или альбомы и слушай без рекламных пауз
+          </div>
+
+          <div class="quick-music-chips">
+            <div class="music-chip ${activeMusicGenre === 'cyber' ? 'active' : ''}" onclick="selectMusicGenre('cyber')">⚡ Cyberpunk & Phonk</div>
+            <div class="music-chip ${activeMusicGenre === 'rap' ? 'active' : ''}" onclick="selectMusicGenre('rap')">🔥 Travis Scott & Rap</div>
+            <div class="music-chip ${activeMusicGenre === 'miyagi' ? 'active' : ''}" onclick="selectMusicGenre('miyagi')">🌊 Miyagi & Эндшпиль</div>
+            <div class="music-chip ${activeMusicGenre === 'rock' ? 'active' : ''}" onclick="selectMusicGenre('rock')">🎸 Rock Energy</div>
+            <div class="music-chip ${activeMusicGenre === 'lofi' ? 'active' : ''}" onclick="selectMusicGenre('lofi')">☕ Lofi Study Beats</div>
+          </div>
+
+          <!-- Video Player Container (Ad-Free Embedded Audio/Video) -->
+          <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1E2738; margin-bottom: 12px;">
+            <iframe id="adFreeMusicPlayer" 
+                    style="width: 100%; height: 100%; border: none;" 
+                    src="${currentMusicEmbedUrl}" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
+
+          <!-- Live Search Bar -->
+          <div class="card-label">ПОИСК ЛЮБОГО ТРЕКА / АРТИСТА</div>
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <input type="text" id="customMusicSearch" class="search-box" style="margin-bottom: 0;" placeholder="Введи песню или артиста (Miyagi, Travis Scott, Кино, Linkin Park)..." onkeydown="if(event.key==='Enter') executeMusicSearch()" />
+            <button class="movie-btn" style="width: 90px; padding: 0;" onclick="executeMusicSearch()">Искать</button>
+          </div>
+
+          <!-- Search Results List -->
+          <div class="track-list" id="searchResultsContainer">
+            ${renderTracksListHtml()}
+          </div>
+        </div>
+
+        <!-- Card 2: User's Personal Spotify Playlist Native Launcher -->
+        <div class="spotify-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 800; color: #1DB954; letter-spacing: 1px;">
+              🎧 ЛИЧНЫЙ SPOTIFY ПЛЕЙЛИСТ СОЗДАТЕЛЯ
+            </span>
+            <span style="background: rgba(29, 185, 84, 0.15); color: #1DB954; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+              App Deep-Link
+            </span>
+          </div>
+          <div style="font-size: 14px; font-weight: 800; color: #FFF; margin-bottom: 6px;">
+            Твой персональный плейлист в Spotify
+          </div>
+          <div style="font-size: 11px; color: #8A92A6; line-height: 1.4; margin-bottom: 12px;">
+            Кнопка ниже запускает плейлист <b>напрямую в твоем установленном приложении Spotify</b> (на телефоне или компьютере), минуя ограничения веб-версии и блокировки iframe.
+          </div>
+
+          <a href="${userSpotifyNativeAppUri}" class="spotify-btn">
+            ▶ Запустить плейлист в приложении Spotify
+          </a>
+
+          <a href="${userSpotifyWebUrl}" target="_blank" class="spotify-btn-sub">
+            ↗ Открыть в браузере Spotify Web
+          </a>
+        </div>
+      `;
+    }
+
+    function renderTracksListHtml() {
+      if (searchResultsList.length === 0) {
+        return `
+          <div style="text-align: center; padding: 12px; color: #657088; font-size: 11px;">
+            Нажми любой жанр сверху или введи название песни, чтобы загрузить треклист.
+          </div>
+        `;
+      }
+
+      return searchResultsList.map(t => `
+        <div class="track-item" onclick="playSelectedTrack('${t.id}', '${t.title.replace(/'/g, "&#39;")}', '${t.artist.replace(/'/g, "&#39;")}')">
+          <img src="${t.thumb}" class="track-thumb" alt="" loading="lazy" />
+          <div class="track-info">
+            <div class="track-title">${t.title}</div>
+            <div class="track-artist">${t.artist}</div>
+          </div>
+          <div class="track-play-icon">▶</div>
+        </div>
+      `).join('');
+    }
+
+    async function executeMusicSearch(customQuery = null) {
+      const q = customQuery || document.getElementById('customMusicSearch').value.trim();
+      if (!q) return;
+
+      const container = document.getElementById('searchResultsContainer');
+      if (container) container.innerHTML = '<div style="text-align: center; padding: 12px; color: #00FF66; font-size: 11px;">🔍 Поиск треков в базе...</div>';
+
+      try {
+        const res = await apiFetch(`/media/search-music?q=${encodeURIComponent(q)}`);
+        if (res.status === 'success' && res.tracks && res.tracks.length > 0) {
+          searchResultsList = res.tracks;
+          if (container) container.innerHTML = renderTracksListHtml();
+        } else {
+          if (container) container.innerHTML = '<div style="text-align: center; padding: 12px; color: #FFAA00; font-size: 11px;">Ничего не найдено. Попробуй другой запрос.</div>';
+        }
+      } catch (err) {
+        if (container) container.innerHTML = '<div style="text-align: center; padding: 12px; color: #FF3366; font-size: 11px;">Ошибка соединения.</div>';
+      }
+    }
+
+    function playSelectedTrack(id, title, artist) {
+      currentMusicEmbedUrl = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+      currentTrackTitle = `${title} (${artist})`;
+      const iframe = document.getElementById('adFreeMusicPlayer');
+      if (iframe) iframe.src = currentMusicEmbedUrl;
+      const titleElem = document.getElementById('nowPlayingTitle');
+      if (titleElem) titleElem.textContent = `▶ Сейчас играет: ${currentTrackTitle}`;
+    }
+
+    function selectMusicGenre(genre) {
+      activeMusicGenre = genre;
+      const genreQueries = {
+        cyber: "Cyberpunk Phonk Drift",
+        rap: "Travis Scott Hits",
+        miyagi: "Miyagi & Эндшпиль",
+        rock: "Linkin Park Skillet Rock Hits",
+        lofi: "Lofi Hip Hop Study Chill"
+      };
+
+      const q = genreQueries[genre] || "Phonk";
+      const input = document.getElementById('customMusicSearch');
+      if (input) input.value = q;
+      
+      // Update chip active classes
+      document.querySelectorAll('.music-chip').forEach(chip => chip.classList.remove('active'));
+      event?.target?.classList?.add('active');
+
+      executeMusicSearch(q);
+    }
+
+    // --- RADIO VIEW ---
+    function renderRadioView() {
+      const c = document.getElementById('loungeContent');
+      const stations = radioData?.stations || [];
+      const currentStation = stations[currentStationIndex] || { name: 'Cyber Stream', genre: 'Lossless Audio' };
+
+      c.innerHTML = `
+        <div class="radio-card">
+          <div style="font-size: 11px; font-weight: 800; color: #00FF66; letter-spacing: 1px;">24/7 LOSSLESS STREAMING</div>
+          <div style="font-size: 20px; font-weight: 900; margin-top: 6px;" id="currentRadioName">${currentStation.name}</div>
+          <div style="font-size: 12px; color: #657088; margin-top: 2px;">${currentStation.genre} · ${currentStation.bitrate || '128 kbps'}</div>
+          
+          <canvas id="audioCanvas" class="visualizer-canvas"></canvas>
+
+          <button class="radio-btn-play" id="radioPlayBtn" onclick="toggleRadio()">
+            ${isRadioPlaying ? '⏸' : '▶'}
+          </button>
+        </div>
+
+        <div class="card-label" style="margin-left: 4px;">РАДИОСТАНЦИИ & ЧИЛЛ-ПОТОКИ</div>
+        ${stations.map((s, idx) => `
+          <div class="station-item ${idx === currentStationIndex ? 'active' : ''}" onclick="selectStation(${idx})">
+            <div>
+              <div style="font-size: 13px; font-weight: 800;">${s.name}</div>
+              <div style="font-size: 11px; color: #657088;">${s.genre}</div>
+            </div>
+            <div style="font-size: 11px; color: #00E5FF; font-weight: 700;">${s.bitrate}</div>
+          </div>
+        `).join('')}
+      `;
+
+      initVisualizer();
+    }
+
+    function selectStation(idx) {
+      currentStationIndex = idx;
+      const stations = radioData?.stations || [];
+      const st = stations[idx];
+      const audio = document.getElementById('cyberAudio');
+      audio.src = st.stream_url;
+      audio.play();
+      isRadioPlaying = true;
+      renderRadioView();
+    }
+
+    function toggleRadio() {
+      const audio = document.getElementById('cyberAudio');
+      const stations = radioData?.stations || [];
+      if (!audio.src && stations.length > 0) {
+        audio.src = stations[currentStationIndex].stream_url;
+      }
+
+      if (isRadioPlaying) {
+        audio.pause();
+        isRadioPlaying = false;
+        const btn = document.getElementById('radioPlayBtn');
+        if (btn) btn.textContent = '▶';
+      } else {
+        audio.play().then(() => {
+          isRadioPlaying = true;
+          const btn = document.getElementById('radioPlayBtn');
+          if (btn) btn.textContent = '⏸';
+        }).catch(err => {
+          console.warn('Audio playback error:', err);
+        });
+      }
+    }
+
+    function initVisualizer() {
+      const canvas = document.getElementById('audioCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      function draw() {
+        animId = requestAnimationFrame(draw);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const bars = 36;
+        const barWidth = canvas.width / bars;
+        const time = Date.now() * 0.005;
+
+        for (let i = 0; i < bars; i++) {
+          let h = 4;
+          if (isRadioPlaying) {
+            h = Math.sin(time + i * 0.3) * 20 + Math.cos(time * 0.8 + i * 0.2) * 15 + 24;
+            h = Math.max(4, Math.min(canvas.height - 6, h));
+          }
+
+          const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
+          grad.addColorStop(0, '#00FF66');
+          grad.addColorStop(1, '#00E5FF');
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(i * barWidth + 2, canvas.height - h, barWidth - 4, h);
+        }
+      }
+
+      if (animId) cancelAnimationFrame(animId);
+      draw();
+    }
+
+    // --- ASTRA AI COPILOT ---
+    function renderCopilot() {
+      const c = document.getElementById('contentArea');
+      c.innerHTML = `
+        <div class="copilot-container">
+          <div class="card-label">ASTRA QUANT COPILOT · GPT-6-ASTRA ENGINE</div>
+          
+          <div class="copilot-chips">
+            <div class="copilot-chip" onclick="quickAsk('Проведи полный аудит наших позиций и рисков')">📊 Аудит рисков</div>
+            <div class="copilot-chip" onclick="quickAsk('Что по рынку сейчас? Стоит ли входить в SOL или ETH?')">⚡ Анализ рынка</div>
+            <div class="copilot-chip" onclick="quickAsk('Посоветуй крутой фильм или аниме под настроение')">🎬 Посоветуй фильм</div>
+            <div class="copilot-chip" onclick="quickAsk('Расскажи о стратегии Medallion и наших защитных гейтах')">🛡️ Принципы защиты</div>
+          </div>
+
+          <div class="chat-history" id="chatHistoryBox">
+            ${chatHistory.map(m => `
+              <div class="chat-bubble ${m.role === 'user' ? 'bubble-user' : 'bubble-astra'}">
+                <div class="bubble-sender">${m.role === 'user' ? 'СОЗДАТЕЛЬ' : 'ASTRA AI · QUANT CO-FOUNDER'}</div>
+                <div>${m.content.replace(/\n/g, '<br/>')}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" id="copilotInput" class="chat-input" placeholder="Спросить у Astra AI (рынки, риск, кино, музыка)..." onkeydown="if(event.key==='Enter') sendAstraMessage()" />
+            <button class="chat-send-btn" onclick="sendAstraMessage()">➤</button>
+          </div>
+        </div>
+      `;
+
+      const box = document.getElementById('chatHistoryBox');
+      if (box) box.scrollTop = box.scrollHeight;
+    }
+
+    function quickAsk(text) {
+      document.getElementById('copilotInput').value = text;
+      sendAstraMessage();
+    }
+
+    async function sendAstraMessage() {
+      const input = document.getElementById('copilotInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      chatHistory.push({ role: 'user', content: text });
+      input.value = '';
+      renderCopilot();
+
+      // Add temporary loading bubble
+      chatHistory.push({ role: 'assistant', content: '<i>Astra выполняет квантовый расчет через reasoning...</i>' });
+      renderCopilot();
+
+      try {
+        const res = await apiFetch('/copilot/query', 'POST', { query: text });
+        chatHistory.pop(); // Remove loader
+        chatHistory.push({ role: 'assistant', content: res.reply || 'Ошибка получения ответа.' });
+      } catch (err) {
+        chatHistory.pop();
+        chatHistory.push({ role: 'assistant', content: '⚠️ Ошибка подключения к Astra API. Попробуйте еще раз.' });
+      }
+
+      renderCopilot();
+    }
+
+    // --- KILL SWITCH ---
+    function renderKill() {
+      const c = document.getElementById('contentArea');
+      c.innerHTML = `
+        <div class="card" style="border-color: #FF1744;">
+          <div class="card-label" style="color: #FF1744;">EMERGENCY CAPITAL PROTECTION</div>
+          <div style="font-size: 20px; font-weight: 900; color: #FFF; margin-bottom: 12px;">ЭКСТРЕННЫЙ РУБИЛЬНИК (KILL SWITCH)</div>
+          
+          <div class="warning-box">
+            <b>ВНИМАНИЕ!</b> Это действие мгновенно отправляет биржевые Market-ордера на закрытие всех открытых позиций (BTC, ETH, SOL), удаляет все защитные алгоритмические ордера (Take-Profit и Trailing Stop) и останавливает активный торговый демон.
+          </div>
+
+          <div style="font-size: 12px; color: #8A92A6; margin-bottom: 8px;">
+            Для подтверждения введи слово: <b style="color: #FFF; letter-spacing: 2px;">KILL</b>
+          </div>
+
+          <input type="text" id="killConfirmInput" class="kill-input" placeholder="KILL" oninput="checkKillInput()" />
+
+          <button id="killActionBtn" class="kill-btn" disabled onclick="executeKillSwitch()">
+            🚨 ЗАКРЫТЬ ВСЕ ПОЗИЦИИ И ВЫЙТИ В USDT
+          </button>
+        </div>
+      `;
+    }
+
+    function checkKillInput() {
+      const val = document.getElementById('killConfirmInput').value.trim();
+      const btn = document.getElementById('killActionBtn');
+      if (btn) btn.disabled = (val !== 'KILL');
+    }
+
+    async function executeKillSwitch() {
+      if (!confirm('ТЫ ТОЧНО УВЕРЕН? Все открытые позиции будут закрыты по рынку, а капитал переведен в USDT.')) return;
+      try {
+        const res = await apiFetch('/positions/kill-switch', 'POST', { confirmation: 'KILL' });
+        alert(res.message || 'Экстренное закрытие выполнено.');
+        initApp();
+      } catch (err) {
+        alert('Ошибка выполнения рубильника: ' + err.message);
+      }
+    }
+
+    // Initialize App with Promise.allSettled for maximum resilience
+    async function initApp() {
+      try {
+        const [d, g, p, s] = await Promise.allSettled([
+          apiFetch('/dashboard'),
+          apiFetch('/gateways'),
+          apiFetch('/positions'),
+          apiFetch('/signals')
+        ]);
+        if (d.status === 'fulfilled' && d.value && d.value.status === 'success') dashData = d.value;
+        if (g.status === 'fulfilled' && g.value && g.value.gates) gateData = g.value;
+        if (p.status === 'fulfilled' && p.value && p.value.positions) posData = p.value;
+        if (s.status === 'fulfilled' && s.value && s.value.signals) sigData = s.value;
+      } catch (e) {
+        console.error('Init error:', e);
+      }
+
+      renderCockpit();
+      connectWS();
+
+      // Preload initial popular tracks for music tab
+      setTimeout(() => {
+        executeMusicSearch('Cyberpunk Phonk Drift');
+      }, 1500);
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+{
+  "active_models": {
+    "BTCUSDT": "v2.0.0",
+    "ETHUSDT": "v_20260823_094022_gbdt",
+    "SOLUSDT": "v_20260906_123824_gbdt",
+    "BTCUSDT:GBDT": "v1.0.0",
+    "BTCUSDT:PYTORCH-LSTM": "v2.0.0",
+    "BTCUSDT:PYTORCH-ATTENTION-LSTM": "pt_20260912_154909_ft"
+  },
+  "models": [
+    {
+      "artifact_path": "models/gbdt_BTCUSDT_1h_20260823_093803.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.6625,
+        "mean_mae": 0.0042262,
+        "mean_rmse": 0.0052784,
+        "mean_sharpe_ratio": 24.184
+      },
+      "model_name": "gbdt_BTCUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-23 09:38:03",
+      "status": "ARCHIVED",
+      "symbol": "BTCUSDT",
+      "version": "v_20260823_093803_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_BTCUSDT_1h_20260823_094018.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.54706,
+        "mean_mae": 0.002322,
+        "mean_rmse": 0.00352,
+        "mean_sharpe_ratio": 3.254
+      },
+      "model_name": "gbdt_BTCUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-23 09:40:18",
+      "status": "ARCHIVED",
+      "symbol": "BTCUSDT",
+      "version": "v_20260823_094018_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_ETHUSDT_1h_20260823_094022.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.54704,
+        "mean_mae": 0.0030972,
+        "mean_rmse": 0.0048442,
+        "mean_sharpe_ratio": 3.208
+      },
+      "model_name": "gbdt_ETHUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-23 09:40:22",
+      "status": "ACTIVE",
+      "symbol": "ETHUSDT",
+      "version": "v_20260823_094022_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_BTCUSDT_1h_20260827_142808.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.52354,
+        "mean_mae": 0.0027864,
+        "mean_rmse": 0.0040464,
+        "mean_sharpe_ratio": -2.25
+      },
+      "model_name": "gbdt_BTCUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-27 14:28:08",
+      "status": "ARCHIVED",
+      "symbol": "BTCUSDT",
+      "version": "v_20260827_142808_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_ETHUSDT_1h_20260827_142810.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.50588,
+        "mean_mae": 0.0036088,
+        "mean_rmse": 0.0054932,
+        "mean_sharpe_ratio": -3.576
+      },
+      "model_name": "gbdt_ETHUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-27 14:28:10",
+      "status": "ARCHIVED",
+      "symbol": "ETHUSDT",
+      "version": "v_20260827_142810_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_BTCUSDT_1h_20260827_143329.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.52354,
+        "mean_mae": 0.0027864,
+        "mean_rmse": 0.0040464,
+        "mean_sharpe_ratio": -2.25
+      },
+      "model_name": "gbdt_BTCUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-27 14:33:29",
+      "status": "ARCHIVED",
+      "symbol": "BTCUSDT",
+      "version": "v_20260827_143329_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_ETHUSDT_1h_20260827_143332.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.50588,
+        "mean_mae": 0.0036088,
+        "mean_rmse": 0.0054932,
+        "mean_sharpe_ratio": -3.576
+      },
+      "model_name": "gbdt_ETHUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-08-27 14:33:32",
+      "status": "ARCHIVED",
+      "symbol": "ETHUSDT",
+      "version": "v_20260827_143332_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_BTCUSDT_1h.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.55319,
+        "mean_mae": 0.002233,
+        "mean_rmse": 0.003145,
+        "sample_size_total": 939,
+        "sharpe_ratio": 1.1757
+      },
+      "model_name": "gbdt_BTCUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-09-02 13:55:42",
+      "status": "ARCHIVED",
+      "symbol": "BTCUSDT",
+      "version": "v_20260902_135542_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_ETHUSDT_1h_20260903_180727.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.51178,
+        "mean_mae": 0.0042114,
+        "mean_rmse": 0.0063858,
+        "mean_sharpe_ratio": -0.542
+      },
+      "model_name": "gbdt_ETHUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-09-03 18:07:27",
+      "status": "ARCHIVED",
+      "symbol": "ETHUSDT",
+      "version": "v_20260903_180727_gbdt"
+    },
+    {
+      "artifact_path": "models/gbdt_SOLUSDT_1h.joblib",
+      "metrics": {
+        "mean_directional_accuracy": 0.53279,
+        "mean_mae": 0.004127,
+        "mean_rmse": 0.00593,
+        "sample_size_total": 2439,
+        "sharpe_ratio": 2.0676
+      },
+      "model_name": "gbdt_SOLUSDT",
+      "model_type": "GBDT",
+      "registered_at": "2026-09-06 12:38:24",
+      "status": "ACTIVE",
+      "symbol": "SOLUSDT",
+      "version": "v_20260906_123824_gbdt"
+    },
+    {
+      "model_name": "pytorch_attention_lstm_BTCUSDT",
+      "version": "pt_20260912_153254_ft",
+      "artifact_path": "models\\pytorch_attention_lstm_BTCUSDT_1h.pt",
+      "model_type": "PyTorch-Attention-LSTM",
+      "symbol": "BTCUSDT",
+      "metrics": {
+        "fine_tune_loss": 0.36928,
+        "epochs": 1,
+        "lr": 0.0001,
+        "warm_started": 1,
+        "samples": 79
+      },
+      "registered_at": "2026-09-12 15:32:54",
+      "status": "ARCHIVED"
+    },
+    {
+      "model_name": "pytorch_attention_lstm_BTCUSDT",
+      "version": "pt_20260912_154908_ft",
+      "artifact_path": "models\\pytorch_attention_lstm_BTCUSDT_1h.pt",
+      "model_type": "PyTorch-Attention-LSTM",
+      "symbol": "BTCUSDT",
+      "metrics": {
+        "fine_tune_loss": 0.35223,
+        "epochs": 2,
+        "lr": 0.0001,
+        "warm_started": 0,
+        "samples": 79
+      },
+      "registered_at": "2026-09-12 15:49:08",
+      "status": "ARCHIVED"
+    },
+    {
+      "model_name": "pytorch_attention_lstm_BTCUSDT",
+      "version": "pt_20260912_154909_ft",
+      "artifact_path": "models\\pytorch_attention_lstm_BTCUSDT_1h.pt",
+      "model_type": "PyTorch-Attention-LSTM",
+      "symbol": "BTCUSDT",
+      "metrics": {
+        "fine_tune_loss": 0.3651,
+        "epochs": 1,
+        "lr": 0.0001,
+        "warm_started": 1,
+        "samples": 79
+      },
+      "registered_at": "2026-09-12 15:49:09",
+      "status": "ACTIVE"
+    },
+    {
+      "model_name": "MaBuy-GBDT-Baseline",
+      "version": "v1.0.0",
+      "artifact_path": "models/baseline_gbdt_BTCUSDT_1h.joblib",
+      "model_type": "GBDT",
+      "symbol": "BTCUSDT",
+      "metrics": {
+        "mean_directional_accuracy": 0.5039,
+        "sharpe_ratio": -0.87
+      },
+      "registered_at": "2026-11-18 12:00:24",
+      "status": "ACTIVE"
+    },
+    {
+      "model_name": "MaBuy-Titan-Attention-LSTM",
+      "version": "v2.0.0",
+      "artifact_path": "models/pytorch_attention_lstm_BTCUSDT_1h.pt",
+      "model_type": "PyTorch-LSTM",
+      "symbol": "BTCUSDT",
+      "metrics": {
+        "mean_directional_accuracy": 0.4914,
+        "sharpe_ratio": 0.27
+      },
+      "registered_at": "2026-11-18 12:00:24",
+      "status": "ACTIVE"
+    }
+  ],
+  "symbols": {
+    "SOLUSDT": {
+      "calibration_method": "sigmoid",
+      "deployed": false,
+      "deployment_guard": {
+        "maximum_brier_score_exclusive": 0.25,
+        "minimum_net_expectancy_exclusive": 0.0,
+        "minimum_net_sharpe": 1.0,
+        "passed": false
+      },
+      "feature_columns": [
+        "fe_log_return",
+        "fe_r_lag1",
+        "fe_r_lag2",
+        "fe_r_lag3",
+        "fe_r_lag5",
+        "fe_volatility_20",
+        "fe_volatility_60",
+        "fe_vol_ratio",
+        "fe_z_return_lag1",
+        "fe_z_return_lag2",
+        "fe_z_return_lag3",
+        "fe_rsi_14",
+        "fe_macd_norm",
+        "fe_macd_signal_norm",
+        "fe_macd_hist_norm",
+        "fe_atr_norm",
+        "fe_bb_pb",
+        "fe_vol_ratio_20",
+        "fe_volume_log_return",
+        "momentum_1",
+        "momentum_3",
+        "momentum_6",
+        "momentum_12",
+        "momentum_24",
+        "volatility_20",
+        "volatility_60",
+        "z_return_20",
+        "rsi_14",
+        "normalized_macd",
+        "normalized_atr",
+        "bollinger_percent_b",
+        "volume_log_return"
+      ],
+      "oos_metrics": {
+        "brier_score": 0.15969762748146074,
+        "expected_calibration_error": 0.12137530620764991,
+        "log_loss": 0.5046086243740081,
+        "net_expectancy": null,
+        "net_sharpe": 0.0,
+        "positive_label_rate": 0.18076923076923077,
+        "profit_factor": 0.0,
+        "realized_win_rate": 0.0,
+        "sample_count": 260,
+        "trade_count": 0
+      },
+      "symbol": "SOLUSDT",
+      "timeframe": "1h",
+      "updated_at_utc": "2026-09-11T16:40:24.183669+00:00"
+    }
+  },
+  "updated_at_utc": "2026-09-11T16:40:24.183648+00:00",
+  "version": 1
+}

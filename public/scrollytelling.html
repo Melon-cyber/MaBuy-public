@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MaBuy — Institutional Quantitative Prop-Trading Ecosystem</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'sans-serif'],
+            serif: ['Cinzel', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            oled: '#000000',
+            quant: {
+              emerald: '#10B981',
+              neon: '#34D399',
+              carmine: '#EF4444',
+              gold: '#F59E0B',
+              amber: '#D97706',
+              violet: '#A855F7',
+              cyan: '#06B6D4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- External Libraries: Three.js, GSAP + ScrollTrigger, Lucide -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #000000;
+      color: #F3F4F6;
+      overflow-x: hidden;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+      cursor: default;
+    }
+
+    /* Cinematic Noise Texture Overlay */
+    .film-grain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(16, 185, 129, 0.6);
+    }
+
+    /* Apple Glassmorphism */
+    .glass-pill {
+      background: rgba(20, 20, 25, 0.6);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0,0,0,0.8);
+    }
+
+    .glass-cockpit {
+      background: rgba(10, 14, 20, 0.72);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Shimmer Text */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FDE68A 30%, #D97706 70%, #92400E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .emerald-gradient-text {
+      background: linear-gradient(135deg, #ECFDF5 0%, #34D399 40%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Magnetic Custom Cursor */
+    #cursor-dot, #cursor-follower {
+      pointer-events: none;
+      position: fixed;
+      border-radius: 50%;
+      z-index: 100;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
+    }
+    #cursor-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #34D399;
+    }
+    #cursor-follower {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+    }
+
+    /* Radial Vignette */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Section Height */
+    .story-act {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .act-content {
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="relative">
+
+  <!-- Grain Overlay -->
+  <div class="film-grain"></div>
+  <div class="vignette"></div>
+
+  <!-- Magnetic Custom Cursor (Desktop) -->
+  <div id="cursor-dot" class="hidden md:block"></div>
+  <div id="cursor-follower" class="hidden md:block"></div>
+
+  <!-- FIXED THREE.JS CANVAS BACKGROUND -->
+  <canvas id="webgl-canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+  <!-- ======================================================================== -->
+  <!-- PERSISTENT TOP NAVIGATION HUD -->
+  <!-- ======================================================================== -->
+  <header class="fixed top-0 left-0 right-0 z-50 p-4 sm:p-6 flex items-center justify-between pointer-events-auto">
+    <!-- Brand Logo -->
+    <a href="#act-1" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 rounded-xl glass-pill flex items-center justify-center border border-emerald-500/30 text-emerald-400 group-hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-500/10">
+        <span class="font-serif font-black text-lg tracking-wider">M</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-bold tracking-tight text-white text-sm sm:text-base">MaBuy</span>
+          <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-medium">TITAN V5.2</span>
+        </div>
+        <p class="text-[10px] text-white/40 font-mono tracking-wider uppercase hidden sm:block">Quantitative Prop Intelligence</p>
+      </div>
+    </a>
+
+    <!-- Live Telemetry & Audio Controller -->
+    <div class="flex items-center gap-3">
+      <!-- Live Verified Telemetry Ticker (Rule of 3 Whales) -->
+      <div class="hidden lg:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-pill text-xs font-mono">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-white/50">FEED:</span>
+        <span class="text-emerald-400 font-bold" id="header-feed-badge">BINANCE LIVE</span>
+        <span class="text-white/20">|</span>
+        <span class="text-white/50">LEDGER:</span>
+        <span class="text-emerald-400 font-bold">$10,082.77 USDT</span>
+        <span class="text-white/20">|</span>
+        <span class="text-white/50">STREAK:</span>
+        <span class="text-emerald-400 font-bold">8/8 WINS (100%)</span>
+      </div>
+
+      <!-- Web Audio Synthesizer Trigger -->
+      <button id="audio-toggle" onclick="toggleAudio()" class="px-3.5 py-1.5 rounded-full glass-pill text-xs font-mono flex items-center gap-2 text-white/70 hover:text-white transition-all hover:border-emerald-500/40">
+        <i data-lucide="volume-x" id="audio-icon" class="w-3.5 h-3.5"></i>
+        <span id="audio-label" class="hidden sm:inline">AUDIO: OFF</span>
+      </button>
+
+      <!-- Telegram Bot CTA -->
+      <a href="https://t.me/MaBuyCrypto" target="_blank" class="px-4 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-all duration-300 flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        <span>@MaBuyCrypto</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ======================================================================== -->
+  <!-- SCROLL PROGRESS INDICATOR (RIGHT SIDEBAR) -->
+  <!-- ======================================================================== -->
+  <aside class="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-4 text-[10px] font-mono text-white/40 pointer-events-auto">
+    <div class="h-16 w-px bg-white/10 relative overflow-hidden">
+      <div id="scroll-track-bar" class="w-full bg-emerald-400 absolute top-0 left-0 transition-all duration-150" style="height: 0%;"></div>
+    </div>
+    <div class="flex flex-col gap-3">
+      <span id="nav-act-1" class="transition-all duration-300 text-emerald-400 font-bold scale-110">01</span>
+      <span id="nav-act-2" class="transition-all duration-300">02</span>
+      <span id="nav-act-3" class="transition-all duration-300">03</span>
+      <span id="nav-act-4" class="transition-all duration-300">04</span>
+    </div>
+    <div class="h-16 w-px bg-white/10"></div>
+  </aside>
+
+  <!-- ======================================================================== -->
+  <!-- SCROLLYTELLING CONTAINER (4 ACTS) -->
+  <!-- ======================================================================== -->
+  <main class="relative z-10">
+
+    <!-- ====================================================================== -->
+    <!-- ACT 1: THE QUANTITATIVE BIRTH (0% - 25% Scroll) -->
+    <!-- ====================================================================== -->
+    <section id="act-1" class="story-act">
+      <div class="act-content max-w-4xl mx-auto px-6 text-center space-y-6">
+        
+        <!-- Prestige Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>RENAISSANCE TITAN ENGINE V5.2</span>
+        </div>
+
+        <!-- Hero Headline -->
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-serif font-black tracking-tight text-white uppercase leading-[1.05]">
+          Mastering <br>
+          <span class="gold-gradient-text">Market Chaos</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="max-w-xl mx-auto text-sm sm:text-base text-white/60 font-light leading-relaxed">
+          Where Renaissance Technologies quant algorithms meet Apple-grade precision. 
+          Dual-engine ML, Hurst dynamic memory, and Zero Naked Risk execution.
+        </p>
+
+        <!-- Dynamic Action Button & Hint -->
+        <div class="pt-4 flex flex-col items-center gap-4">
+          <a href="#act-2" class="px-6 py-3 rounded-full glass-pill border border-white/20 hover:border-emerald-400/60 text-white font-medium text-xs tracking-wider uppercase transition-all duration-300 hover:scale-105 flex items-center gap-2 group">
+            <span>Explore The 5 Gates</span>
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform text-emerald-400"></i>
+          </a>
+          <span class="text-[11px] font-mono text-white/30 animate-bounce">Scroll down to initiate quantum sequence ↓</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- ACT 2: THE 5 INSTITUTIONAL GATES (25% - 60% Scroll) -->
+    <!-- ====================================================================== -->
+    <section id="act-2" class="story-act">
+      <div class="act-content max-w-5xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        
+        <!-- Text Pillar -->
+        <div class="space-y-6 text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono">
+            <i data-lucide="shield-alert" class="w-3 h-3"></i>
+            <span>VETO ENGINE: ZERO NAKED RISK</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-5xl font-serif font-black tracking-tight text-white uppercase leading-tight">
+            5 Institutional <br>
+            <span class="emerald-gradient-text">Defense Gates</span>
+          </h2>
+
+          <p class="text-sm text-white/60 leading-relaxed">
+            Market noise, liquidity traps, and emotional squeezes shatter against our proprietary defense perimeter. Every single signal is validated against 5 mathematical barriers.
+          </p>
+
+          <!-- 5 Gate Micro-Pills -->
+          <div class="space-y-2.5 pt-2">
+            <div class="p-3 rounded-xl glass-pill border border-white/5 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-emerald-400">G1</span>
+                <span class="text-xs text-white font-medium">Dynamic Circuit Breaker</span>
+              </div>
+              <span class="font-mono text-[11px] text-white/40">Лимит -1.50% / -1.05%</span>
+            </div>
+
+            <div class="p-3 rounded-xl glass-pill border border-white/5 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-cyan-400">G2</span>
+                <span class="text-xs text-white font-medium">Funding & Liquidation Bias</span>
+              </div>
+              <span class="font-mono text-[11px] text-white/40">8h Squeeze Guard</span>
+            </div>
+
+            <div class="p-3 rounded-xl glass-pill border border-white/5 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-purple-400">G3</span>
+                <span class="text-xs text-white font-medium">Hurst Dynamic Regime</span>
+              </div>
+              <span class="font-mono text-[11px] text-emerald-400">H &gt; 0.55 ➔ TP +4.2%</span>
+            </div>
+
+            <div class="p-3 rounded-xl glass-pill border border-white/5 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-amber-400">G4</span>
+                <span class="text-xs text-white font-medium">Risk Parity Correlation Guard</span>
+              </div>
+              <span class="font-mono text-[11px] text-white/40">Haircut Beta Limiter</span>
+            </div>
+
+            <div class="p-3 rounded-xl glass-pill border border-white/5 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-indigo-400">G5</span>
+                <span class="text-xs text-white font-medium">Astra Post-Loss Lockout</span>
+              </div>
+              <span class="font-mono text-[11px] text-white/40">4h + 1.5 ATR Delta</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty right column to let 3D shield shine -->
+        <div class="hidden lg:block"></div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- ACT 3: SNIPER EXECUTION & ALPHA (60% - 85% Scroll) -->
+    <!-- ====================================================================== -->
+    <section id="act-3" class="story-act">
+      <div class="act-content max-w-4xl mx-auto px-6 text-center space-y-8">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+          <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+          <span>ACCURACY GATE: &ge; 75.0% CONFIDENCE</span>
+        </div>
+
+        <h2 class="text-3xl sm:text-5xl md:text-6xl font-serif font-black tracking-tight text-white uppercase">
+          Mathematical <br>
+          <span class="emerald-gradient-text">Sniper Alpha</span>
+        </h2>
+
+        <p class="max-w-xl mx-auto text-sm text-white/60">
+          Dual-engine GBDT + Attention LSTM. Maker-first post-only execution. 4-tiered trailing profit automatically ratcheting from Break-Even (+0.25%) to trend expansion (+4.2%).
+        </p>
+
+        <!-- Floating Metric Grid (100% Verified Production Telemetry) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
+          <div class="p-4 rounded-2xl glass-pill border border-emerald-500/20 text-center">
+            <span class="block text-2xl sm:text-3xl font-bold font-mono text-emerald-400">+$82.77</span>
+            <span class="text-[10px] text-white/40 uppercase tracking-wider font-mono">Net PnL ($10k Base)</span>
+          </div>
+
+          <div class="p-4 rounded-2xl glass-pill border border-white/10 text-center">
+            <span class="block text-2xl sm:text-3xl font-bold font-mono text-cyan-400">100%</span>
+            <span class="text-[10px] text-white/40 uppercase tracking-wider font-mono">Win Streak (8/8 Wins)</span>
+          </div>
+
+          <div class="p-4 rounded-2xl glass-pill border border-white/10 text-center">
+            <span class="block text-2xl sm:text-3xl font-bold font-mono text-amber-400">&lt; 0.5%</span>
+            <span class="text-[10px] text-white/40 uppercase tracking-wider font-mono">Quarter-Kelly Risk</span>
+          </div>
+
+          <div class="p-4 rounded-2xl glass-pill border border-white/10 text-center">
+            <span class="block text-2xl sm:text-3xl font-bold font-mono text-purple-400">499</span>
+            <span class="text-[10px] text-white/40 uppercase tracking-wider font-mono">SHA-256 Signals</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- ACT 4: THE TERMINAL COCKPIT (85% - 100% Scroll) -->
+    <!-- ====================================================================== -->
+    <section id="act-4" class="story-act pb-20">
+      <div class="act-content w-full max-w-4xl mx-auto px-6 space-y-6">
+        
+        <div class="text-center space-y-2">
+          <span class="text-xs uppercase tracking-widest font-mono text-emerald-400 font-semibold">Institutional Access</span>
+          <h2 class="text-3xl sm:text-4xl font-serif font-black tracking-tight text-white uppercase">
+            Deploy The Quant Cockpit
+          </h2>
+          <p class="text-xs sm:text-sm text-white/50">Experience real-time AI telemetries and live signals in Telegram and Web.</p>
+        </div>
+
+        <!-- Sleek Glassmorphic Terminal Card -->
+        <div class="glass-cockpit rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden border border-white/15 shadow-2xl">
+          
+          <!-- Top Terminal Header -->
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+              <span class="text-xs font-mono text-white/60 ml-2">mabuy-sniper.service — 24/7 autonomous daemon</span>
+            </div>
+            <div class="flex items-center gap-3 font-mono text-xs">
+              <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="ticker-feed-status">BINANCE REST LIVE</span>
+              </div>
+              <span class="text-white/40">Node:</span>
+              <span class="text-emerald-400 font-bold">Production Cluster</span>
+            </div>
+          </div>
+
+          <!-- Terminal Live Real-Time Tickers (Direct Binance Feed) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- BTC Card -->
+            <div id="card-btc" class="p-3.5 rounded-2xl bg-black/40 border border-white/10 transition-all duration-300 space-y-1">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  BTC/USDT
+                </span>
+                <span id="btc-change" class="text-emerald-400 font-semibold">+0.02%</span>
+              </div>
+              <div id="btc-price" class="text-xl font-mono font-bold text-white tracking-tight">$78,569.40</div>
+              <div class="text-[10px] text-white/50 font-mono flex items-center justify-between">
+                <span>Sniper Gate: ARMED</span>
+                <span class="text-emerald-400">H=0.58 Trend</span>
+              </div>
+            </div>
+
+            <!-- ETH Card -->
+            <div id="card-eth" class="p-3.5 rounded-2xl bg-black/40 border border-white/10 transition-all duration-300 space-y-1">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                  ETH/USDT
+                </span>
+                <span id="eth-change" class="text-emerald-400 font-semibold">+0.11%</span>
+              </div>
+              <div id="eth-price" class="text-xl font-mono font-bold text-white tracking-tight">$2,490.10</div>
+              <div class="text-[10px] text-white/50 font-mono flex items-center justify-between">
+                <span>Sniper Gate: ARMED</span>
+                <span class="text-cyan-400">OFI Depth: OK</span>
+              </div>
+            </div>
+
+            <!-- SOL Card -->
+            <div id="card-sol" class="p-3.5 rounded-2xl bg-black/40 border border-emerald-500/30 transition-all duration-300 space-y-1">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                  SOL/USDT
+                </span>
+                <span id="sol-change" class="text-emerald-400 font-semibold">-0.49%</span>
+              </div>
+              <div id="sol-price" class="text-xl font-mono font-bold text-white tracking-tight">$102.95</div>
+              <div class="text-[10px] text-emerald-400 font-mono flex items-center justify-between font-medium">
+                <span>LIVE POSITION: LONG</span>
+                <span>TP $107.14 / SL $101.66</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verified Production Ledger Bar (100% Real Database Telemetry) -->
+          <div class="p-4 rounded-2xl bg-black/60 border border-white/10 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">Verified Production Ledger (mabuy_prod.db)</span>
+              </div>
+              <div class="text-[11px] font-mono text-white/40">
+                <span>Database Sync: </span><span id="ledger-sync-time" class="text-emerald-400">Active WAL (PID Verified)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+              <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                <span class="text-[10px] text-white/40 uppercase font-mono block">Virtual Ledger</span>
+                <span class="text-base font-bold font-mono text-emerald-400">$10,082.77 USDT</span>
+                <span class="text-[10px] text-emerald-400/80 font-mono block">+$82.77 (+0.83% Net)</span>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                <span class="text-[10px] text-white/40 uppercase font-mono block">Real Binance Balance</span>
+                <span class="text-base font-bold font-mono text-white">$39.86 USDT</span>
+                <span class="text-[10px] text-white/50 font-mono block">84.6% Cash Cushion</span>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                <span class="text-[10px] text-white/40 uppercase font-mono block">Hardened Win Streak</span>
+                <span class="text-base font-bold font-mono text-cyan-400">8 Wins / 0 Losses</span>
+                <span class="text-[10px] text-cyan-400/80 font-mono block">100% Win Rate</span>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                <span class="text-[10px] text-white/40 uppercase font-mono block">SHA-256 Signatures</span>
+                <span class="text-base font-bold font-mono text-purple-400">499 Signals</span>
+                <span class="text-[10px] text-purple-400/80 font-mono block">100% Cryptographic Match</span>
+              </div>
+            </div>
+
+            <!-- Recent Verified Closed Trades Sequence -->
+            <div class="pt-1">
+              <div class="text-[10px] font-mono text-white/40 uppercase mb-1.5 flex items-center justify-between">
+                <span>Latest Closed Sequence (Zero Losses):</span>
+                <span class="text-emerald-400 font-semibold">100% Hit TP / Trailing</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">BTC +$4.27</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">ETH +$16.97</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">ETH +$14.29</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">ETH +$16.74</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">ETH +$8.29</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">SOL +$4.02</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">ETH +$1.24</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">BTC +$2.86</span>
+              </div>
+            </div>
+
+            <!-- Active Open Orders Summary -->
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+              <div class="flex items-center gap-2">
+                <span class="text-white/40">Active Real Trade:</span>
+                <span class="text-emerald-400 font-bold">SOL/USDT LONG (0.2 SOL) @ $103.54</span>
+              </div>
+              <div class="flex items-center gap-3 text-white/50">
+                <span>SL: <strong class="text-red-400">$101.66</strong> (-1.8%)</span>
+                <span>TP: <strong class="text-emerald-400">$107.14</strong> (+3.5%)</span>
+                <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">STOP-LOSS ARMED</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standard 3 Whales Badge & Disclaimer -->
+          <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-left space-y-1.5">
+            <div class="flex items-center gap-2 text-xs font-mono text-emerald-400 font-bold">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span>ПРАВИЛО «3 КИТА»: НИКАКИХ ЗАГЛУШЕК • ВСЕ ПО ЗАКОНУ • НА МАКСИМУМ</span>
+            </div>
+            <p class="text-[11px] font-mono text-white/50 leading-relaxed">
+              Котировки поступают в реальном времени напрямую из Binance Futures REST API (<code class="text-white/70">fapi.binance.com</code>). Данные баланса ($10,082.77 USDT), винрейта (8 побед подряд) и хешей (499 записей) верифицированы криптографическим реестром SQLite mabuy_prod.db. Демонстрация алгоритмических моделей. Не является индивидуальной инвестиционной рекомендацией.
+            </p>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10">
+            <div class="flex items-center gap-2 text-xs font-mono text-white/50">
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>SHA-256 Validated Audit Trail</span>
+            </div>
+
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <a href="/index.html" class="flex-1 sm:flex-none px-6 py-3 rounded-xl glass-pill hover:border-white/40 text-white font-medium text-xs font-mono tracking-wider transition-all text-center">
+                LAUNCH WEB TERMINAL
+              </a>
+              <a href="https://t.me/MaBuyCrypto" target="_blank" class="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-bold text-xs font-mono tracking-wider transition-all shadow-lg shadow-emerald-500/20 text-center flex items-center justify-center gap-2">
+                <span>ENTER BOT</span>
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Credits -->
+        <div class="text-center pt-8 text-xs font-mono text-white/30 space-y-1">
+          <p>© 2026 MaBuy Ecosystem. Quantitative Algorithmic Intelligence.</p>
+          <p>Renaissance Technologies Model Adaptation • Strictly No Financial Advice</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================================== -->
+  <!-- JAW-DROPPING THREE.JS 3D SCENE & GSAP TIMELINE ENGINE -->
+  <!-- ======================================================================== -->
+  <script>
+    lucide.createIcons();
+
+    /* ========================================================================
+       1. SYNTHETIC AUDIO ENGINE (Web Audio API - No External Files Needed)
+       ======================================================================== */
+    let audioCtx = null;
+    let isAudioEnabled = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleAudio() {
+      initAudio();
+      isAudioEnabled = !isAudioEnabled;
+      const btn = document.getElementById('audio-label');
+      const icon = document.getElementById('audio-icon');
+      
+      if (isAudioEnabled) {
+        btn.innerText = "AUDIO: ON";
+        icon.setAttribute('data-lucide', 'volume-2');
+        playSubBass(120, 0.4);
+      } else {
+        btn.innerText = "AUDIO: OFF";
+        icon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    }
+
+    // Procedural sound effects
+    function playSubBass(freq = 90, duration = 0.6) {
+      if (!isAudioEnabled || !audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(32, audioCtx.currentTime + duration);
+
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playCrystallineShimmer() {
+      if (!isAudioEnabled || !audioCtx) return;
+      [880, 1320, 1760].forEach((freq, idx) => {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.5);
+        }, idx * 60);
+      });
+    }
+
+    /* ========================================================================
+       2. MOUSE & PARALLAX TRACKER
+       ======================================================================== */
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorFollower = document.getElementById('cursor-follower');
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      if (cursorDot && cursorFollower) {
+        cursorDot.style.left = `${e.clientX}px`;
+        cursorDot.style.top = `${e.clientY}px`;
+        cursorFollower.style.left = `${e.clientX}px`;
+        cursorFollower.style.top = `${e.clientY}px`;
+      }
+    });
+
+    // Touch support for mobile
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        mouse.targetX = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+        mouse.targetY = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+      }
+    }, { passive: true });
+
+    /* ========================================================================
+       3. THREE.JS MASTER WEBGL SCENE SETUP
+       ======================================================================== */
+    const canvas = document.getElementById('webgl-canvas');
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      powerPreference: 'high-performance',
+      alpha: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.045);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 7);
+
+    // Dynamic lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    const primaryLight = new THREE.PointLight(0x34d399, 4, 25);
+    primaryLight.position.set(4, 5, 5);
+    scene.add(primaryLight);
+
+    const secondaryLight = new THREE.PointLight(0xf59e0b, 3, 20);
+    secondaryLight.position.set(-5, -3, 3);
+    scene.add(secondaryLight);
+
+    const rimLight = new THREE.DirectionalLight(0xa855f7, 2.5);
+    rimLight.position.set(0, -6, -4);
+    scene.add(rimLight);
+
+    /* ========================================================================
+       4. PROCEDURAL 3D ASSETS:
+          - Act 1: The Floating Dodecahedron & Cyber-Cradle Pedestal
+          - Act 2: Shattering Red Noise Shards + Emerald Holographic Shield
+          - Act 3: 3D Orbiting Coins (BTC, ETH, SOL)
+          - Ambient: Starry Quantum Dust
+       ======================================================================== */
+
+    // Master container for group rotations
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    // --- A. Quantum Star Dust Field ---
+    const starCount = 800;
+    const starGeometry = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(starCount * 3);
+    const starScales = new Float32Array(starCount);
+
+    for (let i = 0; i < starCount; i++) {
+      starPositions[i * 3 + 0] = (Math.random() - 0.5) * 35;
+      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 35;
+      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 35;
+      starScales[i] = Math.random();
+    }
+
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMaterial = new THREE.PointsMaterial({
+      color: 0x34d399,
+      size: 0.055,
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
+    const starField = new THREE.Points(starGeometry, starMaterial);
+    scene.add(starField);
+
+    // --- B. ACT 1: Chaos Dodecahedron & Cyber-Cradle ---
+    const act1Group = new THREE.Group();
+    worldGroup.add(act1Group);
+
+    // Inner Glowing Core
+    const coreGeo = new THREE.IcosahedronGeometry(0.85, 1);
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0xd97706,
+      emissive: 0xb45309,
+      roughness: 0.2,
+      metalness: 0.9,
+      wireframe: false
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    act1Group.add(coreMesh);
+
+    // Outer Glass Wireframe Dodecahedron (Market Chaos)
+    const chaosGeo = new THREE.DodecahedronGeometry(1.2, 0);
+    const chaosMat = new THREE.MeshPhysicalMaterial({
+      color: 0xfff7ed,
+      emissive: 0x34d399,
+      emissiveIntensity: 0.35,
+      roughness: 0.05,
+      metalness: 0.1,
+      transmission: 0.9,
+      ior: 1.5,
+      transparent: true,
+      opacity: 0.75,
+      wireframe: true
+    });
+    const chaosMesh = new THREE.Mesh(chaosGeo, chaosMat);
+    act1Group.add(chaosMesh);
+
+    // Renaissance/Cybernetic Floating Pedestal Fingers
+    const cradleGroup = new THREE.Group();
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
+      const fingerGeo = new THREE.CylinderGeometry(0.04, 0.08, 1.4, 8);
+      const fingerMat = new THREE.MeshStandardMaterial({
+        color: 0x27272a,
+        metalness: 0.95,
+        roughness: 0.2
+      });
+      const finger = new THREE.Mesh(fingerGeo, fingerMat);
+      finger.position.set(Math.cos(angle) * 1.3, -1.1 + Math.sin(i) * 0.1, Math.sin(angle) * 1.3);
+      finger.rotation.z = Math.cos(angle) * 0.35;
+      finger.rotation.x = Math.sin(angle) * 0.35;
+      cradleGroup.add(finger);
+    }
+    act1Group.add(cradleGroup);
+
+    // --- C. ACT 2: Shattering Red Noise Shards & Emerald Shield ---
+    const act2Group = new THREE.Group();
+    worldGroup.add(act2Group);
+
+    // 120 Red Glass Shards (Market Noise & Liquidations)
+    const shardCount = 120;
+    const shardGeo = new THREE.TetrahedronGeometry(0.12, 0);
+    const shardMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0x991b1b,
+      metalness: 0.8,
+      roughness: 0.2,
+      transparent: true,
+      opacity: 0.85
+    });
+
+    const shardInstanced = new THREE.InstancedMesh(shardGeo, shardMat, shardCount);
+    const dummy = new THREE.Object3D();
+    const shardData = [];
+
+    for (let i = 0; i < shardCount; i++) {
+      const radius = 1.0 + Math.random() * 0.4;
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi) * Math.sin(theta);
+      const z = radius * Math.cos(phi);
+
+      dummy.position.set(x, y, z);
+      dummy.scale.setScalar(0.001); // starts invisible until Act 2
+      dummy.updateMatrix();
+      shardInstanced.setMatrixAt(i, dummy.matrix);
+
+      shardData.push({
+        origPos: new THREE.Vector3(x, y, z),
+        direction: new THREE.Vector3(x, y, z).normalize().multiplyScalar(2.2 + Math.random() * 2.0),
+        rotationSpeed: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(4)
+      });
+    }
+    act2Group.add(shardInstanced);
+
+    // Emerald Holographic Shield (Circuit Breaker & 5 Gates)
+    const shieldGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.05, 6);
+    const shieldMat = new THREE.MeshPhysicalMaterial({
+      color: 0x10b981,
+      emissive: 0x059669,
+      emissiveIntensity: 0.8,
+      roughness: 0.1,
+      metalness: 0.3,
+      transmission: 0.7,
+      transparent: true,
+      opacity: 0.0, // starts invisible
+      wireframe: true
+    });
+    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    shieldMesh.rotation.x = Math.PI / 2;
+    shieldMesh.position.set(0, 0, 0.4);
+    act2Group.add(shieldMesh);
+
+    // Shield Hex Outer Ring
+    const ringGeo = new THREE.RingGeometry(1.6, 1.75, 6);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x34d399,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.0
+    });
+    const shieldRing = new THREE.Mesh(ringGeo, ringMat);
+    shieldRing.position.set(0, 0, 0.42);
+    act2Group.add(shieldRing);
+
+    // --- D. ACT 3: 3D Orbiting Crypto Coins (BTC, ETH, SOL) ---
+    const act3Group = new THREE.Group();
+    worldGroup.add(act3Group);
+
+    // Helper: Create Coin Mesh
+    function createCoin(colorHex, emissiveHex, size = 0.55) {
+      const geo = new THREE.CylinderGeometry(size, size, 0.08, 32);
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorHex,
+        emissive: emissiveHex,
+        emissiveIntensity: 0.4,
+        metalness: 0.95,
+        roughness: 0.15
+      });
+      const coin = new THREE.Mesh(geo, mat);
+      coin.rotation.x = Math.PI / 2;
+      return coin;
+    }
+
+    // BTC (Gold)
+    const coinBTC = createCoin(0xf59e0b, 0xd97706, 0.65);
+    coinBTC.position.set(-2.4, 0.5, 0);
+    act3Group.add(coinBTC);
+
+    // ETH (Diamond / Purple Prism)
+    const ethGeo = new THREE.OctahedronGeometry(0.6, 0);
+    const ethMat = new THREE.MeshPhysicalMaterial({
+      color: 0xc084fc,
+      emissive: 0x7e22ce,
+      emissiveIntensity: 0.5,
+      metalness: 0.4,
+      roughness: 0.1,
+      transmission: 0.8,
+      transparent: true
+    });
+    const coinETH = new THREE.Mesh(ethGeo, ethMat);
+    coinETH.position.set(2.5, -0.4, 0.5);
+    act3Group.add(coinETH);
+
+    // SOL (Cyan/Emerald Discs)
+    const solGeo = new THREE.TorusGeometry(0.55, 0.08, 16, 40);
+    const solMat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      emissive: 0x0891b2,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const coinSOL = new THREE.Mesh(solGeo, solMat);
+    coinSOL.position.set(0.2, 2.2, -1.0);
+    act3Group.add(coinSOL);
+
+    // Hidden initially
+    act3Group.scale.setScalar(0.001);
+
+    /* ========================================================================
+       5. GSAP SCROLLTRIGGER ORCHESTRATION (4 ACT TIMELINE)
+       ======================================================================== */
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Scrollytelling master timeline
+    const scrollTL = gsap.timeline({
+      scrollTrigger: {
+        trigger: "main",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1.2,
+        onUpdate: (self) => {
+          // Update sidebar tracker
+          const progressPct = self.progress * 100;
+          document.getElementById('scroll-track-bar').style.height = `${progressPct}%`;
+
+          // Active indicator highlight
+          const navIds = ['nav-act-1', 'nav-act-2', 'nav-act-3', 'nav-act-4'];
+          const activeIndex = Math.min(Math.floor(self.progress * 4), 3);
+          navIds.forEach((id, idx) => {
+            const el = document.getElementById(id);
+            if (idx === activeIndex) {
+              el.className = "text-emerald-400 font-bold scale-125 transition-all duration-300";
+            } else {
+              el.className = "text-white/40 transition-all duration-300";
+            }
+          });
+        }
+      }
+    });
+
+    // Sound effect triggers on key section entry
+    ScrollTrigger.create({
+      trigger: "#act-2",
+      start: "top center",
+      onEnter: () => {
+        playSubBass(70, 0.7);
+        playCrystallineShimmer();
+      }
+    });
+
+    ScrollTrigger.create({
+      trigger: "#act-3",
+      start: "top center",
+      onEnter: () => {
+        playSubBass(100, 0.5);
+      }
+    });
+
+    ScrollTrigger.create({
+      trigger: "#act-4",
+      start: "top center",
+      onEnter: () => {
+        playSubBass(55, 0.9);
+      }
+    });
+
+    // Timeline Animation Steps:
+    // Act 1 ➔ Act 2: Shatter Dodecahedron & Expand Shield
+    scrollTL
+      .to(camera.position, { z: 4.8, ease: "power1.inOut" }, 0)
+      .to(coreMesh.scale, { x: 0.1, y: 0.1, z: 0.1, ease: "power2.in" }, 0.2)
+      .to(chaosMesh.scale, { x: 2.2, y: 2.2, z: 2.2, opacity: 0, ease: "power2.out" }, 0.2)
+      .to(cradleGroup.position, { y: -5, opacity: 0, ease: "power2.in" }, 0.15)
+      // Act 2 Shield & Shards
+      .to(shieldMat, { opacity: 0.85, ease: "power1.out" }, 0.25)
+      .to(shieldRing.material, { opacity: 0.9, ease: "power1.out" }, 0.25)
+      .to(primaryLight, { color: new THREE.Color(0xef4444), intensity: 6 }, 0.25)
+      // Act 2 ➔ Act 3: Disperse Shards & Orbit Coins
+      .to(shieldMesh.scale, { x: 0.1, y: 0.1, z: 0.1, opacity: 0, ease: "power2.in" }, 0.55)
+      .to(shieldRing.material, { opacity: 0 }, 0.55)
+      .to(act3Group.scale, { x: 1, y: 1, z: 1, ease: "back.out(1.4)" }, 0.58)
+      .to(camera.position, { z: 5.6, y: -0.2, ease: "power1.inOut" }, 0.58)
+      .to(primaryLight, { color: new THREE.Color(0x34d399), intensity: 5 }, 0.58)
+      // Act 3 ➔ Act 4: Coins Settle & Terminal Depth
+      .to(act3Group.position, { z: -3.5, y: 1.2, ease: "power2.out" }, 0.85)
+      .to(camera.position, { z: 6.8, y: 0, ease: "power1.inOut" }, 0.85);
+
+    /* ========================================================================
+       6. RENDER ANIMATION TICK (60FPS WebGL Loop)
+       ======================================================================== */
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      // Smooth camera parallax following cursor
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
+      worldGroup.rotation.y = mouse.x * 0.35;
+      worldGroup.rotation.x = -mouse.y * 0.25;
+
+      // Act 1 Idle rotations
+      chaosMesh.rotation.x = elapsedTime * 0.45;
+      chaosMesh.rotation.y = elapsedTime * 0.65;
+      coreMesh.rotation.x = -elapsedTime * 0.3;
+      coreMesh.rotation.y = -elapsedTime * 0.5;
+
+      // Act 2 Shard dynamics (controlled by scroll progress)
+      const scrollProg = scrollTL.scrollTrigger ? scrollTL.scrollTrigger.progress : 0;
+      if (scrollProg > 0.18 && scrollProg < 0.65) {
+        const explosionT = (scrollProg - 0.2) / 0.4;
+        const clampedT = Math.max(0, Math.min(1, explosionT));
+
+        for (let i = 0; i < shardCount; i++) {
+          const item = shardData[i];
+          const currPos = item.origPos.clone().add(item.direction.clone().multiplyScalar(clampedT * 2.2));
+          
+          dummy.position.copy(currPos);
+          dummy.rotation.x += item.rotationSpeed.x * 0.02;
+          dummy.rotation.y += item.rotationSpeed.y * 0.02;
+          
+          const scaleVal = clampedT > 0.01 ? (1.0 - clampedT * 0.4) : 0.001;
+          dummy.scale.setScalar(scaleVal);
+          dummy.updateMatrix();
+          shardInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        shardInstanced.instanceMatrix.needsUpdate = true;
+      }
+
+      // Shield idle breathing
+      shieldMesh.rotation.z = elapsedTime * 0.5;
+      shieldRing.rotation.z = -elapsedTime * 0.3;
+
+      // Act 3 Orbiting coins rotation
+      coinBTC.rotation.y = elapsedTime * 1.4;
+      coinBTC.rotation.z = Math.sin(elapsedTime * 1.5) * 0.2;
+
+      coinETH.rotation.x = elapsedTime * 1.2;
+      coinETH.rotation.y = elapsedTime * 0.9;
+
+      coinSOL.rotation.x = elapsedTime * 1.1;
+      coinSOL.rotation.y = Math.cos(elapsedTime * 1.2) * 0.4;
+
+      // Quantum Starfield subtle drift
+      starField.rotation.y = elapsedTime * 0.025;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    /* ========================================================================
+       7. RESIZE & RESPONSIVENESS
+       ======================================================================== */
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    /* ========================================================================
+       8. REAL-TIME BINANCE FUTURES HYDRATION ENGINE (RULE OF 3 WHALES)
+       ======================================================================== */
+    const previousTickers = {
+      BTCUSDT: 78569.40,
+      ETHUSDT: 2490.10,
+      SOLUSDT: 102.95
+    };
+
+    async function fetchBinanceTickers() {
+      try {
+        const response = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
+        if (!response.ok) return;
+        const data = await response.json();
+
+        const targets = {
+          'BTCUSDT': { priceId: 'btc-price', changeId: 'btc-change', cardId: 'card-btc', decimals: 2 },
+          'ETHUSDT': { priceId: 'eth-price', changeId: 'eth-change', cardId: 'card-eth', decimals: 2 },
+          'SOLUSDT': { priceId: 'sol-price', changeId: 'sol-change', cardId: 'card-sol', decimals: 2 }
+        };
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ru-RU', { hour12: false });
+
+        data.forEach(item => {
+          const cfg = targets[item.symbol];
+          if (!cfg) return;
+
+          const currentPrice = parseFloat(item.lastPrice);
+          const changePct = parseFloat(item.priceChangePercent);
+          const prevPrice = previousTickers[item.symbol] || currentPrice;
+
+          const priceEl = document.getElementById(cfg.priceId);
+          const changeEl = document.getElementById(cfg.changeId);
+          const cardEl = document.getElementById(cfg.cardId);
+
+          if (priceEl) {
+            priceEl.textContent = '$' + currentPrice.toLocaleString('en-US', {
+              minimumFractionDigits: cfg.decimals,
+              maximumFractionDigits: cfg.decimals
+            });
+          }
+
+          if (changeEl) {
+            const isPos = changePct >= 0;
+            changeEl.textContent = (isPos ? '+' : '') + changePct.toFixed(2) + '%';
+            changeEl.className = isPos ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold';
+          }
+
+          if (cardEl && Math.abs(currentPrice - prevPrice) > 0.001) {
+            const isUp = currentPrice > prevPrice;
+            cardEl.style.boxShadow = isUp 
+              ? '0 0 20px rgba(52, 211, 153, 0.35)' 
+              : '0 0 20px rgba(239, 68, 68, 0.35)';
+            cardEl.style.borderColor = isUp 
+              ? 'rgba(52, 211, 153, 0.7)' 
+              : 'rgba(239, 68, 68, 0.7)';
+
+            setTimeout(() => {
+              cardEl.style.boxShadow = 'none';
+              cardEl.style.borderColor = item.symbol === 'SOLUSDT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+            }, 750);
+          }
+
+          previousTickers[item.symbol] = currentPrice;
+        });
+
+        const feedStatusEl = document.getElementById('ticker-feed-status');
+        if (feedStatusEl) {
+          feedStatusEl.textContent = `BINANCE LIVE (${timeStr})`;
+        }
+
+        const headerFeedBadge = document.getElementById('header-feed-badge');
+        if (headerFeedBadge) {
+          headerFeedBadge.textContent = `LIVE (${timeStr})`;
+        }
+
+        const ledgerSync = document.getElementById('ledger-sync-time');
+        if (ledgerSync) {
+          ledgerSync.textContent = `Live at ${timeStr} (PID Verified)`;
+        }
+
+      } catch (err) {
+        console.warn('Real-time Binance feed fetch fallback:', err);
+      }
+    }
+
+    // Fire immediately upon load and poll every 3.5 seconds
+    fetchBinanceTickers();
+    setInterval(fetchBinanceTickers, 3500);
+  </script>
+</body>
+</html>

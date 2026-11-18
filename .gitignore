@@ -1,0 +1,95 @@
+# =============================================================================
+# MaBuy Quantitative Trading Ecosystem — .gitignore
+# =============================================================================
+
+# ─── Temporary Test Backup Directories ────────────────────────────────────────
+temp_test_backup_suite_*/
+temp_chart_*.png
+temp_channel_broadcast_*.png
+test_verify_tmp.db
+vps_deploy_payload.txt
+
+# ─── Secrets & Credentials ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+config/local_*.yaml
+
+# ─── Python Runtime ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+env/
+.venv/
+
+# ─── ML Model Artifacts (heavy — stored separately) ───────────────────────────
+models/*
+!models/registry_manifest.json
+!models/.gitkeep
+
+# ─── Data Files ───────────────────────────────────────────────────────────────
+data/*
+!data/.gitkeep
+
+
+# ─── Reports & Logs ───────────────────────────────────────────────────────────
+logs/
+reports/
+*.log
+
+# ─── Jupyter Notebooks Output ─────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ─── OS & Editor Files ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── Node (if any frontend tooling added later) ───────────────────────────────
+node_modules/
+
+# ─── Temporary / Scratch ──────────────────────────────────────────────────────
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
+*.zip
+*.tar.gz
+*.png
+*.db
+*.sqlite
+*.sqlite3
+.data_cache/
+.data_cache_test/
+.test_data_cache/
+.test_card_db/
+catboost_info/
+temp_test_backup_suite/
+.vercel/
+.vercel_backup/
+
+# ─── Test Outputs ─────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+temp_*
+*.log.*
+.gemini/
+

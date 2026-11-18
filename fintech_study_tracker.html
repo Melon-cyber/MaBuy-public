@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIT & Stanford 2028: FinTech, Quant & Olympiad Tracker</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .ring-circle {
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+    .day-circle {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .day-circle:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+    .pulse-glow {
+      animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.7); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased p-3 sm:p-5 font-sans selection:bg-indigo-500 selection:text-white">
+
+  <div class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md">
+    
+    <!-- Top Header & Hero Banner -->
+    <div class="bg-gradient-to-r from-indigo-700 via-purple-700 to-blue-700 text-white p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm mb-2 border border-white/20">
+            <span>🏛️ MIT & Stanford Target Track • 10 класс (г. Астана)</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Трекер микро-дозирования 2026/2027</h1>
+          <p class="text-white/80 text-sm mt-1">60–75 мин в день • USACO олимпиады, SAT Math 800, IELTS 8.0 & Quant Research</p>
+        </div>
+
+        <!-- Flame Streak Counter & Hours Stats -->
+        <div class="flex items-center gap-4 bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 backdrop-blur-sm self-stretch sm:self-auto justify-between sm:justify-start">
+          <div class="text-center">
+            <div class="flex items-center justify-center text-amber-300 font-extrabold text-2xl gap-1">
+              <span class="animate-bounce">🔥</span>
+              <span id="streakCount">0</span>
+            </div>
+            <div class="text-[11px] font-medium text-white/70 uppercase">Дней в ритме</div>
+          </div>
+          <div class="w-px h-8 bg-white/20"></div>
+          <div class="text-center">
+            <div id="totalHours" class="text-2xl font-bold text-cyan-200">0 ч</div>
+            <div class="text-[11px] font-medium text-white/70 uppercase">Инвестировано</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Progress Big Ring Summary -->
+      <div class="mt-6 pt-5 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
+        <div class="flex items-center gap-4">
+          <div class="relative w-16 h-16 flex-shrink-0">
+            <svg class="w-16 h-16" viewBox="0 0 36 36">
+              <path class="text-white/20 stroke-current" stroke-width="3.5" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="weeklyProgressRing" class="ring-circle text-amber-300 stroke-current" stroke-width="3.5"
+                stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-linecap="round" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center font-bold text-xs" id="weeklyPercent">0%</div>
+          </div>
+          <div>
+            <div class="font-semibold text-sm" id="weeklyGoalLabel">Прогресс недели: 0 из 7 дней</div>
+            <div class="text-xs text-white/75" id="weeklyEncouragement">Маленькие шаги каждый день формируют Ivy League профиль!</div>
+          </div>
+        </div>
+
+        <button id="resetWeekBtn" class="text-xs text-white/70 hover:text-white underline transition py-1">
+          Начать новую неделю
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Interactive Area -->
+    <div class="p-5 sm:p-7 space-y-6">
+
+      <!-- Week Day Circles (Пн, Вт, Ср, Чт, Пт, Сб, Вс) -->
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Недельный фокус (Выбери день):
+          </h2>
+          <span class="text-xs text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer transition" onclick="selectToday()">Перейти к сегодняшнему дню</span>
+        </div>
+
+        <!-- 7 Day Interactive Circles Container -->
+        <div class="grid grid-cols-7 gap-2 sm:gap-3" id="daysContainer">
+          <!-- Dynamically filled by JS -->
+        </div>
+      </div>
+
+      <!-- Active Day Detail Card -->
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-5 shadow-lg space-y-4">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-700/60">
+          <div class="flex items-center gap-3">
+            <span id="activeDayIcon" class="text-3xl p-2 bg-slate-800 rounded-xl border border-slate-700">📖</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 id="activeDayTitle" class="font-bold text-lg text-white">Понедельник</h3>
+                <span id="activeDayStatusBadge" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-slate-700 text-slate-300">Не выполнено</span>
+              </div>
+              <p id="activeDaySubtitle" class="text-xs text-indigo-300 font-medium">English & SAT Reading (60 минут)</p>
+            </div>
+          </div>
+
+          <!-- Quick Toggle Complete Button -->
+          <button id="toggleCompleteBtn" onclick="toggleActiveDayComplete()"
+            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-md bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer active:scale-95">
+            <span id="toggleBtnIcon">✓</span>
+            <span id="toggleBtnText">Отметить выполненным</span>
+          </button>
+        </div>
+
+        <!-- Strategic Focus & Action Topic for Current Day -->
+        <div class="bg-indigo-950/40 border border-indigo-800/50 rounded-xl p-3.5 text-xs text-indigo-200 flex items-start gap-2.5">
+          <span class="text-base flex-shrink-0">🎯</span>
+          <div>
+            <span class="font-bold text-indigo-300">Рекомендованный план тренировки:</span>
+            <div id="activeDayRecommendation" class="mt-1 text-slate-300 leading-relaxed">
+              15 мин Anki (академический словарь SAT/IELTS) + 45 мин Khan Academy Digital SAT Reading & Writing.
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Fill Tags -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-2">
+            Быстрые маркеры прогресса (нажми для добавления в дневник):
+          </label>
+          <div class="flex flex-wrap gap-1.5" id="quickTags">
+            <button onclick="addTag('+15 слов Anki')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-indigo-400 text-slate-200 transition cursor-pointer">+15 слов Anki</button>
+            <button onclick="addTag('ielts.gg тренажер ✓')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-pink-400 text-slate-200 transition cursor-pointer">ielts.gg тренажер ✓</button>
+            <button onclick="addTag('USACO Задача ✓')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-emerald-400 text-slate-200 transition cursor-pointer">USACO Задача ✓</button>
+            <button onclick="addTag('Khan SAT Reading')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-indigo-400 text-slate-200 transition cursor-pointer">Khan SAT Reading</button>
+            <button onclick="addTag('SAT Math 800 (Desmos)')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 transition cursor-pointer">SAT Math 800 (Desmos)</button>
+            <button onclick="addTag('AIME / AMC Математика')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-amber-400 text-slate-200 transition cursor-pointer">AMC/AIME Math</button>
+            <button onclick="addTag('MIT OpenCourseWare')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-purple-400 text-slate-200 transition cursor-pointer">MIT OpenCourseWare</button>
+            <button onclick="addTag('MaBuy Research Paper')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-rose-400 text-slate-200 transition cursor-pointer">MaBuy Research</button>
+            <button onclick="addTag('Школьный GPA 5.0')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-yellow-400 text-slate-200 transition cursor-pointer">Школа 5.0 (GPA)</button>
+          </div>
+        </div>
+
+        <!-- Note Textarea -->
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label for="dayNotes" class="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Дневник дня: Что именно разобрано и понято?
+            </label>
+            <span id="saveStatus" class="text-[11px] text-emerald-400 font-medium opacity-0 transition-opacity">Сохранено ✓</span>
+          </div>
+          <textarea id="dayNotes" rows="3"
+            placeholder="Например: Решил 2 задачи на префиксные суммы на usaco.guide (Bronze). Повторил 15 слов в Anki. Проверил утренний ретрейн моделей на сервере MaBuy..."
+            class="w-full p-3 text-sm rounded-xl border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition resize-none"></textarea>
+          <div class="text-[11px] text-slate-500 mt-1 flex justify-between">
+            <span>Данные сохраняются автоматически в твоем браузере.</span>
+            <span id="charCount">0 симв.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Past Week History Log (Accordion) -->
+      <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/50">
+        <button onclick="toggleHistory()" class="w-full p-4 flex justify-between items-center bg-slate-800/40 text-left font-semibold text-sm hover:bg-slate-800/80 transition cursor-pointer">
+          <span class="flex items-center gap-2 text-slate-200">
+            <span>📜</span>
+            <span>Лента заметок недели</span>
+          </span>
+          <span id="historyChevron" class="text-slate-400 text-xs transition-transform">▼</span>
+        </button>
+        <div id="historyContent" class="p-4 space-y-3 hidden border-t border-slate-800 text-sm">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Motivational Quant & Stanford/MIT Anchor -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-amber-950/25 to-indigo-950/25 border border-amber-500/20 flex items-start gap-3 text-amber-200 text-xs">
+        <span class="text-2xl flex-shrink-0">💡</span>
+        <div>
+          <div class="font-bold text-amber-300 mb-0.5">Квантовая формула поступления (Джим Саймонс & Ричард Фейнман):</div>
+          <div id="quoteText" class="italic text-slate-300 leading-relaxed">
+            «99% кандидатов пытаются делать всё подряд за месяц до дедлайна. Твое преимущество в MIT/Stanford — это 60 минут глубокой системной работы каждый день и реальный рабочий проект на стыке математики и ИИ».
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Strategic University Milestones Checklist -->
+    <div class="px-5 sm:px-7 pb-4">
+      <div class="p-4 rounded-xl bg-slate-800/30 border border-slate-700/60 space-y-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+          <span>🎯 Главные майлстоуны 10 класса (Чеклист):</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 pt-1">
+          <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> Школьный GPA строго 5.0 (все четверти)</div>
+          <div class="flex items-center gap-2"><span class="text-indigo-400 font-bold">⏳</span> USACO Bronze ➔ Silver (Декабрь – Февраль)</div>
+          <div class="flex items-center gap-2"><span class="text-indigo-400 font-bold">⏳</span> Digital SAT пробный (Весна: цель 1450+)</div>
+          <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> MaBuy: 24/7 автономный Live-трек рекорд</div>
+          <div class="flex items-center gap-2"><span class="text-indigo-400 font-bold">⏳</span> Лето перед 11 кл: IELTS 8.0 & SAT 1550+</div>
+          <div class="flex items-center gap-2"><span class="text-indigo-400 font-bold">⏳</span> MaBuy Research Paper (ISEF / Дарын / arXiv)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-950 p-4 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400">
+      <span class="text-slate-400">🏆 Цель: 100% Full Grant (MIT / Stanford / Harvard / Назарбаев Университет SEDS)</span>
+      <div class="flex gap-3">
+        <button onclick="exportData()" class="hover:text-indigo-400 transition cursor-pointer">Экспорт (.json)</button>
+        <span>•</span>
+        <button onclick="clearAllData()" class="text-rose-400 hover:underline cursor-pointer">Сброс</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    const DAYS_CONFIG = [
+      {
+        id: 'mon',
+        name: 'Пн',
+        full: 'Понедельник',
+        title: 'English & SAT Reading / IELTS Writing',
+        icon: '📖',
+        rec: '15 мин Anki (академический словарь SAT/IELTS) + 45 мин: чередование Khan Academy SAT Reading и ielts.gg (разбор структуры и связок Writing Task 2).'
+      },
+      {
+        id: 'tue',
+        name: 'Вт',
+        full: 'Вторник',
+        title: 'USACO & Олимпиадные алгоритмы',
+        icon: '💻',
+        rec: '60 мин на usaco.guide (Bronze ➔ Silver). Базовые алгоритмы: префиксные суммы, сортировки, жадные алгоритмы, бинарный поиск (C++ или Python).'
+      },
+      {
+        id: 'wed',
+        name: 'Ср',
+        full: 'Среда',
+        title: 'ielts.gg Simulator & Quant Listening',
+        icon: '🎧',
+        rec: '20–25 мин ielts.gg (Speaking тренажер или секция Listening) + 25–35 мин англоязычный Quant-подкаст (Lex Fridman / 3Blue1Brown). Упор на прорыв Speaking с 6.0 до 7.5.'
+      },
+      {
+        id: 'thu',
+        name: 'Чт',
+        full: 'Четверг',
+        title: 'SAT Math 800 + Hard/AIME Prep',
+        icon: '📐',
+        rec: '30 мин скоростное решение тестов Module 2 Hard с Desmos + 30 мин углубленная математика/комбинаторика олимпиадного уровня (AMC 10/12, AIME).'
+      },
+      {
+        id: 'fri',
+        name: 'Пт',
+        full: 'Пятница',
+        title: 'Разгрузочный английский & Speaking',
+        icon: '🍿',
+        rec: '15 мин легкой разговорной разминки на ielts.gg (Speaking) + фильм или сериал на Netflix/TED на английском с субтитрами. Разгрузка ЦНС перед выходными.'
+      },
+      {
+        id: 'sat',
+        name: 'Сб',
+        full: 'Суббота',
+        title: 'Quant Research Lab (MaBuy Project)',
+        icon: '🧪',
+        rec: 'Deep Work (1.5–2 часа): анализ логов и метрик бэктестов MaBuy, проверка Binance Futures, оформление GitHub и драфта академической статьи (Research Paper).'
+      },
+      {
+        id: 'sun',
+        name: 'Вс',
+        full: 'Воскресенье',
+        title: 'ПОЛНЫЙ ОТДЫХ & Восстановление',
+        icon: '🌿',
+        rec: 'Прогулки по Астане, спорт, друзья, сон. Полная перезагрузка перед новой школьной неделей. 5 минут утром: проверка ночного ретрейна моделей.'
+      }
+    ];
+
+    const STORAGE_KEY = 'mabuy_mit_stanford_study_tracker_v2';
+    let appState = {
+      activeDayIndex: 0,
+      daysData: {},
+      streak: 0,
+      lastActiveDate: null
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          appState = JSON.parse(saved);
+        } else {
+          // Attempt legacy migration if v1 exists
+          const legacy = localStorage.getItem('mabuy_fintech_study_tracker_v1');
+          if (legacy) {
+            const old = JSON.parse(legacy);
+            appState.daysData = old.daysData || {};
+            appState.streak = old.streak || 0;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load localStorage', e);
+      }
+
+      DAYS_CONFIG.forEach((d) => {
+        if (!appState.daysData[d.id]) {
+          appState.daysData[d.id] = { completed: false, notes: '', updatedAt: null };
+        }
+      });
+
+      const today = new Date().getDay();
+      const mappedIndex = today === 0 ? 6 : today - 1;
+      appState.activeDayIndex = mappedIndex;
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        showSavedIndicator();
+      } catch (e) {
+        console.error('Save failed', e);
+      }
+      calculateStats();
+    }
+
+    function showSavedIndicator() {
+      const el = document.getElementById('saveStatus');
+      el.style.opacity = '1';
+      setTimeout(() => { el.style.opacity = '0'; }, 1500);
+    }
+
+    function renderDays() {
+      const container = document.getElementById('daysContainer');
+      container.innerHTML = '';
+
+      DAYS_CONFIG.forEach((d, idx) => {
+        const isSelected = idx === appState.activeDayIndex;
+        const isDone = appState.daysData[d.id]?.completed;
+
+        const btn = document.createElement('div');
+        btn.className = `day-circle cursor-pointer flex flex-col items-center justify-center p-2 rounded-2xl border transition text-center relative ${
+          isSelected ? 'ring-2 ring-indigo-500 shadow-lg bg-slate-800 border-indigo-400' : 'bg-slate-900/80 hover:bg-slate-800/60'
+        } ${isDone ? 'border-emerald-500 bg-emerald-950/20' : 'border-slate-800'}`;
+        
+        btn.onclick = () => selectDay(idx);
+
+        let circleBg = 'bg-slate-800 text-slate-400 border border-slate-700';
+        if (isDone) {
+          circleBg = 'bg-emerald-500 text-slate-950 font-black shadow-md';
+        } else if (isSelected) {
+          circleBg = 'bg-indigo-600 text-white shadow-md';
+        }
+
+        btn.innerHTML = `
+          <span class="text-[11px] font-bold uppercase mb-1 ${isSelected ? 'text-indigo-400 font-extrabold' : 'text-slate-400'}">${d.name}</span>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${circleBg}">
+            ${isDone ? '✓' : d.icon}
+          </div>
+          <span class="text-[10px] mt-1 text-slate-400 truncate max-w-full font-medium">${isDone ? 'Готово' : (isSelected ? 'Сегодня' : '')}</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      renderActiveDay();
+    }
+
+    function renderActiveDay() {
+      const day = DAYS_CONFIG[appState.activeDayIndex];
+      const data = appState.daysData[day.id] || { completed: false, notes: '' };
+
+      document.getElementById('activeDayIcon').textContent = day.icon;
+      document.getElementById('activeDayTitle').textContent = day.full;
+      document.getElementById('activeDaySubtitle').textContent = day.title;
+      document.getElementById('activeDayRecommendation').textContent = day.rec;
+
+      const badge = document.getElementById('activeDayStatusBadge');
+      const toggleBtn = document.getElementById('toggleCompleteBtn');
+      const toggleBtnIcon = document.getElementById('toggleBtnIcon');
+      const toggleBtnText = document.getElementById('toggleBtnText');
+
+      if (data.completed) {
+        badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800';
+        badge.textContent = 'Выполнено ✓';
+        toggleBtn.className = 'w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-md bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold active:scale-95 cursor-pointer';
+        toggleBtnIcon.textContent = '✓';
+        toggleBtnText.textContent = 'Завершено (Нажми для отмены)';
+      } else {
+        badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+        badge.textContent = 'Не выполнено';
+        toggleBtn.className = 'w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-md bg-indigo-600 hover:bg-indigo-500 text-white active:scale-95 cursor-pointer';
+        toggleBtnIcon.textContent = '○';
+        toggleBtnText.textContent = 'Отметить день выполненным';
+      }
+
+      const notesEl = document.getElementById('dayNotes');
+      notesEl.value = data.notes || '';
+      document.getElementById('charCount').textContent = `${(data.notes || '').length} симв.`;
+    }
+
+    function selectDay(idx) {
+      appState.activeDayIndex = idx;
+      renderDays();
+    }
+
+    function selectToday() {
+      const today = new Date().getDay();
+      const mappedIndex = today === 0 ? 6 : today - 1;
+      selectDay(mappedIndex);
+    }
+
+    function toggleActiveDayComplete() {
+      const day = DAYS_CONFIG[appState.activeDayIndex];
+      const data = appState.daysData[day.id];
+      data.completed = !data.completed;
+      data.updatedAt = new Date().toISOString();
+      
+      saveState();
+      renderDays();
+      renderHistory();
+    }
+
+    function addTag(tagText) {
+      const notesEl = document.getElementById('dayNotes');
+      const day = DAYS_CONFIG[appState.activeDayIndex];
+      const current = notesEl.value.trim();
+      notesEl.value = current ? `${current} • [${tagText}]` : `[${tagText}] `;
+      appState.daysData[day.id].notes = notesEl.value;
+      saveState();
+      document.getElementById('charCount').textContent = `${notesEl.value.length} симв.`;
+    }
+
+    document.getElementById('dayNotes').addEventListener('input', (e) => {
+      const day = DAYS_CONFIG[appState.activeDayIndex];
+      appState.daysData[day.id].notes = e.target.value;
+      document.getElementById('charCount').textContent = `${e.target.value.length} симв.`;
+      saveState();
+      renderHistory();
+    });
+
+    function calculateStats() {
+      let completedCount = 0;
+      DAYS_CONFIG.forEach(d => {
+        if (appState.daysData[d.id]?.completed) completedCount++;
+      });
+
+      const percent = Math.round((completedCount / 7) * 100);
+      const ring = document.getElementById('weeklyProgressRing');
+      const offset = 100 - percent;
+      ring.style.strokeDashoffset = offset;
+      document.getElementById('weeklyPercent').textContent = `${percent}%`;
+      document.getElementById('weeklyGoalLabel').textContent = `Прогресс недели: ${completedCount} из 7 дней`;
+
+      document.getElementById('streakCount').textContent = completedCount;
+      document.getElementById('totalHours').textContent = `${completedCount * 1.25} ч`;
+
+      const enc = document.getElementById('weeklyEncouragement');
+      if (completedCount === 7) enc.textContent = '🎉 Идеальная неделя! Ты двигаешься темпом топовых абитуриентов MIT!';
+      else if (completedCount >= 5) enc.textContent = '🔥 Мощный ритм! Финишная прямая недели!';
+      else if (completedCount >= 3) enc.textContent = '👍 Половина недели закрыта! Держи темп!';
+      else enc.textContent = 'Начни с малого — даже 30 минут сегодня имеют огромное значение!';
+    }
+
+    function renderHistory() {
+      const content = document.getElementById('historyContent');
+      content.innerHTML = '';
+
+      let hasAnyNotes = false;
+      DAYS_CONFIG.forEach(d => {
+        const data = appState.daysData[d.id];
+        if (data && (data.completed || data.notes)) {
+          hasAnyNotes = true;
+          const item = document.createElement('div');
+          item.className = 'p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-start justify-between gap-3';
+          item.innerHTML = `
+            <div class="flex items-start gap-3">
+              <span class="text-2xl p-1.5 bg-slate-900 rounded-lg border border-slate-700">${d.icon}</span>
+              <div>
+                <div class="font-bold text-xs flex items-center gap-2">
+                  <span class="text-white">${d.full}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${data.completed ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-700 text-slate-300'}">
+                    ${data.completed ? 'Выполнено' : 'В процессе'}
+                  </span>
+                </div>
+                <div class="text-xs text-slate-300 mt-1.5 whitespace-pre-wrap leading-relaxed">${data.notes ? data.notes : '<span class="italic text-slate-500">Заметка не оставлена</span>'}</div>
+              </div>
+            </div>
+          `;
+          content.appendChild(item);
+        }
+      });
+
+      if (!hasAnyNotes) {
+        content.innerHTML = '<div class="text-xs text-slate-500 italic text-center py-2">Заметок пока нет. Заполни кружочек выше, чтобы появилась запись!</div>';
+      }
+    }
+
+    function toggleHistory() {
+      const c = document.getElementById('historyContent');
+      const chev = document.getElementById('historyChevron');
+      if (c.classList.contains('hidden')) {
+        c.classList.remove('hidden');
+        chev.style.transform = 'rotate(180deg)';
+      } else {
+        c.classList.add('hidden');
+        chev.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    document.getElementById('resetWeekBtn').onclick = () => {
+      if (confirm('Сбросить кружочки недели? Твои заметки сохранятся в истории, но кружочки обнулятся для нового спринта.')) {
+        DAYS_CONFIG.forEach(d => {
+          if (appState.daysData[d.id]) {
+            appState.daysData[d.id].completed = false;
+          }
+        });
+        saveState();
+        renderDays();
+        renderHistory();
+      }
+    };
+
+    function exportData() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", str);
+      a.setAttribute("download", `mit_stanford_study_progress_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function clearAllData() {
+      if (confirm('Внимание: это полностью удалит все твои сохраненные заметки и данные трекера. Продолжить?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadState();
+        renderDays();
+        renderHistory();
+        calculateStats();
+      }
+    }
+
+    // Initialize application
+    loadState();
+    renderDays();
+    renderHistory();
+    calculateStats();
+  </script>
+</body>
+</html>

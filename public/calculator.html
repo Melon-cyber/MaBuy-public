@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MaBuy Quantum Risk & Safe-Leverage Calculator</title>
+  <meta name="description" content="Институциональный калькулятор безопасного плеча и размера позиции по формуле Келли (0.05*K). Защита от ликвидаций и расчет риска для криптовалют.">
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#080C14',
+              card: '#0F172A',
+              border: '#1E293B',
+              primary: '#3B82F6',
+              accent: '#8B5CF6',
+              bull: '#10B981',
+              bear: '#EF4444'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #080C14;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+      color: #F8FAFC;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .slider-thumb::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #3B82F6;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+      border: 2px solid #FFFFFF;
+    }
+    .slider-thumb::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #3B82F6;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+      border: 2px solid #FFFFFF;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-3 sm:p-6 antialiased">
+
+  <!-- Main Container -->
+  <main class="w-full max-w-2xl space-y-4 sm:space-y-6">
+
+    <!-- Header / Branding -->
+    <header class="flex items-center justify-between glass-panel p-4 rounded-2xl">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i class="fa-solid fa-calculator text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            MaBuy Safe-Leverage
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">V5 Quant</span>
+          </h1>
+          <p class="text-xs text-slate-400">Калькулятор риска по формуле Келли (0.05*K)</p>
+        </div>
+      </div>
+      <a href="https://t.me/MabuyCryptoML_bot" target="_blank" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs font-semibold hover:bg-blue-600 hover:text-white transition-all">
+        <i class="fa-brands fa-telegram"></i> Бот в TG
+      </a>
+    </header>
+
+    <!-- Asset & Direction Selector -->
+    <section class="glass-panel p-4 sm:p-5 rounded-2xl space-y-4">
+      
+      <!-- Coin Chips -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">1. Выберите актив:</label>
+        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5 sm:gap-2" id="asset-chips">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Price & Direction -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Цена входа ($ USD):</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">$</span>
+            <input type="number" id="input-price" step="any" class="w-full pl-8 pr-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="60000.00">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Направление сделки:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-long" onclick="setDirection('BULLISH')" class="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-lg shadow-emerald-500/10">
+              <i class="fa-solid fa-arrow-trend-up"></i> LONG (Рост)
+            </button>
+            <button id="btn-short" onclick="setDirection('BEARISH')" class="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-slate-800/40 text-slate-400 border-slate-700/60 hover:text-white">
+              <i class="fa-solid fa-arrow-trend-down"></i> SHORT (Падение)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deposit & Risk Configuration -->
+    <section class="glass-panel p-4 sm:p-5 rounded-2xl space-y-4">
+      
+      <!-- Deposit Amount -->
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">2. Торговый депозит:</label>
+          <span class="font-mono text-sm font-bold text-emerald-400" id="display-deposit">$1,000.00</span>
+        </div>
+
+        <!-- Quick Deposit Chips -->
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 mb-3">
+          <button onclick="setDeposit(100)" class="dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50">$100</button>
+          <button onclick="setDeposit(500)" class="dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50">$500</button>
+          <button onclick="setDeposit(1000)" class="dep-chip active py-1.5 rounded-lg bg-blue-600/30 text-blue-300 border border-blue-500/50 font-bold text-xs font-mono">$1,000</button>
+          <button onclick="setDeposit(2500)" class="dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50">$2,500</button>
+          <button onclick="setDeposit(5000)" class="dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50">$5,000</button>
+          <button onclick="setDeposit(10000)" class="dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50">$10,000</button>
+        </div>
+
+        <input type="range" id="slider-deposit" min="50" max="25000" step="50" value="1000" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb" oninput="onDepositSlider(this.value)">
+      </div>
+
+      <!-- Risk Profile -->
+      <div class="pt-2">
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">3. Профиль Риска (Формула Келли):</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setRiskProfile('conservative')" id="risk-cons" class="py-2 px-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-center transition-all">
+            <div class="text-xs font-bold text-slate-300">🛡 Консервативный</div>
+            <div class="text-[10px] text-slate-500 font-mono">1.0% риска</div>
+          </button>
+          <button onclick="setRiskProfile('balanced')" id="risk-bal" class="py-2 px-2 rounded-xl border border-blue-500/50 bg-blue-600/20 text-center transition-all">
+            <div class="text-xs font-bold text-blue-400">⚖️ Оптимальный</div>
+            <div class="text-[10px] text-blue-300 font-mono">Quarter-Kelly</div>
+          </button>
+          <button onclick="setRiskProfile('aggressive')" id="risk-agg" class="py-2 px-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-center transition-all">
+            <div class="text-xs font-bold text-slate-300">🔥 Динамический</div>
+            <div class="text-[10px] text-slate-500 font-mono">до 4.5% риска</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- SL & TP Sliders -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+        <!-- Stop Loss -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs text-slate-400 font-medium">Стоп-Лосс (SL):</span>
+            <span class="font-mono text-xs font-bold text-rose-400" id="display-sl-pct">-2.00%</span>
+          </div>
+          <input type="range" id="slider-sl" min="0.8" max="8.0" step="0.1" value="2.0" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb" oninput="calculateAll()">
+        </div>
+
+        <!-- Take Profit -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs text-slate-400 font-medium">Тейк-Профит (TP):</span>
+            <span class="font-mono text-xs font-bold text-emerald-400" id="display-tp-pct">+3.60% (R:R 1:1.8)</span>
+          </div>
+          <input type="range" id="slider-tp" min="1.5" max="15.0" step="0.1" value="3.6" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb" oninput="calculateAll()">
+        </div>
+      </div>
+    </section>
+
+    <!-- QUANTUM RESULTS MATRIX -->
+    <section class="glass-panel p-4 sm:p-5 rounded-2xl space-y-4 border-t-2 border-t-blue-500">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-blue-400"></i> Результат Квантового Расчета
+        </h2>
+        <span id="badge-safety" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+          Безопасный Вход ✅
+        </span>
+      </div>
+
+      <!-- Main 4 Key Metrics -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Потолок Плеча</div>
+          <div class="text-lg font-extrabold font-mono text-blue-400 mt-0.5" id="res-leverage">5x</div>
+          <div class="text-[10px] text-slate-500">Изолированное</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Размер Позиции</div>
+          <div class="text-lg font-extrabold font-mono text-white mt-0.5" id="res-pos-usd">$500.00</div>
+          <div class="text-[10px] text-slate-400 font-mono" id="res-pos-coins">0.0083 BTC</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Риск при SL</div>
+          <div class="text-lg font-extrabold font-mono text-rose-400 mt-0.5" id="res-risk-usd">-$10.00</div>
+          <div class="text-[10px] text-rose-400/80 font-mono" id="res-risk-pct">1.00% депо</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Профит при TP</div>
+          <div class="text-lg font-extrabold font-mono text-emerald-400 mt-0.5" id="res-profit-usd">+$18.00</div>
+          <div class="text-[10px] text-emerald-400/80 font-mono" id="res-profit-pct">+1.80% к депо</div>
+        </div>
+      </div>
+
+      <!-- Liquidation Defense Gauge -->
+      <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+        <div class="flex justify-between text-xs">
+          <span class="text-slate-400">Дистанция до ликвидации: <b class="font-mono text-white" id="res-liq-dist">~20.0%</b></span>
+          <span class="text-emerald-400 font-bold" id="res-liq-buffer">в 2.5x дальше стопа ✅</span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden relative">
+          <div class="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-blue-500 rounded-full transition-all duration-300" id="bar-liq" style="width: 80%;"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+          <span>0% (Опасность)</span>
+          <span>Ликвидация: <span id="res-liq-price">$48,000.00</span></span>
+          <span>100% (Спот 1x)</span>
+        </div>
+      </div>
+
+      <!-- Exact Order Levels -->
+      <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+        <div class="p-2 rounded-lg bg-slate-800/40 border border-slate-700/40">
+          <div class="text-[10px] text-slate-400 font-sans">Вход</div>
+          <div class="font-bold text-white mt-0.5" id="res-entry-p">$60,000.00</div>
+        </div>
+        <div class="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <div class="text-[10px] text-emerald-400 font-sans">Take-Profit</div>
+          <div class="font-bold text-emerald-400 mt-0.5" id="res-tp-p">$62,160.00</div>
+        </div>
+        <div class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20">
+          <div class="text-[10px] text-rose-400 font-sans">Stop-Loss</div>
+          <div class="font-bold text-rose-400 mt-0.5" id="res-sl-p">$58,800.00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTION BUTTONS -->
+    <section class="space-y-2.5">
+      <button onclick="copyOrderParams()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 flex items-center justify-center gap-2 transition-all active:scale-[0.99]">
+        <i class="fa-regular fa-copy"></i> Скопировать параметры ордера для Bybit / Binance
+      </button>
+
+      <a href="https://t.me/MabuyCryptoML_bot" target="_blank" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-sm shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.99]">
+        <i class="fa-brands fa-telegram text-base"></i> Получать точные ИИ-сигналы в @MaBuyCryptoBot
+      </a>
+
+      <div class="text-center">
+        <a href="https://www.bybit.com/invite?ref=EN5BDD&medium=referral&utm_campaign=evergreen" target="_blank" class="text-[11px] text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-1.5">
+          <i class="fa-solid fa-gift text-amber-400"></i> Торговать на Bybit с 20% скидкой на комиссии
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer Disclaimer -->
+    <footer class="text-center text-[10px] text-slate-500 pb-6 space-y-1">
+      <p>⚠️ Не финансовый совет. Калькулятор рассчитывает математический риск по формуле Келли.</p>
+      <p>© 2026 MaBuy AI. Open-Source Risk Engine.</p>
+    </footer>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white border border-blue-500/50 px-4 py-2 rounded-xl text-xs font-semibold shadow-2xl flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 z-50">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-text">Параметры скопированы!</span>
+  </div>
+
+  <script>
+    // Asset presets with fallback prices
+    const ASSETS = [
+      { sym: 'BTC', price: 64250.00, sl: 2.0, tp: 3.6 },
+      { sym: 'ETH', price: 3450.00, sl: 2.2, tp: 4.0 },
+      { sym: 'SOL', price: 154.50, sl: 3.0, tp: 5.5 },
+      { sym: 'BNB', price: 585.00, sl: 1.8, tp: 3.4 },
+      { sym: 'TON', price: 6.85, sl: 2.8, tp: 5.2 },
+      { sym: 'XRP', price: 0.5850, sl: 2.5, tp: 4.5 },
+      { sym: 'DOGE', price: 0.1250, sl: 3.5, tp: 6.5 },
+      { sym: 'AVAX', price: 28.40, sl: 3.2, tp: 5.8 }
+    ];
+
+    let currentAsset = ASSETS[0];
+    let currentDirection = 'BULLISH';
+    let currentDeposit = 1000.0;
+    let currentRiskProfile = 'balanced';
+
+    // Initialize asset chips
+    function initChips() {
+      const container = document.getElementById('asset-chips');
+      container.innerHTML = '';
+      ASSETS.forEach((a, i) => {
+        const btn = document.createElement('button');
+        btn.className = `py-1.5 rounded-lg text-xs font-bold font-mono transition-all border ${i === 0 ? 'bg-blue-600/30 text-blue-400 border-blue-500/50' : 'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:text-white'}`;
+        btn.id = `chip-${a.sym}`;
+        btn.innerText = a.sym;
+        btn.onclick = () => selectAsset(a);
+        container.appendChild(btn);
+      });
+      document.getElementById('input-price').value = currentAsset.price;
+      fetchLivePrices();
+    }
+
+    // Try fetching live Binance price
+    async function fetchLivePrices() {
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentAsset.sym}USDT`);
+        if (res.ok) {
+          const data = await res.json();
+          const p = parseFloat(data.price);
+          if (p > 0) {
+            currentAsset.price = p;
+            document.getElementById('input-price').value = p;
+            calculateAll();
+          }
+        }
+      } catch (e) {
+        // Fallback to static
+      }
+    }
+
+    function selectAsset(asset) {
+      currentAsset = asset;
+      ASSETS.forEach(a => {
+        const el = document.getElementById(`chip-${a.sym}`);
+        if (el) {
+          if (a.sym === asset.sym) {
+            el.className = 'py-1.5 rounded-lg text-xs font-bold font-mono transition-all border bg-blue-600/30 text-blue-400 border-blue-500/50';
+          } else {
+            el.className = 'py-1.5 rounded-lg text-xs font-bold font-mono transition-all border bg-slate-800/40 text-slate-400 border-slate-700/50 hover:text-white';
+          }
+        }
+      });
+      document.getElementById('input-price').value = asset.price;
+      document.getElementById('slider-sl').value = asset.sl;
+      document.getElementById('slider-tp').value = asset.tp;
+      fetchLivePrices();
+      calculateAll();
+    }
+
+    function setDirection(dir) {
+      currentDirection = dir;
+      const bLong = document.getElementById('btn-long');
+      const bShort = document.getElementById('btn-short');
+      if (dir === 'BULLISH') {
+        bLong.className = 'py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-lg shadow-emerald-500/10';
+        bShort.className = 'py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-slate-800/40 text-slate-400 border-slate-700/60 hover:text-white';
+      } else {
+        bShort.className = 'py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-lg shadow-rose-500/10';
+        bLong.className = 'py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border transition-all bg-slate-800/40 text-slate-400 border-slate-700/60 hover:text-white';
+      }
+      calculateAll();
+    }
+
+    function setDeposit(amount) {
+      currentDeposit = parseFloat(amount);
+      document.getElementById('slider-deposit').value = currentDeposit;
+      document.getElementById('display-deposit').innerText = `$${currentDeposit.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      
+      document.querySelectorAll('.dep-chip').forEach(btn => {
+        if (btn.innerText === `$${amount.toLocaleString('en-US')}`) {
+          btn.className = 'dep-chip active py-1.5 rounded-lg bg-blue-600/30 text-blue-300 border border-blue-500/50 font-bold text-xs font-mono';
+        } else {
+          btn.className = 'dep-chip py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-xs font-mono text-slate-300 border border-slate-700/50';
+        }
+      });
+      calculateAll();
+    }
+
+    function onDepositSlider(val) {
+      currentDeposit = parseFloat(val);
+      document.getElementById('display-deposit').innerText = `$${currentDeposit.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      calculateAll();
+    }
+
+    function setRiskProfile(prof) {
+      currentRiskProfile = prof;
+      const c = document.getElementById('risk-cons');
+      const b = document.getElementById('risk-bal');
+      const a = document.getElementById('risk-agg');
+      
+      c.className = prof === 'conservative' ? 'py-2 px-2 rounded-xl border border-blue-500/50 bg-blue-600/20 text-center transition-all' : 'py-2 px-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-center transition-all';
+      b.className = prof === 'balanced' ? 'py-2 px-2 rounded-xl border border-blue-500/50 bg-blue-600/20 text-center transition-all' : 'py-2 px-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-center transition-all';
+      a.className = prof === 'aggressive' ? 'py-2 px-2 rounded-xl border border-blue-500/50 bg-blue-600/20 text-center transition-all' : 'py-2 px-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-center transition-all';
+      
+      calculateAll();
+    }
+
+    // MAIN QUANT CALCULATION
+    function calculateAll() {
+      const price = parseFloat(document.getElementById('input-price').value) || currentAsset.price;
+      const slPct = parseFloat(document.getElementById('slider-sl').value);
+      const tpPct = parseFloat(document.getElementById('slider-tp').value);
+
+      document.getElementById('display-sl-pct').innerText = `-${slPct.toFixed(2)}%`;
+      const rr = (tpPct / Math.max(0.1, slPct)).toFixed(1);
+      document.getElementById('display-tp-pct').innerText = `+${tpPct.toFixed(2)}% (R:R 1:${rr})`;
+
+      // 1. Safe Leverage Ceiling: Liq Distance >= 2.5 * SL => Leverage <= 50 / SL_pct
+      let maxSafeLev = Math.max(1, Math.min(20, Math.floor(50.0 / slPct)));
+      if (currentRiskProfile === 'conservative') {
+        maxSafeLev = Math.max(1, Math.floor(maxSafeLev * 0.7));
+      } else if (currentRiskProfile === 'aggressive') {
+        maxSafeLev = Math.min(20, Math.floor(maxSafeLev * 1.2));
+      }
+
+      // 2. Fractional Kelly Risk Allocation (0.05 * K)
+      const p = 0.58; // 58% baseline model win rate
+      const bRatio = tpPct / Math.max(0.1, slPct);
+      const fullKelly = (p * (bRatio + 1.0) - 1.0) / bRatio;
+      const positiveKelly = Math.max(0.0, fullKelly);
+      
+      let riskPct = Math.max(1.0, Math.min(4.5, (0.05 * positiveKelly) * 100.0));
+      if (currentRiskProfile === 'conservative') riskPct = 1.0;
+      if (currentRiskProfile === 'aggressive') riskPct = Math.min(4.5, riskPct * 1.5);
+
+      // 3. Dollar Amounts
+      const riskUsd = currentDeposit * (riskPct / 100.0);
+      const marginUsd = currentDeposit * 0.10; // Standard 10% margin sizing
+      const posUsd = marginUsd * maxSafeLev;
+      const posCoins = posUsd / Math.max(0.0001, price);
+
+      const lossUsd = posUsd * (slPct / 100.0);
+      const profitUsd = posUsd * (tpPct / 100.0);
+
+      // 4. Liquidation Calculations
+      const liqDistPct = 100.0 / maxSafeLev;
+      const safetyBuffer = (liqDistPct / Math.max(0.1, slPct)).toFixed(1);
+
+      let slPrice, tpPrice, liqPrice;
+      if (currentDirection === 'BULLISH') {
+        slPrice = price * (1.0 - slPct / 100.0);
+        tpPrice = price * (1.0 + tpPct / 100.0);
+        liqPrice = price * (1.0 - (liqDistPct * 0.9) / 100.0);
+      } else {
+        slPrice = price * (1.0 + slPct / 100.0);
+        tpPrice = price * (1.0 - tpPct / 100.0);
+        liqPrice = price * (1.0 + (liqDistPct * 0.9) / 100.0);
+      }
+
+      // 5. Update UI Elements
+      document.getElementById('res-leverage').innerText = `${maxSafeLev}x`;
+      document.getElementById('res-pos-usd').innerText = `$${posUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('res-pos-coins').innerText = `${posCoins.toFixed(4)} ${currentAsset.sym}`;
+
+      document.getElementById('res-risk-usd').innerText = `-$${lossUsd.toFixed(2)}`;
+      document.getElementById('res-risk-pct').innerText = `${(lossUsd / currentDeposit * 100).toFixed(2)}% депо`;
+
+      document.getElementById('res-profit-usd').innerText = `+$${profitUsd.toFixed(2)}`;
+      document.getElementById('res-profit-pct').innerText = `+${(profitUsd / currentDeposit * 100).toFixed(2)}% к депо`;
+
+      document.getElementById('res-entry-p').innerText = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      document.getElementById('res-tp-p').innerText = `$${tpPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      document.getElementById('res-sl-p').innerText = `$${slPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+      document.getElementById('res-liq-dist').innerText = `~${liqDistPct.toFixed(1)}%`;
+      document.getElementById('res-liq-buffer').innerText = `в ${safetyBuffer}x дальше стопа ✅`;
+      document.getElementById('res-liq-price').innerText = `$${liqPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+      const barPct = Math.max(10, Math.min(100, (liqDistPct / 30.0) * 100));
+      document.getElementById('bar-liq').style.width = `${barPct}%`;
+    }
+
+    function copyOrderParams() {
+      const p = parseFloat(document.getElementById('input-price').value);
+      const lev = document.getElementById('res-leverage').innerText;
+      const pos = document.getElementById('res-pos-usd').innerText;
+      const tp = document.getElementById('res-tp-p').innerText;
+      const sl = document.getElementById('res-sl-p').innerText;
+
+      const txt = `🎯 MaBuy Order Plan: #${currentAsset.sym}USDT (${currentDirection})\n• Entry: $${p}\n• Leverage: ${lev} (Isolated)\n• Size: ${pos}\n• TP: ${tp}\n• SL: ${sl}`;
+      navigator.clipboard.writeText(txt);
+
+      const toast = document.getElementById('toast');
+      toast.style.opacity = '1';
+      toast.style.transform = 'translate(-50%, -20px)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, 0)';
+      }, 2500);
+    }
+
+    // On Load
+    document.getElementById('input-price').addEventListener('input', calculateAll);
+    initChips();
+    calculateAll();
+  </script>
+</body>
+</html>

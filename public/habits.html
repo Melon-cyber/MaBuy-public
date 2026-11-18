@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MaBuy Titan • Habit & Memory Vault</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="/static/habits.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Private Vault Lock Screen (Fallback) -->
+        <div id="vaultLockScreen" class="lock-screen hidden">
+            <div class="lock-card">
+                <div class="lock-icon">🔒</div>
+                <h2>PRIVATE VAULT</h2>
+                <p>Доступ ограничен. Это персональный дневник и трекер владельца.</p>
+                <div class="pin-inputs">
+                    <input type="password" maxlength="1" class="pin-digit" data-idx="0" autofocus>
+                    <input type="password" maxlength="1" class="pin-digit" data-idx="1">
+                    <input type="password" maxlength="1" class="pin-digit" data-idx="2">
+                    <input type="password" maxlength="1" class="pin-digit" data-idx="3">
+                </div>
+                <button id="btnUnlockPin" class="btn btn-primary">Разблокировать</button>
+            </div>
+        </div>
+
+        <!-- Main App Content -->
+        <div id="mainContent" class="main-content">
+            <!-- Top Sticky Header -->
+            <header class="app-header">
+                <div class="user-profile">
+                    <div class="avatar-ring" id="userAvatarRing">
+                        <span id="rankIconHeader" class="rank-avatar-icon">🥔</span>
+                    </div>
+                    <div class="user-meta">
+                        <div class="user-name-row">
+                            <span id="userName" class="user-name">Владелец</span>
+                            <span id="rankBadge" class="badge badge-rank">NPC</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-track">
+                                <div id="xpBarFill" class="xp-bar-fill" style="width: 15%;"></div>
+                            </div>
+                            <div class="xp-label">
+                                <span id="xpText">45 / 300 XP</span>
+                                <span id="nextRankText" class="next-rank-label">➔ Сайтама</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="streak-badge-card" id="streakCard">
+                    <span class="streak-flame">🔥</span>
+                    <div class="streak-info">
+                        <span id="streakCount" class="streak-val">1</span>
+                        <span class="streak-sub">ДЕНЬ СТРИКА</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="tabHabits">
+                    <span class="tab-icon">🎯</span>
+                    <span class="tab-text">Привычки</span>
+                </button>
+                <button class="nav-tab" data-tab="tabJournal">
+                    <span class="tab-icon">📖</span>
+                    <span class="tab-text">Дневник</span>
+                </button>
+                <button class="nav-tab" data-tab="tabAnalytics">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-text">Прогресс</span>
+                </button>
+            </nav>
+
+            <!-- Dynamic Motivation & Mindset Banner -->
+            <div class="motivation-banner-card" id="motivationCard">
+                <div class="motivation-glow"></div>
+                <div class="motivation-header">
+                    <div class="motivation-tag">
+                        <span class="pulse-dot"></span>
+                        <span id="motivationCategory">⚡️ МАЙНДСЕТ ФАУНДЕРА</span>
+                    </div>
+                    <button id="btnNextQuote" class="btn-refresh-quote" title="Следующая цитата">🔄</button>
+                </div>
+                <p id="motivationQuoteText" class="motivation-quote">"Боль дисциплины длится секунды. Боль сожаления длится всю жизнь."</p>
+                <div class="motivation-footer">
+                    <span id="motivationAuthor" class="motivation-author">— David Goggins</span>
+                    <span class="motivation-target-badge">🎯 Цель: SAT 1500+ & NU</span>
+                </div>
+            </div>
+
+            <!-- TAB 1: HABITS & FOCUS -->
+            <section id="tabHabits" class="tab-pane active">
+                <!-- Daily Progress Overview -->
+                <div class="daily-progress-card">
+                    <div class="progress-info">
+                        <div class="date-title-row">
+                            <h2 id="todayDateLabel" class="date-heading">Сегодня</h2>
+                            <span id="completionRateBadge" class="badge badge-success">0%</span>
+                        </div>
+                        <p id="completionSummary" class="progress-sub">Выполнено 0 из 5 задач</p>
+                    </div>
+                    <div class="progress-ring-mini">
+                        <svg class="ring-svg" viewBox="0 0 36 36">
+                            <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="dailyRingProgress" class="ring-fill" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="ringText" class="ring-pct">0%</span>
+                    </div>
+                </div>
+
+                <!-- Habits List -->
+                <div id="habitsListContainer" class="habits-list">
+                    <!-- Dynamic Habit Cards Rendered via JS -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="habits-actions-row">
+                    <button id="btnOpenAddHabit" class="btn btn-secondary btn-icon-text">
+                        <span>➕</span> Новая привычка
+                    </button>
+                    <button id="btnResetHabits" class="btn btn-outline btn-icon-text" title="Сбросить к академическому профилю">
+                        <span>🔄</span> Академический пресет
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 2: MULTIMEDIA JOURNAL & MEMORY ALBUM -->
+            <section id="tabJournal" class="tab-pane">
+                <!-- Today's Entry Form -->
+                <div class="journal-editor-card">
+                    <div class="editor-header">
+                        <h3>🎙️ Дневник Воспоминаний</h3>
+                        <span id="journalDateBadge" class="badge badge-date">Сегодня</span>
+                    </div>
+
+                    <!-- Mood Selector -->
+                    <div class="mood-selector-row">
+                        <span class="field-label">Вайб дня:</span>
+                        <div class="mood-options">
+                            <button class="mood-btn active" data-mood="🔥">🔥 Огонь</button>
+                            <button class="mood-btn" data-mood="🚀">🚀 В фокусе</button>
+                            <button class="mood-btn" data-mood="🧠">🧠 Мегамозг</button>
+                            <button class="mood-btn" data-mood="🏆">🏆 Победа</button>
+                            <button class="mood-btn" data-mood="😴">😴 На чилле</button>
+                        </div>
+                    </div>
+
+                    <!-- Thoughts / Highlights -->
+                    <div class="form-group">
+                        <textarea id="journalContent" class="form-textarea" placeholder="Главные мысли, инсайты в коде/SAT или яркие моменты сегодняшнего дня..."></textarea>
+                    </div>
+
+                    <!-- Voice Audio Recorder & Multi-Track Playlist -->
+                    <div class="audio-recorder-box">
+                        <div class="audio-controls">
+                            <button id="btnRecordVoice" class="btn btn-record">
+                                <span class="rec-dot"></span> <span id="recordBtnText">🎙️ Записать голосовую мысль</span>
+                            </button>
+                            <span id="recordTimer" class="rec-timer hidden">00:00</span>
+                        </div>
+                        <audio id="audioPreview" controls class="audio-player hidden"></audio>
+                        
+                        <!-- Multi-Track Audio Playlist for Today -->
+                        <div id="todayAudioPlaylist" class="audio-playlist-box hidden">
+                            <div class="playlist-header">
+                                <span>🎙️ Записанные аудио за сегодня:</span>
+                                <span id="todayAudioCount" class="badge badge-date">0 аудио</span>
+                            </div>
+                            <div id="todayAudioList" class="audio-playlist-items"></div>
+                        </div>
+                    </div>
+
+                    <!-- Media Uploads (Photos / Videos) -->
+                    <div class="media-upload-box">
+                        <input type="file" id="mediaFileInput" accept="image/*,video/*" class="hidden" multiple>
+                        <button id="btnSelectMedia" class="btn btn-outline btn-small">
+                            📸 Прикрепить фото / скриншот
+                        </button>
+                        <div id="mediaPreviewsContainer" class="media-previews-grid"></div>
+                    </div>
+
+                    <!-- Save Entry Button -->
+                    <button id="btnSaveJournal" class="btn btn-primary btn-block">
+                        💾 Записать в память (+50 XP)
+                    </button>
+                </div>
+
+                <!-- Memory Album Timeline -->
+                <div class="memory-album-section">
+                    <div class="album-header">
+                        <h3>📖 Альбом Памяти & Хроника</h3>
+                        <span class="sub-counter" id="entriesCountLabel">0 записей</span>
+                    </div>
+                    <div id="journalTimeline" class="timeline-container">
+                        <!-- Dynamic Journal Entries via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: PROGRESS, AI ANALYTICS & RANKS -->
+            <section id="tabAnalytics" class="tab-pane">
+                <!-- AI Smart Analytics Horizon Card -->
+                <div class="ai-analytics-card" id="aiAnalyticsCard">
+                    <div class="card-header-row">
+                        <h3>🧠 ИИ-Аналитика & Статистика</h3>
+                        <span id="analyticsGradeBadge" class="badge badge-rank">A+ ТИТАН</span>
+                    </div>
+
+                    <!-- Time Horizon Switcher -->
+                    <div class="period-toggle-row">
+                        <button class="period-btn active" data-period="week">📅 7 Дней</button>
+                        <button class="period-btn" data-period="month">🗓 30 Дней</button>
+                        <button class="period-btn" data-period="year">🏆 1 Год</button>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="analytics-metrics-grid">
+                        <div class="metric-mini-card">
+                            <span class="metric-label">Дисциплина</span>
+                            <span id="statCompletionRate" class="metric-val text-green">100%</span>
+                            <span class="metric-sub" id="statCompletedTasks">0/0 задач</span>
+                        </div>
+                        <div class="metric-mini-card">
+                            <span class="metric-label">Фокус-время</span>
+                            <span id="statTotalHours" class="metric-val text-blue">0 ч</span>
+                            <span class="metric-sub">чистой работы</span>
+                        </div>
+                        <div class="metric-mini-card">
+                            <span class="metric-label">Стабильность</span>
+                            <span id="statConsistency" class="metric-val text-purple">100%</span>
+                            <span class="metric-sub" id="statActiveDays">0 дн.</span>
+                        </div>
+                        <div class="metric-mini-card">
+                            <span class="metric-label">Набрано XP</span>
+                            <span id="statXpEarned" class="metric-val text-yellow">+0 XP</span>
+                            <span class="metric-sub">прогрессия</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Coach Verdict Box -->
+                    <div class="ai-coach-insight-box">
+                        <div class="ai-coach-header">
+                            <span class="ai-coach-icon">⚡️</span>
+                            <span id="aiCoachTitle" class="ai-coach-title">Тактический вердикт</span>
+                        </div>
+                        <p id="aiCoachSummary" class="ai-coach-summary">Загрузка аналитики...</p>
+                        <div class="ai-coach-rec-card">
+                            <span class="rec-icon">💡</span>
+                            <p id="aiCoachRec" class="ai-coach-rec-text">Формирование персональной рекомендации...</p>
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown Progress -->
+                    <div class="category-breakdown-box">
+                        <h4>🧮 Распределение усилий:</h4>
+                        <div id="categoryProgressContainer" class="category-bars-list">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitHub Activity Heatmap Matrix (60 Days) -->
+                <div class="heatmap-card">
+                    <div class="card-header-row">
+                        <h3>📊 Матрица Активности (60 Дней)</h3>
+                        <span class="legend">
+                            <span class="sq lvl-0"></span>
+                            <span class="sq lvl-1"></span>
+                            <span class="sq lvl-2"></span>
+                            <span class="sq lvl-3"></span>
+                            <span class="sq lvl-4"></span>
+                        </span>
+                    </div>
+                    <div id="heatmapGrid" class="heatmap-grid">
+                        <!-- Rendered by JS -->
+                    </div>
+                    <div class="heatmap-footer">
+                        <span id="activeDaysStat">🔥 0 активных дней</span>
+                        <span id="totalXpStat">⚡ 0 Всего XP</span>
+                    </div>
+                </div>
+
+                <!-- Ranks Hierarchy Roadmap -->
+                <div class="ranks-card">
+                    <div class="card-header-row">
+                        <h3>👑 Лестница Рангов</h3>
+                        <span id="currentLvlBadge" class="badge badge-rank">LVL 1</span>
+                    </div>
+                    <div class="ranks-ladder">
+                        <div class="rank-step" data-lvl="1">
+                            <span class="rank-icon-large">🥔</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">1. NPC</span>
+                                    <span class="rank-xp-req">0 XP</span>
+                                </div>
+                                <span class="rank-desc">Старт пути, выход из рутины и соцсетей</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="2">
+                            <span class="rank-icon-large">🥋</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">2. Сайтама</span>
+                                    <span class="rank-xp-req">1,000 XP</span>
+                                </div>
+                                <span class="rank-desc">100 формул, 100 строк кода, 100 отжиманий</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="3">
+                            <span class="rank-icon-large">🗿</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">3. Сигма</span>
+                                    <span class="rank-xp-req">3,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Холодный фокус, тихий труд без лишних слов</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="4">
+                            <span class="rank-icon-large">🗿</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">4. Гигачад</span>
+                                    <span class="rank-xp-req">7,500 XP</span>
+                                </div>
+                                <span class="rank-desc">Железный стрик, пробники SAT 1300+</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="5">
+                            <span class="rank-icon-large">🧙‍♂️</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">5. Грандмастер</span>
+                                    <span class="rank-xp-req">15,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Мастер дисциплин: SAT 1400+, IELTS 7.5, ML</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="6">
+                            <span class="rank-icon-large">🦾</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">6. Титан</span>
+                                    <span class="rank-xp-req">30,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Несокрушимая машина: полгода чистой дисциплины</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="7">
+                            <span class="rank-icon-large">🗡️</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">7. Берсерк</span>
+                                    <span class="rank-xp-req">50,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Воля Гатса: пашешь сквозь любую боль и усталость</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="8">
+                            <span class="rank-icon-large">♟️</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">8. Йохан</span>
+                                    <span class="rank-xp-req">75,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Сверхинтеллект Монстра: SAT 1500+, 0 ошибок</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="9">
+                            <span class="rank-icon-large">🛡️</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">9. Истинный Воин</span>
+                                    <span class="rank-xp-req">100,000 XP</span>
+                                </div>
+                                <span class="rank-desc">Абсолютный покой, победа над всеми слабостями</span>
+                            </div>
+                        </div>
+                        <div class="rank-step" data-lvl="10">
+                            <span class="rank-icon-large">💼</span>
+                            <div class="rank-details">
+                                <div class="rank-title-row">
+                                    <span class="rank-name">10. Фаундер</span>
+                                    <span class="rank-xp-req">150,000+ XP</span>
+                                </div>
+                                <span class="rank-desc">Вершина мира: свой бизнес, оффер NU/Ivy League</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- FOCUS TIMER MODAL -->
+        <div id="focusTimerModal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-dialog timer-dialog">
+                <div class="modal-header">
+                    <h3 id="timerHabitTitle">⚡ Фокус-Спринт</h3>
+                    <button class="modal-close" id="btnCloseTimer">&times;</button>
+                </div>
+                <div class="timer-mode-selector">
+                    <button class="timer-mode-btn" data-minutes="25">25м Pomodoro</button>
+                    <button class="timer-mode-btn active" data-minutes="45">45м Deep Work</button>
+                    <button class="timer-mode-btn" data-minutes="15">15м Блиц</button>
+                </div>
+
+                <div class="timer-display-box">
+                    <svg class="timer-svg" viewBox="0 0 200 200">
+                        <circle class="timer-circle-bg" cx="100" cy="100" r="90" />
+                        <circle id="timerCircleProgress" class="timer-circle-fill" cx="100" cy="100" r="90" stroke-dasharray="565.48" stroke-dashoffset="0" />
+                    </svg>
+                    <div class="timer-text-overlay">
+                        <div id="timerCountdown" class="timer-countdown">45:00</div>
+                        <div id="timerStatusLabel" class="timer-status">ГОТОВ К СПРИНТУ</div>
+                    </div>
+                </div>
+
+                <div class="timer-motivation-box">
+                    <span class="timer-flame-icon">🔥</span>
+                    <p id="timerMotivationQuote" class="timer-motivation-text">"Пока другие листают ленту, ты строишь свои 1500+ баллов и будущее."</p>
+                </div>
+
+                <div class="timer-controls">
+                    <button id="btnStartPauseTimer" class="btn btn-primary btn-large">🚀 Начать Спринт</button>
+                    <button id="btnResetTimer" class="btn btn-outline btn-large">🔄 Сброс</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD / EDIT HABIT MODAL -->
+        <div id="habitModal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 id="habitModalTitle">➕ Новая привычка</h3>
+                    <button class="modal-close" id="btnCloseHabitModal">&times;</button>
+                </div>
+                <form id="habitForm" class="modal-form">
+                    <input type="hidden" id="habitIdInput">
+                    
+                    <div class="form-group">
+                        <label>Название привычки:</label>
+                        <input type="text" id="habitTitleInput" class="form-input" required placeholder="Например: SAT Math / Чтение книги">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label>Иконка:</label>
+                            <input type="text" id="habitIconInput" class="form-input text-center" value="🎯" maxlength="2">
+                        </div>
+                        <div class="form-group flex-2">
+                            <label>Категория:</label>
+                            <select id="habitCategoryInput" class="form-input">
+                                <option value="academic">🧮 Академическая (SAT/IELTS)</option>
+                                <option value="code">💻 Код / ML / Проекты</option>
+                                <option value="health">🏃 Здоровье / Спорт</option>
+                                <option value="custom">🎯 Личная</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label>Тип цели:</label>
+                            <select id="habitTypeInput" class="form-input">
+                                <option value="minutes">⏱ Минуты</option>
+                                <option value="checkbox">✅ Чекбокс</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Цель (число):</label>
+                            <input type="number" id="habitValueInput" class="form-input" value="30" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дедлайн (время, напр. 16:15):</label>
+                        <input type="time" id="habitDeadlineInput" class="form-input">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toastNotification" class="toast hidden"></div>
+    </div>
+
+    <script src="/static/habits.js"></script>
+</body>
+</html>

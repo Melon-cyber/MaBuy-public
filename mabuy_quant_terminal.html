@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaBuy AlphaDesk — Institutional Quant Terminal & GPT-6 Astra Audit</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Smooth transitions and custom animations */
+    .tab-btn.active {
+      border-bottom: 2px solid #6366f1;
+      color: #6366f1;
+      font-weight: 600;
+    }
+    .pulse-dot {
+      animation: pulseAnimation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseAnimation {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.15); }
+    }
+    .metric-badge {
+      transition: all 0.2s ease-in-out;
+    }
+    .metric-badge:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground,#0f172a)] antialiased p-2 sm:p-4 font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Main Terminal Container -->
+  <div class="max-w-6xl mx-auto bg-[var(--card,#ffffff)] text-[var(--foreground,#0f172a)] border border-[var(--border,#e2e8f0)] rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md">
+    
+    <!-- Top Header Bar -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-6 border-b border-white/10">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/30">
+            M
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">MaBuy AlphaDesk <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 font-mono">v5.2 PROD</span></h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                VPS 24/7 ACTIVE
+              </span>
+            </div>
+            <p class="text-xs text-slate-300 mt-0.5">Quantitative Ecosystem • Multi-Horizon Attention LSTM • GPT-6 Astra Gatekeeper</p>
+          </div>
+        </div>
+
+        <!-- Telemetry & Clock -->
+        <div class="flex flex-wrap items-center gap-3 self-stretch md:self-auto justify-between md:justify-end">
+          <div class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-right">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400">Время сервера (UTC)</div>
+            <div id="utcClock" class="text-xs font-mono font-bold text-cyan-300">--:--:-- UTC</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-right">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400">Астана (UTC+5)</div>
+            <div id="astanaClock" class="text-xs font-mono font-bold text-indigo-300">--:--:--</div>
+          </div>
+          <button onclick="refreshData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition active:scale-95 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Синхронизировать</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Quick KPI Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-4 border-t border-white/10">
+        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+          <div class="text-[11px] text-slate-400 uppercase font-medium">Баланс Binance Futures</div>
+          <div class="text-lg sm:text-xl font-mono font-bold text-emerald-400 mt-0.5">$41.21 <span class="text-xs font-normal text-emerald-300">(+3.02%)</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Маржа: $26.66 • Свободно: $15.29</div>
+        </div>
+
+        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+          <div class="text-[11px] text-slate-400 uppercase font-medium">Profit Factor фонда</div>
+          <div class="text-lg sm:text-xl font-mono font-bold text-cyan-300 mt-0.5">2.53 <span class="text-xs font-normal text-slate-400">/ 2.50 Target</span></div>
+          <div class="text-[10px] text-emerald-400 mt-0.5">✓ Renaissance Level</div>
+        </div>
+
+        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+          <div class="text-[11px] text-slate-400 uppercase font-medium">Открытая позиция</div>
+          <div class="text-lg sm:text-xl font-mono font-bold text-amber-300 mt-0.5">BTC Short <span class="text-xs font-normal text-slate-400">0.001</span></div>
+          <div class="text-[10px] text-cyan-300 mt-0.5">🛡️ Zero Naked Risk Active</div>
+        </div>
+
+        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+          <div class="text-[11px] text-slate-400 uppercase font-medium">GPT-6 Astra Аудитор</div>
+          <div class="text-lg sm:text-xl font-mono font-bold text-rose-400 mt-0.5">REJECT <span class="text-xs font-normal text-slate-400">(0.99)</span></div>
+          <div class="text-[10px] text-amber-300 mt-0.5">Депозит защищен от дрейфа</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex border-b border-[var(--border,#e2e8f0)] px-4 bg-[var(--card,#ffffff)] overflow-x-auto">
+      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-4 py-3 text-xs sm:text-sm font-medium transition whitespace-nowrap">
+        📊 Обзор фонда & Баланс
+      </button>
+      <button onclick="switchTab('position')" id="tab-position" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-[var(--muted-foreground,#64748b)] transition whitespace-nowrap">
+        🎯 Активная позиция & Риск
+      </button>
+      <button onclick="switchTab('mlops')" id="tab-mlops" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-[var(--muted-foreground,#64748b)] transition whitespace-nowrap">
+        🔬 Воскресный ретрейн & Веса PyTorch
+      </button>
+      <button onclick="switchTab('astra')" id="tab-astra" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-[var(--muted-foreground,#64748b)] transition whitespace-nowrap flex items-center gap-1.5">
+        <span>🧠 Аудитор GPT-6 Astra</span>
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+      </button>
+      <button onclick="switchTab('trades')" id="tab-trades" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-[var(--muted-foreground,#64748b)] transition whitespace-nowrap">
+        ⚡ Журнал сделок & Статистика
+      </button>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="p-4 sm:p-6 space-y-6">
+
+      <!-- ================= TAB 1: OVERVIEW ================= -->
+      <section id="pane-overview" class="space-y-6">
+        
+        <!-- Live Alert Banner -->
+        <div class="bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-cyan-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-start gap-3">
+          <span class="text-xl">🛡️</span>
+          <div>
+            <h3 class="text-xs sm:text-sm font-bold text-[var(--foreground,#0f172a)]">Система в режиме автономного институционального надзора</h3>
+            <p class="text-xs text-[var(--muted-foreground,#64748b)] mt-0.5">
+              Все 4 модуля контроля рисков активны: Funding Rate Bias, Hurst Dynamic TP (0.584), Volatility Circuit Breaker, Correlation Guard. Сделка BTC покрыта биржевым стопом.
+            </p>
+          </div>
+        </div>
+
+        <!-- Capital Allocation & Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Balance & Equity Breakdown -->
+          <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-4 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs uppercase font-bold text-[var(--muted-foreground,#64748b)]">Капитал на Binance</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-semibold font-mono">Live Real</span>
+            </div>
+            <div class="text-2xl font-mono font-extrabold text-[var(--foreground,#0f172a)]">$41.21 <span class="text-sm font-normal text-[var(--muted-foreground,#64748b)]">USDT</span></div>
+            <div class="mt-3 space-y-2">
+              <div>
+                <div class="flex justify-between text-xs text-[var(--muted-foreground,#64748b)] mb-1">
+                  <span>В позиции (Маржа):</span>
+                  <span class="font-mono font-medium text-[var(--foreground,#0f172a)]">$26.66 (64.7%)</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-indigo-600 rounded-full" style="width: 64.7%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs text-[var(--muted-foreground,#64748b)] mb-1">
+                  <span>Свободный буфер:</span>
+                  <span class="font-mono font-medium text-[var(--foreground,#0f172a)]">$15.29 (35.3%)</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500 rounded-full" style="width: 35.3%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Metrics -->
+          <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-4 shadow-sm">
+            <span class="text-xs uppercase font-bold text-[var(--muted-foreground,#64748b)] mb-2 block">Качество алгоритма</span>
+            <div class="grid grid-cols-2 gap-3 mt-1">
+              <div class="p-2.5 rounded-lg bg-[var(--background,#f8fafc)] border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Profit Factor</div>
+                <div class="text-lg font-mono font-bold text-indigo-600 mt-0.5">2.53</div>
+                <div class="text-[10px] text-emerald-600 font-medium mt-0.5">↑ Выше нормы (2.50)</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--background,#f8fafc)] border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Win Rate</div>
+                <div class="text-lg font-mono font-bold text-emerald-600 mt-0.5">66.7%</div>
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] mt-0.5">10 побед / 5 пораж.</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--background,#f8fafc)] border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Payoff Ratio (R)</div>
+                <div class="text-lg font-mono font-bold text-cyan-600 mt-0.5">1.38</div>
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] mt-0.5">Ср. прибыль > ср. убытка</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--background,#f8fafc)] border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Чистый PnL (Test)</div>
+                <div class="text-lg font-mono font-bold text-emerald-600 mt-0.5">+$108.12</div>
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] mt-0.5">15 сделок в базе</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Infrastructure Health -->
+          <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-4 shadow-sm">
+            <span class="text-xs uppercase font-bold text-[var(--muted-foreground,#64748b)] mb-2 block">Статус VPS (Production Node)</span>
+            <div class="space-y-2 mt-2 text-xs">
+              <div class="flex justify-between items-center py-1 border-b border-[var(--border,#e2e8f0)]">
+                <span class="text-[var(--muted-foreground,#64748b)]">Торговый снайпер:</span>
+                <span class="font-mono font-semibold text-emerald-600 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> active (25h+)
+                </span>
+              </div>
+              <div class="flex justify-between items-center py-1 border-b border-[var(--border,#e2e8f0)]">
+                <span class="text-[var(--muted-foreground,#64748b)]">RAM занято:</span>
+                <span class="font-mono font-medium text-[var(--foreground,#0f172a)]">489 MB / 2048 MB (23.8%)</span>
+              </div>
+              <div class="flex justify-between items-center py-1 border-b border-[var(--border,#e2e8f0)]">
+                <span class="text-[var(--muted-foreground,#64748b)]">База данных:</span>
+                <span class="font-mono font-medium text-indigo-600">SQLite (WAL Mode ✓)</span>
+              </div>
+              <div class="flex justify-between items-center py-1">
+                <span class="text-[var(--muted-foreground,#64748b)]">Следующий ретрейн:</span>
+                <span class="font-mono font-medium text-slate-500">Вс, 13 Сен, 03:00 UTC</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: ACTIVE POSITION ================= -->
+      <section id="pane-position" class="space-y-6 hidden">
+        
+        <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-[var(--border,#e2e8f0)] pb-4">
+            <div>
+              <div class="inline-flex items-center gap-2">
+                <span class="text-sm font-bold uppercase tracking-wider text-rose-600 bg-rose-500/10 px-2.5 py-0.5 rounded-md">SHORT 0.001 BTC</span>
+                <span class="text-sm font-mono font-bold text-[var(--foreground,#0f172a)]">BTC/USDT:USDT</span>
+              </div>
+              <p class="text-xs text-[var(--muted-foreground,#64748b)] mt-1">Открыто по сигналу ансамбля ML V4 (High Conviction)</p>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-[var(--muted-foreground,#64748b)]">Нереализованный PnL:</div>
+              <div class="text-lg font-mono font-bold text-rose-500">-$0.26 USDT <span class="text-xs font-normal">(-0.97%)</span></div>
+            </div>
+          </div>
+
+          <!-- Position Telemetry Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+            <div class="p-3 bg-[var(--background,#f8fafc)] rounded-lg border border-[var(--border,#e2e8f0)]">
+              <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Цена входа</div>
+              <div class="text-sm sm:text-base font-mono font-bold text-[var(--foreground,#0f172a)] mt-0.5">$79,722.60</div>
+            </div>
+            <div class="p-3 bg-[var(--background,#f8fafc)] rounded-lg border border-[var(--border,#e2e8f0)]">
+              <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">Текущая цена Mark</div>
+              <div class="text-sm sm:text-base font-mono font-bold text-[var(--foreground,#0f172a)] mt-0.5">$79,983.85</div>
+            </div>
+            <div class="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div class="text-[10px] text-emerald-600 uppercase font-semibold">Take-Profit (Биржевой)</div>
+              <div class="text-sm sm:text-base font-mono font-bold text-emerald-600 mt-0.5">$76,374.30</div>
+              <div class="text-[9px] text-emerald-700 mt-0.5">Algo ID: 4000001880474758</div>
+            </div>
+            <div class="p-3 bg-rose-500/10 rounded-lg border border-rose-500/20">
+              <div class="text-[10px] text-rose-600 uppercase font-semibold">Stop-Loss (Биржевой)</div>
+              <div class="text-sm sm:text-base font-mono font-bold text-rose-600 mt-0.5">$81,157.60</div>
+              <div class="text-[9px] text-rose-700 mt-0.5">Algo ID: 4000001880474750</div>
+            </div>
+          </div>
+
+          <!-- Dynamic Trailing Status -->
+          <div class="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/40 rounded-lg flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+              <span class="text-base">⚡</span>
+              <span><strong>4-Tier Dynamic Profit Lock:</strong> Проверка каждые 10 секунд. При движении в +1.0% стоп автоматически прыгает в безубыток (+0.1% выше комиссий).</span>
+            </div>
+            <span class="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-300">ACTIVE</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: MLOPS & WEIGHTS ================= -->
+      <section id="pane-mlops" class="space-y-6 hidden">
+
+        <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-5 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-sm sm:text-base font-bold text-[var(--foreground,#0f172a)]">Аудит дельты весов PyTorch Multi-Horizon Attention LSTM</h2>
+              <p class="text-xs text-[var(--muted-foreground,#64748b)]">Сравнение базового слепка (05 Сен 14:42 UTC) и переобученных весов (06 Сен 03:00 UTC)</p>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 font-semibold">
+              Аудит завершён в 03:00 UTC
+            </span>
+          </div>
+
+          <!-- PyTorch Weights Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[var(--background,#f8fafc)] text-[var(--muted-foreground,#64748b)] uppercase border-b border-[var(--border,#e2e8f0)]">
+                <tr>
+                  <th class="py-2.5 px-3">Инструмент</th>
+                  <th class="py-2.5 px-3">Слой / Модуль</th>
+                  <th class="py-2.5 px-3 text-center">Исходная норма ||W||</th>
+                  <th class="py-2.5 px-3 text-center">Новая норма ||W||</th>
+                  <th class="py-2.5 px-3 text-center">Дельта ΔW (%)</th>
+                  <th class="py-2.5 px-3 text-center">Лимит дрейфа</th>
+                  <th class="py-2.5 px-3 text-right">Статус весов</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--border,#e2e8f0)]">
+                <tr class="bg-amber-500/5">
+                  <td class="py-2.5 px-3 font-bold">BTC</td>
+                  <td class="py-2.5 px-3 font-mono">LSTM Input Backbone (W_ih)</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.6646</td>
+                  <td class="py-2.5 px-3 font-mono text-center font-bold">5.2055</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-rose-600 font-bold">+11.59%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 10.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 font-semibold">⚠️ Превышен лимит</span></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold">BTC</td>
+                  <td class="py-2.5 px-3 font-mono">Temporal Attention (W_att)</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.6676</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.6656</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-emerald-600 font-medium">-0.04%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 15.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-semibold">🟢 Стабилен</span></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold">BTC</td>
+                  <td class="py-2.5 px-3 font-mono">Head Return Output</td>
+                  <td class="py-2.5 px-3 font-mono text-center">0.6282</td>
+                  <td class="py-2.5 px-3 font-mono text-center">0.6258</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-emerald-600 font-medium">-0.38%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 15.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-semibold">🟢 Адаптирован</span></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold">BTC</td>
+                  <td class="py-2.5 px-3 font-mono">Head Prob Output</td>
+                  <td class="py-2.5 px-3 font-mono text-center">0.4376</td>
+                  <td class="py-2.5 px-3 font-mono text-center">0.4371</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-emerald-600 font-medium">-0.10%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 15.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-semibold">🟢 Адаптирован</span></td>
+                </tr>
+                <tr class="opacity-75">
+                  <td class="py-2.5 px-3 font-bold">ETH</td>
+                  <td class="py-2.5 px-3 font-mono">Весь стек слоёв (Baseline)</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.9016</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.9016</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-slate-500">0.00%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 15.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">Зафиксирован</span></td>
+                </tr>
+                <tr class="opacity-75">
+                  <td class="py-2.5 px-3 font-bold">SOL</td>
+                  <td class="py-2.5 px-3 font-mono">Весь стек слоёв (Baseline)</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.9108</td>
+                  <td class="py-2.5 px-3 font-mono text-center">4.9108</td>
+                  <td class="py-2.5 px-3 font-mono text-center text-slate-500">0.00%</td>
+                  <td class="py-2.5 px-3 text-center text-[var(--muted-foreground,#64748b)]">≤ 15.0%</td>
+                  <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">Зафиксирован</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GBDT Tabular Summary -->
+          <div class="mt-6 pt-4 border-t border-[var(--border,#e2e8f0)]">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground,#64748b)] mb-3">Табличный ансамбль: HistGradientBoostingRegressor</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="p-3 bg-[var(--background,#f8fafc)] rounded-lg border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">BTCUSDT GBDT</div>
+                <div class="text-sm font-mono font-bold text-emerald-600 mt-0.5">DA: 55.32% • Sharpe: 1.18</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">MAE: 0.002233 • PROD Active</div>
+              </div>
+              <div class="p-3 bg-[var(--background,#f8fafc)] rounded-lg border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">ETHUSDT GBDT</div>
+                <div class="text-sm font-mono font-bold text-emerald-600 mt-0.5">DA: 54.70% • Sharpe: 3.21</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">MAE: 0.003097 • PROD Active</div>
+              </div>
+              <div class="p-3 bg-[var(--background,#f8fafc)] rounded-lg border border-[var(--border,#e2e8f0)]">
+                <div class="text-[10px] text-[var(--muted-foreground,#64748b)] uppercase">SOLUSDT GBDT</div>
+                <div class="text-sm font-mono font-bold text-emerald-600 mt-0.5">DA: 54.71% • Sharpe: 3.25</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">MAE: 0.002322 • PROD Active</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 4: ASTRA AUDIT ================= -->
+      <section id="pane-astra" class="space-y-6 hidden">
+
+        <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-5 shadow-sm">
+          
+          <!-- Verdict Banner -->
+          <div class="bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-rose-500/10 border border-rose-500/30 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl font-bold flex-shrink-0">
+                🛑
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-700 dark:text-rose-400 font-bold uppercase">ВЕРДИКТ: REJECT / VETO</span>
+                  <span class="text-xs text-[var(--muted-foreground,#64748b)] font-mono">Модель: gpt-6-astra</span>
+                </div>
+                <h2 class="text-base sm:text-lg font-extrabold text-[var(--foreground,#0f172a)] mt-0.5">Деплой заблокирован: обнаружен дрейф весов</h2>
+                <p class="text-xs text-[var(--muted-foreground,#64748b)]">Аудит выполнен: 2026-09-06 03:00:19 UTC • Индекс уверенности AGI: <strong class="text-rose-600">0.99 (99%)</strong></p>
+              </div>
+            </div>
+
+            <div class="bg-[var(--card,#ffffff)] px-3 py-2 rounded-lg border border-[var(--border,#e2e8f0)] text-right self-stretch sm:self-auto">
+              <div class="text-[10px] uppercase text-[var(--muted-foreground,#64748b)]">Действие защиты:</div>
+              <div class="text-xs font-bold text-emerald-600">Сохранена эталонная модель</div>
+              <div class="text-[10px] text-slate-500">Hot-Reload отклонён</div>
+            </div>
+          </div>
+
+          <!-- 4-Gate Institutional Compliance Check -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+            <div class="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div class="text-[10px] text-emerald-600 uppercase font-semibold">1. OOS Directional Acc.</div>
+              <div class="text-base font-mono font-bold text-emerald-600 mt-0.5">54.0% <span class="text-xs font-normal">≥ 52.5%</span></div>
+              <div class="text-[9px] text-emerald-700 mt-0.5">✓ Пройдено (+1.5% запас)</div>
+            </div>
+
+            <div class="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div class="text-[10px] text-emerald-600 uppercase font-semibold">2. OOS Sharpe Ratio</div>
+              <div class="text-base font-mono font-bold text-emerald-600 mt-0.5">1.25 <span class="text-xs font-normal">≥ 1.05</span></div>
+              <div class="text-[9px] text-emerald-700 mt-0.5">✓ Пройдено (+0.20 запас)</div>
+            </div>
+
+            <div class="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div class="text-[10px] text-emerald-600 uppercase font-semibold">3. Внимание ||W_att||</div>
+              <div class="text-base font-mono font-bold text-emerald-600 mt-0.5">-0.04% <span class="text-xs font-normal">≤ 15.0%</span></div>
+              <div class="text-[9px] text-emerald-700 mt-0.5">✓ Идеально стабильно</div>
+            </div>
+
+            <div class="p-3 bg-rose-500/10 rounded-lg border border-rose-500/30">
+              <div class="text-[10px] text-rose-600 uppercase font-semibold">4. База ||W_ih||</div>
+              <div class="text-base font-mono font-bold text-rose-600 mt-0.5">+11.59% <span class="text-xs font-normal">≤ 10.0%</span></div>
+              <div class="text-[9px] text-rose-700 font-bold mt-0.5">❌ Превышение порога</div>
+            </div>
+          </div>
+
+          <!-- Full Lead Quant Memorandum -->
+          <div class="mt-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground,#64748b)]">Дословный меморандум Lead Quant (GPT-6 Astra):</h3>
+            
+            <div class="p-4 bg-[var(--background,#f8fafc)] border border-[var(--border,#e2e8f0)] rounded-xl font-mono text-xs text-[var(--foreground,#0f172a)] leading-relaxed space-y-2">
+              <p class="text-rose-700 dark:text-rose-400 font-bold">
+                «Отклонить текущий weekly retrain-кандидат целиком: по ключевому активу BTC нарушен обязательный порог стабильности LSTM Backbone. Независимый пересчет подтверждает layer1_pre_check. Для всех трех активов заявлены DA 54.0% и Sharpe 1.25, выше порогов 52.5% и 1.05 соответственно...»
+              </p>
+              <p>
+                «...Дельта нормы W_ih составляет +11.59496%, что превышает лимит 10.0% на 1.59 процентного пункта и блокирует допуск. Дельта нормы внимания W_att (-0.043%) существенно ниже лимита, но стабильность внимания не компенсирует нарушение по backbone. Катастрофический оверфиттинг по этим данным не установлен, но для REJECT уже достаточно нарушения лимита BTC.»
+              </p>
+            </div>
+
+            <!-- Astra Risk Recommendations -->
+            <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/30 rounded-xl text-xs space-y-1">
+              <div class="font-bold text-indigo-900 dark:text-indigo-300">🛡️ Тактические рекомендации AGI для боевого демона:</div>
+              <ul class="list-disc list-inside text-indigo-800 dark:text-indigo-200/90 space-y-0.5">
+                <li>Заблокировать публикацию и hot-reload данного кандидата в боевом демоне (Выполнено ✓).</li>
+                <li>Сохранить последнюю утвержденную версию весов (Выполнено ✓).</li>
+                <li>Для BTC провести повторное обучение с более низким learning rate (1e-4 -> 5e-5) для сдерживания дрейфа backbone.</li>
+                <li>Трейлинг-стоп удерживать через реализованную волатильность (2–3 ATR), минимизируя taker-издержки.</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 5: TRADES ================= -->
+      <section id="pane-trades" class="space-y-6 hidden">
+
+        <div class="bg-[var(--card,#ffffff)] border border-[var(--border,#e2e8f0)] rounded-xl p-5 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-sm sm:text-base font-bold text-[var(--foreground,#0f172a)]">Журнал закрытых сделок & Аудит исполнения</h2>
+              <p class="text-xs text-[var(--muted-foreground,#64748b)]">История сделок с учетом комиссии Maker 0.02% и 4-уровневого трейлинга</p>
+            </div>
+            <div class="text-xs font-mono font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded">
+              Win Rate: 66.7% (10/15)
+            </div>
+          </div>
+
+          <!-- Trades Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[var(--background,#f8fafc)] text-[var(--muted-foreground,#64748b)] uppercase border-b border-[var(--border,#e2e8f0)]">
+                <tr>
+                  <th class="py-2.5 px-3">ID / Актив</th>
+                  <th class="py-2.5 px-3">Направление</th>
+                  <th class="py-2.5 px-3 text-right">Вход</th>
+                  <th class="py-2.5 px-3 text-right">Выход</th>
+                  <th class="py-2.5 px-3 text-center">Причина выхода</th>
+                  <th class="py-2.5 px-3 text-right">PnL (USD)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--border,#e2e8f0)] font-mono">
+                <tr>
+                  <td class="py-2 px-3 font-sans font-semibold">#15 • BTC/USDT</td>
+                  <td class="py-2 px-3 text-emerald-600 font-bold">LONG</td>
+                  <td class="py-2 px-3 text-right">$79,120.00</td>
+                  <td class="py-2 px-3 text-right">$80,306.80</td>
+                  <td class="py-2 px-3 text-center text-[var(--muted-foreground,#64748b)] font-sans">Dynamic TP (+1.5%)</td>
+                  <td class="py-2 px-3 text-right text-emerald-600 font-bold">+$15.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-semibold">#14 • ETH/USDT</td>
+                  <td class="py-2 px-3 text-rose-600 font-bold">SHORT</td>
+                  <td class="py-2 px-3 text-right">$2,450.17</td>
+                  <td class="py-2 px-3 text-right">$2,413.41</td>
+                  <td class="py-2 px-3 text-center text-[var(--muted-foreground,#64748b)] font-sans">Dynamic TP (+1.5%)</td>
+                  <td class="py-2 px-3 text-right text-emerald-600 font-bold">+$15.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-semibold">#13 • SOL/USDT</td>
+                  <td class="py-2 px-3 text-emerald-600 font-bold">LONG</td>
+                  <td class="py-2 px-3 text-right">$138.40</td>
+                  <td class="py-2 px-3 text-right">$140.47</td>
+                  <td class="py-2 px-3 text-center text-[var(--muted-foreground,#64748b)] font-sans">Dynamic TP (+1.5%)</td>
+                  <td class="py-2 px-3 text-right text-emerald-600 font-bold">+$15.00</td>
+                </tr>
+                <tr class="opacity-70 bg-rose-500/5">
+                  <td class="py-2 px-3 font-sans font-semibold">#12 • BTC/USDT</td>
+                  <td class="py-2 px-3 text-rose-600 font-bold">SHORT</td>
+                  <td class="py-2 px-3 text-right">$80,200.00</td>
+                  <td class="py-2 px-3 text-right">$81,643.60</td>
+                  <td class="py-2 px-3 text-center text-rose-600 font-sans">Hard Stop (-1.8%)</td>
+                  <td class="py-2 px-3 text-right text-rose-600 font-bold">-$18.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-sans font-semibold">#11 • ETH/USDT</td>
+                  <td class="py-2 px-3 text-emerald-600 font-bold">LONG</td>
+                  <td class="py-2 px-3 text-right">$2,410.00</td>
+                  <td class="py-2 px-3 text-right">$2,446.15</td>
+                  <td class="py-2 px-3 text-center text-[var(--muted-foreground,#64748b)] font-sans">Dynamic TP (+1.5%)</td>
+                  <td class="py-2 px-3 text-right text-emerald-600 font-bold">+$15.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer Status -->
+    <footer class="p-4 border-t border-[var(--border,#e2e8f0)] bg-[var(--background,#f8fafc)] text-xs text-[var(--muted-foreground,#64748b)] flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div>
+        <span>Статус: <strong>Боевой контур защищён</strong> • Zero Naked Risk: <strong>100%</strong> • AGI Lead Quant: <strong>Active</strong></span>
+      </div>
+      <div class="font-mono text-[11px]">
+        SQLite WAL: OK • CCXT: OK • OpenAI Responses API: OK
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Tab Navigation Logic
+    function switchTab(tabId) {
+      const tabs = ['overview', 'position', 'mlops', 'astra', 'trades'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab-' + t);
+        const pane = document.getElementById('pane-' + t);
+        if (t === tabId) {
+          btn.classList.add('active');
+          btn.classList.remove('text-[var(--muted-foreground,#64748b)]');
+          pane.classList.remove('hidden');
+        } else {
+          btn.classList.remove('active');
+          btn.classList.add('text-[var(--muted-foreground,#64748b)]');
+          pane.classList.add('hidden');
+        }
+      });
+    }
+
+    // Live Clock Updater
+    function updateClocks() {
+      const now = new Date();
+      const utcString = now.toUTCString().split(' ')[4] + ' UTC';
+      
+      // Astana is UTC+5
+      const astanaTime = new Date(now.getTime() + (5 * 60 * 60 * 1000));
+      const astanaString = astanaTime.toISOString().substring(11, 19);
+
+      const utcEl = document.getElementById('utcClock');
+      const astanaEl = document.getElementById('astanaClock');
+      if (utcEl) utcEl.innerText = utcString;
+      if (astanaEl) astanaEl.innerText = astanaString;
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    function refreshData() {
+      const btn = event.currentTarget;
+      btn.classList.add('animate-pulse');
+      setTimeout(() => {
+        btn.classList.remove('animate-pulse');
+      }, 600);
+    }
+  </script>
+</body>
+</html>

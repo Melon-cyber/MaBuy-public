@@ -1,0 +1,20 @@
+# Ignore Python virtual environment and large models
+.venv/
+venv/
+__pycache__/
+*.pyc
+data/
+models/
+logs/
+tests/
+src/
+scripts/
+.git/
+.pytest_cache/
+.cache/
+*.db
+*.pt
+*.joblib
+*.zip
+*.txt
+*.tar.gz

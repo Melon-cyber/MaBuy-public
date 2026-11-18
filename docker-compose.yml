@@ -1,0 +1,116 @@
+services:
+  mabuy-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mabuy-app:latest
+    container_name: mabuy_api
+    command: uvicorn src.presentation.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - mabuy_data:/app/data
+      - mabuy_cache:/app/.data_cache
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./public:/app/public
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    labels:
+      - "autoheal=true"
+    restart: unless-stopped
+
+  mabuy-bot:
+    image: mabuy-app:latest
+    container_name: mabuy_bot
+    command: python scripts/launch_aiogram_bot.py
+    env_file:
+      - .env
+    volumes:
+      - mabuy_data:/app/data
+      - mabuy_cache:/app/.data_cache
+      - ./models:/app/models
+      - ./logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    restart: unless-stopped
+    depends_on:
+      mabuy-api:
+        condition: service_healthy
+
+  mabuy-daemon:
+    image: mabuy-app:latest
+    container_name: mabuy_daemon
+    command: python scripts/auto_trader_daemon.py
+    env_file:
+      - .env
+    volumes:
+      - mabuy_data:/app/data
+      - mabuy_cache:/app/.data_cache
+      - ./models:/app/models
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import time, os; t=float(open('/tmp/daemon_heartbeat').read().strip()) if os.path.exists('/tmp/daemon_heartbeat') else 0; exit(0 if (time.time()-t < 35 and t > 0) else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "autoheal=true"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    restart: unless-stopped
+    depends_on:
+      mabuy-api:
+        condition: service_healthy
+
+  litestream:
+    image: litestream/litestream:latest
+    container_name: mabuy_litestream
+    command: replicate --config /etc/litestream.yml
+    env_file:
+      - .env
+    volumes:
+      - ./litestream.yml:/etc/litestream.yml:ro
+      - mabuy_data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    restart: unless-stopped
+    depends_on:
+      mabuy-api:
+        condition: service_healthy
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: mabuy_autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+      - AUTOHEAL_INTERVAL=10
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+volumes:
+  mabuy_data:
+  mabuy_cache:
+
