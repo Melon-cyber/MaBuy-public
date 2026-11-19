@@ -1607,11 +1607,10 @@
           <span class="t-label">EMA 7/21 · RSI 14 · ATR</span>
         </div>
         <div class="flex items-center justify-between">
-          <span id="novice-signal-badge" class="px-3.5 py-1.5 rounded-full text-xs font-mono font-black tracking-wide bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm shadow-emerald-500/20 flex items-center select-none">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-            <span id="novice-signal-title">LONG</span>
+          <span id="novice-signal-badge" class="px-3.5 py-1.5 rounded-full text-xs font-mono font-black tracking-wide bg-white/[0.04] text-zinc-400 border border-white/10 flex items-center select-none">
+            <span id="novice-signal-title">НЕТ ДАННЫХ</span>
             <span class="text-white/20 mx-1.5">•</span>
-            <span id="novice-conf" class="px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-white font-extrabold text-[11px] tracking-tight">сила —</span>
+            <span id="novice-conf" class="px-1.5 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 font-extrabold text-[11px] tracking-tight">сила —</span>
           </span>
           <div class="flex items-center space-x-1.5 text-xs font-mono">
             <span id="novice-signal-summary" class="text-emerald-400 font-bold text-xs">—</span>
@@ -1622,17 +1621,17 @@
         <div class="grid grid-cols-3 gap-2 py-2.5 px-3 bg-white/[0.03] rounded-2xl border border-white/[0.06] text-center font-mono">
           <div class="space-y-0.5">
             <div class="text-[9px] text-zinc-500 uppercase tracking-wider">Вход</div>
-            <div id="novice-entry" class="text-sm font-bold text-white tracking-tight">$64,250</div>
+            <div id="novice-entry" class="text-sm font-bold text-white tracking-tight">—</div>
           </div>
           <div class="space-y-0.5 border-x border-white/[0.06] px-1">
             <div class="text-[9px] text-emerald-400 uppercase tracking-wider">Цель (TP)</div>
-            <div id="novice-tp" class="text-sm font-bold text-emerald-400 tracking-tight">$66,050</div>
-            <div id="novice-tp-pct" class="text-[9px] text-emerald-400/80 font-medium">+2.8%</div>
+            <div id="novice-tp" class="text-sm font-bold text-emerald-400 tracking-tight">—</div>
+            <div id="novice-tp-pct" class="text-[9px] text-emerald-400/80 font-medium"></div>
           </div>
           <div class="space-y-0.5">
             <div class="text-[9px] text-rose-400 uppercase tracking-wider">Стоп (SL)</div>
-            <div id="novice-sl" class="text-sm font-bold text-rose-400 tracking-tight">$63,280</div>
-            <div id="novice-sl-pct" class="text-[9px] text-rose-400/80 font-medium">-1.5%</div>
+            <div id="novice-sl" class="text-sm font-bold text-rose-400 tracking-tight">—</div>
+            <div id="novice-sl-pct" class="text-[9px] text-rose-400/80 font-medium"></div>
           </div>
         </div>
 
@@ -1654,9 +1653,9 @@
           <div class="flex items-center justify-between text-[11px] pt-1 border-t border-white/[0.04]">
             <span class="text-zinc-400">Чистая цель / риск:</span>
             <span class="font-bold flex items-center space-x-2">
-              <span class="text-emerald-400 font-extrabold" id="quick-calc-gain">+$8.40</span>
+              <span class="text-emerald-400 font-extrabold" id="quick-calc-gain">+$25.00</span>
               <span class="text-white/20">•</span>
-              <span class="text-zinc-500 text-[10px]">риск <span class="text-rose-400 font-semibold" id="quick-calc-loss">-$4.50</span></span>
+              <span class="text-zinc-500 text-[10px]">риск <span class="text-rose-400 font-semibold" id="quick-calc-loss">-$15.00</span></span>
             </span>
           </div>
         </div>
@@ -1730,14 +1729,14 @@
         <!-- Key Risk & Volatility Summary -->
         <div class="grid grid-cols-2 gap-2 text-[11px]">
           <div class="p-2.5 bg-gray-900/80 rounded-xl border border-gray-800 space-y-1">
-            <div class="text-[10px] text-gray-400">Риск на сделку (¼ Kelly, по правилу):</div>
-            <div id="pro-kelly-risk" class="text-sm font-bold text-emerald-400">3.19% капитала</div>
-            <div id="pro-rr-ratio" class="text-[9px] text-gray-500">R:R Ratio b = 1 : 1.85</div>
+            <div class="text-[10px] text-gray-400">Фиксированный риск на сделку:</div>
+            <div id="pro-kelly-risk" class="text-sm font-bold text-emerald-400">—</div>
+            <div id="pro-rr-ratio" class="text-[9px] text-gray-500">—</div>
           </div>
           <div class="p-2.5 bg-gray-900/80 rounded-xl border border-gray-800 space-y-1">
             <div class="text-[10px] text-gray-400">Dynamic ATR (14):</div>
-            <div id="pro-atr-val" class="text-sm font-bold text-white">$1,140.00</div>
-            <div id="pro-atr-sl" class="text-[9px] text-gray-500">SL Multiplier = 1.2 × ATR</div>
+            <div id="pro-atr-val" class="text-sm font-bold text-white">—</div>
+            <div id="pro-atr-sl" class="text-[9px] text-gray-500">SL Multiplier = 1.15 × ATR</div>
           </div>
         </div>
 
@@ -1755,8 +1754,8 @@
                 <span id="pro-ofi-label" class="text-emerald-400 font-bold">нет данных</span>
               </div>
               <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden flex">
-                <div id="pro-ofi-green-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 68%;"></div>
-                <div id="pro-ofi-red-bar" class="bg-rose-500 h-full transition-all duration-500" style="width: 32%;"></div>
+                <div id="pro-ofi-green-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 50%;"></div>
+                <div id="pro-ofi-red-bar" class="bg-rose-500 h-full transition-all duration-500" style="width: 50%;"></div>
               </div>
               <div class="flex justify-between text-[10px] text-gray-500 pt-0.5">
                 <span>Funding: <b id="t-pro-funding">—</b></span>
@@ -3113,24 +3112,25 @@
 
     function updateChartPriceLines() {
       const curPrice = livePriceCache[currentTradingSymbol] || (currentCandles.length ? currentCandles[currentCandles.length - 1].close : NaN);
-      if (!Number.isFinite(curPrice) || (window.lastQuantTelemetry && window.lastQuantTelemetry.noData)) return;
-      
-      let entryP = curPrice;
-      let isLong = true;
-      let tpP = entryP * 1.028;
-      let slP = entryP * 0.985;
-      let tpPct = 2.8;
-      let slPct = 1.5;
-
       const qt = window.lastQuantTelemetry || (typeof calculateQuantTelemetry === 'function' ? calculateQuantTelemetry(currentCandles, curPrice) : null);
-      if (qt) {
-        window.lastQuantTelemetry = qt;
-        isLong = (qt.signal !== 'SHORT');
-        if (qt.tpPrice) tpP = qt.tpPrice;
-        if (qt.slPrice) slP = qt.slPrice;
-        if (qt.tpPct) tpPct = qt.tpPct;
-        if (qt.slPct) slPct = qt.slPct;
+      if (!Number.isFinite(curPrice) || !qt || qt.noData || !Number.isFinite(qt.tpPrice) || !Number.isFinite(qt.slPrice)) {
+        if (tvCandleSeries) {
+          try {
+            if (tvPriceLineEntry) { tvCandleSeries.removePriceLine(tvPriceLineEntry); tvPriceLineEntry = null; }
+            if (tvPriceLineTP) { tvCandleSeries.removePriceLine(tvPriceLineTP); tvPriceLineTP = null; }
+            if (tvPriceLineSL) { tvCandleSeries.removePriceLine(tvPriceLineSL); tvPriceLineSL = null; }
+            if (tvPriceLineBE) { tvCandleSeries.removePriceLine(tvPriceLineBE); tvPriceLineBE = null; }
+          } catch (e) {}
+        }
+        return;
       }
+
+      window.lastQuantTelemetry = qt;
+      const entryP = curPrice;
+      const tpP = qt.tpPrice;
+      const slP = qt.slPrice;
+      const tpPct = Number.isFinite(qt.tpPct) ? qt.tpPct : 0;
+      const slPct = Number.isFinite(qt.slPct) ? qt.slPct : 0;
 
       const legEntry = document.getElementById('chart-legend-entry');
       const legTP = document.getElementById('chart-legend-tp');
@@ -3339,30 +3339,32 @@
         ctx.font = 'bold 9px monospace';
         ctx.fillText(formatUSD(lastCandle.close), chartWidth + 4, curY + 3);
 
-        // Draw TP & SL on Canvas using live telemetry
-        const qtCanvas = window.lastQuantTelemetry || (typeof calculateQuantTelemetry === 'function' ? calculateQuantTelemetry(currentCandles, lastCandle.close) : null);
-        const tpVal = qtCanvas && qtCanvas.tpPrice ? qtCanvas.tpPrice : lastCandle.close * 1.028;
-        const slVal = qtCanvas && qtCanvas.slPrice ? qtCanvas.slPrice : lastCandle.close * 0.985;
-        const tpY = priceToY(tpVal);
-        if (tpY >= topMargin && tpY <= topMargin + chartHeight) {
-          ctx.strokeStyle = '#16c784';
-          ctx.setLineDash([2, 4]);
-          ctx.beginPath();
-          ctx.moveTo(0, tpY);
-          ctx.lineTo(chartWidth, tpY);
-          ctx.stroke();
-          ctx.setLineDash([]);
-        }
+        // Draw TP & SL on Canvas using live telemetry (only when valid signal exists)
+        const qtCanvas = (typeof calculateQuantTelemetry === 'function')
+          ? calculateQuantTelemetry(currentCandles, lastCandle.close)
+          : window.lastQuantTelemetry;
+        if (qtCanvas && !qtCanvas.noData && Number.isFinite(qtCanvas.tpPrice) && Number.isFinite(qtCanvas.slPrice)) {
+          const tpY = priceToY(qtCanvas.tpPrice);
+          if (tpY >= topMargin && tpY <= topMargin + chartHeight) {
+            ctx.strokeStyle = '#16c784';
+            ctx.setLineDash([2, 4]);
+            ctx.beginPath();
+            ctx.moveTo(0, tpY);
+            ctx.lineTo(chartWidth, tpY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
 
-        const slY = priceToY(slVal);
-        if (slY >= topMargin && slY <= topMargin + chartHeight) {
-          ctx.strokeStyle = '#f43f5e';
-          ctx.setLineDash([2, 4]);
-          ctx.beginPath();
-          ctx.moveTo(0, slY);
-          ctx.lineTo(chartWidth, slY);
-          ctx.stroke();
-          ctx.setLineDash([]);
+          const slY = priceToY(qtCanvas.slPrice);
+          if (slY >= topMargin && slY <= topMargin + chartHeight) {
+            ctx.strokeStyle = '#f43f5e';
+            ctx.setLineDash([2, 4]);
+            ctx.beginPath();
+            ctx.moveTo(0, slY);
+            ctx.lineTo(chartWidth, slY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
         }
       }
 
@@ -3413,6 +3415,7 @@
         if (noDataEl) noDataEl.classList.remove('hidden');
         if (window.mbMarkFeed) window.mbMarkFeed('stale');
         if (tvCandleSeries) { try { tvCandleSeries.setData([]); } catch (e) {} }
+        if (canvas && ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
         updateLiveTradingUI();
       } else if (noDataEl) {
         noDataEl.classList.add('hidden');
@@ -3423,23 +3426,6 @@
       } else {
         renderCandlestickCanvas();
       }
-    }
-
-    function generateRealisticLiveCandles(basePrice, count) {
-      const data = [];
-      const now = Math.floor(Date.now() / 1000);
-      let cur = basePrice * 0.96;
-      for (let i = 0; i < count; i++) {
-        const t = now - ((count - i) * 3600);
-        const change = (Math.random() - 0.48) * (cur * 0.009);
-        const open = cur;
-        const close = cur + change;
-        const high = Math.max(open, close) + Math.random() * (cur * 0.005);
-        const low = Math.min(open, close) - Math.random() * (cur * 0.005);
-        data.push({ time: t, open: parseFloat(open.toFixed(2)), high: parseFloat(high.toFixed(2)), low: parseFloat(low.toFixed(2)), close: parseFloat(close.toFixed(2)) });
-        cur = close;
-      }
-      return data;
     }
 
     async function fetchLiveCryptoPrices(forceRefresh = false) {
@@ -4347,11 +4333,11 @@
     }
 
     function calculateQuantTelemetry(candles, currentPrice) {
-      if (!candles || candles.length < 5 || !Number.isFinite(currentPrice)) {
+      if (!candles || candles.length < 21 || !Number.isFinite(currentPrice)) {
         return {
-          noData: true, signal: 'NONE', rsi: NaN, conf: 0,
+          noData: true, signal: 'NONE', ema7: NaN, ema21: NaN, rsi: NaN, conf: 0,
           tpPrice: NaN, slPrice: NaN, tpPct: 0, slPct: 0, atr: NaN,
-          quarterKelly: 0, rrRatio: 0, bidsPct: 50, asksPct: 50, ofiVal: 0,
+          fixedRiskPct: 0, rrRatio: 0, bidsPct: 50, asksPct: 50, ofiVal: 0,
           expectedReturn: 0, kalmanState: 'нет данных', whyText: 'Недостаточно данных Binance для расчёта.'
         };
       }
@@ -4378,8 +4364,15 @@
       }
       const avgGain = gains / period;
       const avgLoss = losses / period;
-      const rs = (avgLoss === 0) ? 100 : (avgGain / avgLoss);
-      const rsi = 100 - (100 / (1 + rs));
+      let rsi;
+      if (avgGain === 0 && avgLoss === 0) {
+        rsi = 50;
+      } else if (avgLoss === 0) {
+        rsi = 100;
+      } else {
+        const rs = avgGain / avgLoss;
+        rsi = 100 - (100 / (1 + rs));
+      }
 
       // Dynamic ATR (14)
       let trSum = 0;
@@ -4393,7 +4386,7 @@
       }
       const atr = Math.max(currentPrice * 0.005, trSum / period);
 
-      // Signal Direction & Dynamic Confidence
+      // Signal Direction & Rule Score
       const isLong = (ema7 >= ema21) || (rsi >= 50);
       const signal = isLong ? 'LONG' : 'SHORT';
 
@@ -4411,12 +4404,8 @@
       const slPct = Math.abs((slPrice - currentPrice) / currentPrice) * 100;
       const rrRatio = tpPct / (slPct || 1);
 
-      // Dynamic Quarter-Kelly Fraction
-      const p = conf / 100;
-      const q = 1 - p;
-      const b = rrRatio;
-      const fullKelly = (p * b - q) / b;
-      const quarterKelly = Math.min(6.5, Math.max(1.5, fullKelly * 0.25 * 100));
+      // Fixed risk per trade (S5.1: do not feed non-probability rule score into Kelly)
+      const fixedRiskPct = 1.0;
 
       // Real L2 Order Flow Imbalance from Candle Wicks
       const lastC = candles[n - 1];
@@ -4435,12 +4424,14 @@
         ? (rsi > 65 ? 'Ускорение Бычьего Тренда' : 'Импульс Накопления')
         : (rsi < 35 ? 'Капитуляция / Сброс' : 'Локальное Давление Продавцов');
 
-      const whyText = isLong
-        ? `EMA-7 выше EMA-21, RSI=${Math.round(rsi)}. L2 стакан фиксирует перевес покупателей (Bids ${bidsPct}%). Ожидаем восходящий импульс.`
-        : `EMA-7 ниже EMA-21, RSI=${Math.round(rsi)}. Давление продавцов в стакане (Asks ${asksPct}%). Ожидаем нисходящий откат.`;
+      const whyText = (ema7 >= ema21)
+        ? `EMA-7 >= EMA-21, RSI=${Math.round(rsi)}.`
+        : (isLong ? `EMA-7 < EMA-21, но RSI=${Math.round(rsi)} >= 50.` : `EMA-7 < EMA-21, RSI=${Math.round(rsi)}.`);
 
       return {
         signal,
+        ema7,
+        ema21,
         rsi,
         conf,
         tpPrice,
@@ -4448,7 +4439,7 @@
         tpPct,
         slPct,
         atr,
-        quarterKelly,
+        fixedRiskPct,
         rrRatio,
         bidsPct,
         asksPct,
@@ -4465,7 +4456,7 @@
       if (label) label.innerText = Number.isFinite(p) ? formatUSD(p) : '—';
       
       // Real-time candle tick (update candle first, compute telemetry, then sync chart lines)
-      if (currentCandles && currentCandles.length > 0) {
+      if (currentCandles && currentCandles.length > 0 && Number.isFinite(p)) {
         const last = currentCandles[currentCandles.length - 1];
         last.close = p;
         if (p > last.high) last.high = p;
@@ -4474,17 +4465,34 @@
 
       const q = calculateQuantTelemetry(currentCandles, p);
       window.lastQuantTelemetry = q;
+
+      const ofiLabelEl = document.getElementById('pro-ofi-label');
+      const ofiGreenEl = document.getElementById('pro-ofi-green-bar');
+      const ofiRedEl = document.getElementById('pro-ofi-red-bar');
+      const book = window.mbBookImbalance;
+      if (book && book.symbol === currentTradingSymbol) {
+        if (ofiLabelEl) ofiLabelEl.innerText = `${book.imbalance >= 0 ? '+' : ''}${book.imbalance.toFixed(1)}% (${book.imbalance >= 0 ? 'перевес покупок' : 'перевес продаж'})`;
+        if (ofiGreenEl) ofiGreenEl.style.width = `${book.bidsPct}%`;
+        if (ofiRedEl) ofiRedEl.style.width = `${book.asksPct}%`;
+      } else {
+        if (ofiLabelEl) ofiLabelEl.innerText = 'нет данных стакана';
+        if (ofiGreenEl) ofiGreenEl.style.width = '50%';
+        if (ofiRedEl) ofiRedEl.style.width = '50%';
+      }
+
       if (q.noData) {
         const badge = document.getElementById('novice-signal-badge');
         if (badge) {
           badge.innerHTML = '<span>НЕТ ДАННЫХ</span>';
           badge.className = 'px-3.5 py-1.5 rounded-full text-xs font-mono font-black tracking-wide bg-white/[0.04] text-zinc-400 border border-white/10 flex items-center select-none';
         }
-        ['novice-signal-summary', 'novice-entry', 'novice-tp', 'novice-sl', 'pro-kelly-risk', 'pro-atr-val', 'pro-expected-return', 'pro-kalman-state']
+        ['novice-signal-summary', 'novice-entry', 'novice-tp', 'novice-sl', 'pro-kelly-risk', 'pro-rr-ratio', 'pro-atr-val', 'pro-expected-return', 'pro-kalman-state']
           .forEach(id => { const el = document.getElementById(id); if (el) el.innerText = '—'; });
         ['novice-tp-pct', 'novice-sl-pct'].forEach(id => { const el = document.getElementById(id); if (el) el.innerText = ''; });
+        updateChartPriceLines();
         if (!window.orderDirUserSet && window.orderConfig) window.orderConfig.direction = 'LONG';
-        if (typeof recalculateQuickTradeMetrics === 'function') recalculateQuickTradeMetrics();
+        if (typeof refreshQuickSetupTag === 'function') refreshQuickSetupTag();
+        else if (typeof recalculateQuickTradeMetrics === 'function') recalculateQuickTradeMetrics();
         return;
       }
       // Demo order follows the signal direction until the user picks a direction explicitly.
@@ -4510,23 +4518,28 @@
         }
       }
 
-      // 1. Update Novice View with Embedded AI Confidence in Oval
+      // 1. Update Novice View with Indicator Rule Badge
       const badgeEl = document.getElementById('novice-signal-badge');
       if (badgeEl) {
         if (q.signal === 'LONG') {
           badgeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span><span>LONG</span><span class="text-white/20 mx-1.5">•</span><span id="novice-conf" class="px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-white font-extrabold text-[11px] tracking-tight">сила ${q.conf}</span>`;
           badgeEl.className = "px-3.5 py-1.5 rounded-full text-xs font-mono font-black tracking-wide bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm shadow-emerald-500/20 flex items-center select-none";
-          if (document.getElementById('novice-signal-summary')) {
-            document.getElementById('novice-signal-summary').innerText = "EMA 7 выше EMA 21";
-            document.getElementById('novice-signal-summary').className = "text-xs text-emerald-400 font-bold";
-          }
         } else {
           badgeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse mr-1.5"></span><span>SHORT</span><span class="text-white/20 mx-1.5">•</span><span id="novice-conf" class="px-1.5 py-0.5 rounded-full bg-rose-500/30 text-white font-extrabold text-[11px] tracking-tight">сила ${q.conf}</span>`;
           badgeEl.className = "px-3.5 py-1.5 rounded-full text-xs font-mono font-black tracking-wide bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-sm shadow-rose-500/20 flex items-center select-none";
-          if (document.getElementById('novice-signal-summary')) {
-            document.getElementById('novice-signal-summary').innerText = "EMA 7 ниже EMA 21";
-            document.getElementById('novice-signal-summary').className = "text-xs text-rose-400 font-bold";
-          }
+        }
+      }
+      const sumEl = document.getElementById('novice-signal-summary');
+      if (sumEl) {
+        if (q.ema7 >= q.ema21) {
+          sumEl.innerText = `EMA 7 ≥ EMA 21 · RSI ${Math.round(q.rsi)}`;
+          sumEl.className = "text-xs text-emerald-400 font-bold";
+        } else if (q.signal === 'LONG') {
+          sumEl.innerText = `EMA 7 < EMA 21, RSI ${Math.round(q.rsi)} ≥ 50`;
+          sumEl.className = "text-xs text-emerald-400 font-bold";
+        } else {
+          sumEl.innerText = `EMA 7 < EMA 21 · RSI ${Math.round(q.rsi)}`;
+          sumEl.className = "text-xs text-rose-400 font-bold";
         }
       }
       document.getElementById('novice-entry').innerText = formatUSD(p);
@@ -4543,18 +4556,9 @@
       document.getElementById('novice-why').innerText = q.whyText;
 
       // 2. Update PRO View
-      document.getElementById('pro-kelly-risk').innerText = `${q.quarterKelly.toFixed(2)}% капитала`;
+      document.getElementById('pro-kelly-risk').innerText = `${q.fixedRiskPct.toFixed(1)}% капитала (фикс.)`;
       document.getElementById('pro-rr-ratio').innerText = `R:R Ratio b = 1 : ${q.rrRatio.toFixed(2)}`;
       document.getElementById('pro-atr-val').innerText = formatUSD(q.atr);
-      // Order-book imbalance comes from real Binance depth (terminal module); never from candle wicks.
-      const book = window.mbBookImbalance;
-      if (book && book.symbol === currentTradingSymbol) {
-        document.getElementById('pro-ofi-label').innerText = `${book.imbalance >= 0 ? '+' : ''}${book.imbalance.toFixed(1)}% (${book.imbalance >= 0 ? 'перевес покупок' : 'перевес продаж'})`;
-        document.getElementById('pro-ofi-green-bar').style.width = `${book.bidsPct}%`;
-        document.getElementById('pro-ofi-red-bar').style.width = `${book.asksPct}%`;
-      } else {
-        document.getElementById('pro-ofi-label').innerText = 'нет данных стакана';
-      }
       document.getElementById('pro-expected-return').innerText = Number.isFinite(q.rsi) ? q.rsi.toFixed(1) : '—';
       document.getElementById('pro-kalman-state').innerText = q.kalmanState;
     }
@@ -6763,7 +6767,7 @@
           <span class="text-xl">📸</span>
           <div>
             <h3 class="font-bold text-sm text-white">Stories Win-Card 2.0</h3>
-            <p class="text-[10px] text-gray-400 font-mono">Экспорт прогноза для Telegram & Stories</p>
+            <p class="text-[10px] text-gray-400 font-mono">Экспорт демо-сделки или расчёта для Stories</p>
           </div>
         </div>
         <button onclick="closeWinCardModal()" class="w-8 h-8 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white flex items-center justify-center cursor-pointer transition">
@@ -6794,12 +6798,12 @@
       <div class="space-y-1 font-mono">
         <div class="flex items-center justify-between text-[10px] text-zinc-400">
           <span>Данные карточки:</span>
-          <span id="wincard-source-desc" class="text-emerald-400 font-bold truncate">Реальный трейд</span>
+          <span id="wincard-source-desc" class="text-emerald-400 font-bold truncate">Демо-сделка</span>
         </div>
         <div class="grid grid-cols-3 gap-1 text-[10px]" id="wincard-source-tabs">
-          <button onclick="setWinCardSource('best')" id="wincard-src-best" class="py-1.5 px-1 rounded-xl font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition text-center cursor-pointer truncate shadow-sm">🏆 Лучший трейд</button>
-          <button onclick="setWinCardSource('active')" id="wincard-src-active" class="py-1.5 px-1 rounded-xl font-semibold border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-white transition text-center cursor-pointer truncate">⚡ Открытая сделка</button>
-          <button onclick="setWinCardSource('signal')" id="wincard-src-signal" class="py-1.5 px-1 rounded-xl font-semibold border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-white transition text-center cursor-pointer truncate">📈 AI-Сигнал</button>
+          <button onclick="setWinCardSource('best')" id="wincard-src-best" class="py-1.5 px-1 rounded-xl font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition text-center cursor-pointer truncate shadow-sm">🏆 Лучшая демо</button>
+          <button onclick="setWinCardSource('active')" id="wincard-src-active" class="py-1.5 px-1 rounded-xl font-semibold border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-white transition text-center cursor-pointer truncate">⚡ Открытая демо</button>
+          <button onclick="setWinCardSource('signal')" id="wincard-src-signal" class="py-1.5 px-1 rounded-xl font-semibold border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-white transition text-center cursor-pointer truncate">📈 Расчёт по сигналу</button>
         </div>
       </div>
 
@@ -7202,7 +7206,7 @@
           <span class="text-2xl">🎯</span>
           <div>
             <h3 class="font-bold text-sm text-white">Калькулятор Риска Депозита</h3>
-            <p class="text-[10px] text-emerald-400 font-mono">V5 Dynamic Risk Engine • Quarter-Kelly</p>
+            <p class="text-[10px] text-emerald-400 font-mono">Расчёт позиции • фиксированный риск 2%</p>
           </div>
         </div>
         <button onclick="closeDepositRiskCalculator()" class="w-8 h-8 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white flex items-center justify-center cursor-pointer transition">
@@ -7244,7 +7248,7 @@
         </div>
         <div class="flex items-center justify-between text-[11px] text-gray-400">
           <span>Безопасное плечо:</span>
-          <span class="text-cyan-400 font-bold">3x (Изолированное)</span>
+          <span id="calc-lev-val" class="text-cyan-400 font-bold">10x (Изолированное)</span>
         </div>
         <div class="flex items-center justify-between text-[11px] text-gray-400">
           <span>Рекомендуемая маржа:</span>
@@ -7265,7 +7269,7 @@
         </div>
         <div class="flex items-center justify-between text-[10px] text-gray-500 pt-0.5">
           <span>Соотношение R:R:</span>
-          <span class="text-amber-400 font-bold">1 : 2.15 (Матожидание +)</span>
+          <span id="calc-rr-val" class="text-amber-400 font-bold">1 : 1.67</span>
         </div>
       </div>
 
@@ -7423,36 +7427,39 @@
       if (positions.length > 0) {
         const evaluated = positions.map(pos => {
           const symKey = pos.symbol || (pos.cleanSymbol + 'USDT');
-          const curP = (window.livePriceCache && (window.livePriceCache[symKey] || window.livePriceCache[pos.cleanSymbol])) || pos.entryPrice;
+          const rawP = window.livePriceCache ? (window.livePriceCache[symKey] || window.livePriceCache[pos.cleanSymbol]) : undefined;
+          const hasLiveP = Number.isFinite(rawP) && rawP > 0;
+          const curP = hasLiveP ? rawP : NaN;
           const isLong = pos.direction === 'LONG';
-          const roi = isLong ? ((curP - pos.entryPrice) / pos.entryPrice) * pos.leverage * 100
-                             : ((pos.entryPrice - curP) / pos.entryPrice) * pos.leverage * 100;
-          const pnl = (roi / 100) * pos.marginUsd;
-          return { ...pos, curPrice: curP, roiPct: roi, pnlUsd: pnl };
+          const roi = hasLiveP
+            ? (isLong ? ((curP - pos.entryPrice) / pos.entryPrice) * pos.leverage * 100
+                      : ((pos.entryPrice - curP) / pos.entryPrice) * pos.leverage * 100)
+            : NaN;
+          const pnl = hasLiveP ? (roi / 100) * pos.marginUsd : NaN;
+          return { ...pos, curPrice: curP, roiPct: roi, pnlUsd: pnl, noPrice: !hasLiveP };
         });
-        evaluated.sort((a, b) => b.roiPct - a.roiPct);
+        evaluated.sort((a, b) => (Number.isFinite(b.roiPct) ? b.roiPct : -Infinity) - (Number.isFinite(a.roiPct) ? a.roiPct : -Infinity));
         bestActivePos = evaluated[0];
       }
 
-      // 3. Current Live Chart Signal Fallback
-      const sym = (typeof selectedSymbol !== 'undefined' && selectedSymbol ? selectedSymbol : 'BTC').toUpperCase();
-      const cleanSym = sym.replace('USDT', '');
-      const chartPrice = (window.livePriceCache && (window.livePriceCache[cleanSym + 'USDT'] || window.livePriceCache[cleanSym])) ||
-                         (window.currentPrediction && window.currentPrediction.current_price) || 64250.0;
+      // 3. Current Live Chart Signal (hypothetical calculation, never a hardcoded fallback price)
+      const symRaw = (typeof currentTradingSymbol !== 'undefined' && currentTradingSymbol) || window.currentTradingSymbol || 'BTCUSDT';
+      const cleanSym = symRaw.toUpperCase().replace('USDT', '');
+      const symPair = cleanSym + 'USDT';
+      const rawChartPrice = window.livePriceCache ? (window.livePriceCache[symPair] || window.livePriceCache[cleanSym]) : undefined;
+      const chartPrice = (Number.isFinite(rawChartPrice) && rawChartPrice > 0) ? rawChartPrice : NaN;
+      const qt = (window.lastQuantTelemetry && !window.lastQuantTelemetry.noData) ? window.lastQuantTelemetry : null;
       const orderCfg = window.orderConfig || { leverage: 10, margin: 100, tpPct: 2.5, slPct: 1.5, direction: 'LONG' };
-      const predDir = (window.currentPrediction && window.currentPrediction.direction) || orderCfg.direction || 'LONG';
+      const predDir = (qt && (qt.signal === 'LONG' || qt.signal === 'SHORT')) ? qt.signal : (orderCfg.direction || 'LONG');
       const isLongSignal = predDir === 'LONG' || predDir === 'BULLISH';
       const sigLev = orderCfg.leverage || 10;
-      const sigTpPct = (window.currentPrediction && window.currentPrediction.predicted_target_price && chartPrice > 0)
-        ? Math.abs((window.currentPrediction.predicted_target_price - chartPrice) / chartPrice) * 100
-        : (orderCfg.tpPct || 2.5);
-      const sigSlPct = (window.currentPrediction && window.currentPrediction.predicted_stop_loss && chartPrice > 0)
-        ? Math.abs((chartPrice - window.currentPrediction.predicted_stop_loss) / chartPrice) * 100
-        : (orderCfg.slPct || 1.5);
-      const sigTpPrice = isLongSignal ? chartPrice * (1 + sigTpPct/100) : chartPrice * (1 - sigTpPct/100);
-      const sigSlPrice = isLongSignal ? chartPrice * (1 - sigSlPct/100) : chartPrice * (1 + sigSlPct/100);
-      const sigRoi = sigTpPct * sigLev;
-      const sigPnl = (sigRoi / 100) * (orderCfg.margin || 100);
+      const sigTpPct = (qt && Number.isFinite(qt.tpPct) && qt.tpPct > 0) ? qt.tpPct : (orderCfg.tpPct || 2.5);
+      const sigSlPct = (qt && Number.isFinite(qt.slPct) && qt.slPct > 0) ? qt.slPct : (orderCfg.slPct || 1.5);
+      const sigHasData = Number.isFinite(chartPrice) && Boolean(qt);
+      const sigTpPrice = sigHasData ? (isLongSignal ? chartPrice * (1 + sigTpPct/100) : chartPrice * (1 - sigTpPct/100)) : NaN;
+      const sigSlPrice = sigHasData ? (isLongSignal ? chartPrice * (1 - sigSlPct/100) : chartPrice * (1 + sigSlPct/100)) : NaN;
+      const sigRoi = sigHasData ? (sigTpPct * sigLev) : NaN;
+      const sigPnl = sigHasData ? ((sigRoi / 100) * (orderCfg.margin || 100)) : NaN;
 
       // Manual Tab Override
       if (currentWinCardSource === 'best' && bestTrade) return formatTradeForCard(bestTrade);
@@ -7461,7 +7468,7 @@
 
       // Auto Selection Priority
       if (bestTrade && (bestTrade.pnl > 0 || bestTrade.roiPct > 0)) return formatTradeForCard(bestTrade);
-      if (bestActivePos && bestActivePos.roiPct > 0) return formatActiveForCard(bestActivePos);
+      if (bestActivePos && Number.isFinite(bestActivePos.roiPct) && bestActivePos.roiPct > 0) return formatActiveForCard(bestActivePos);
       if (bestActivePos) return formatActiveForCard(bestActivePos);
       if (bestTrade) return formatTradeForCard(bestTrade);
       return formatSignalForCard();
@@ -7469,20 +7476,39 @@
       function formatTradeForCard(t) {
         const isLong = t.direction === 'LONG';
         const roi = typeof t.roiPct === 'number' ? t.roiPct : (t.pnl / t.marginUsd * 100);
+        const pnlVal = typeof t.pnlUsd === 'number' ? t.pnlUsd : (typeof t.pnl === 'number' ? t.pnl : (roi / 100 * t.marginUsd));
+        const reason = t.exitReason || 'MANUAL';
+        const badgeMap = {
+          TAKE_PROFIT: '🎯 ДЕМО: ТЕЙК',
+          STOP_LOSS: '🛡️ ДЕМО: СТОП',
+          LIQUIDATION: '💀 ДЕМО: ЛИКВ.',
+          BREAKEVEN_STOP: '🔒 ДЕМО: Б/У',
+          PARTIAL_50: '✂️ ДЕМО: 50%',
+          MANUAL: pnlVal >= 0 ? '📋 ДЕМО: ЗАКРЫТА' : '📋 ДЕМО: УБЫТОК'
+        };
+        const tagMap = {
+          TAKE_PROFIT: 'Закрытая демо-сделка (тейк-профит)',
+          STOP_LOSS: 'Закрытая демо-сделка (стоп-лосс)',
+          LIQUIDATION: 'Закрытая демо-сделка (ликвидация)',
+          BREAKEVEN_STOP: 'Закрытая демо-сделка (безубыток)',
+          PARTIAL_50: 'Частичное закрытие демо-сделки (50%)',
+          MANUAL: 'Закрытая демо-сделка (вручную)'
+        };
         return {
           sourceType: 'closed',
+          exitReason: reason,
           symbol: (t.cleanSymbol || t.symbol || 'BTC').replace('USDT', ''),
           direction: t.direction || 'LONG',
           isLong: isLong,
           leverage: t.leverage || 10,
           marginUsd: t.marginUsd || 100,
           entryPrice: t.entryPrice || 0,
-          exitPrice: t.exitPrice || t.tpPrice || (isLong ? t.entryPrice * 1.025 : t.entryPrice * 0.975),
+          exitPrice: t.exitPrice || t.closePrice || t.tpPrice || 0,
           slPrice: t.slPrice || (isLong ? t.entryPrice * 0.985 : t.entryPrice * 1.015),
           roiPct: roi,
-          pnlUsd: t.pnl || (roi / 100 * t.marginUsd),
-          statusBadge: t.exitReason === 'TAKE_PROFIT' ? '🎯 ТЕЙК-ПРОФИТ ВЗЯТ' : (t.exitReason === 'PARTIAL_50' ? '✂️ 50% ПРИБЫЛИ ЗАФИКСИРОВАНО' : '✅ СДЕЛКА В ПЛЮСЕ'),
-          tagline: t.exitReason === 'TAKE_PROFIT' ? 'Целевой тейк-профит зафиксирован на бирже' : 'Прибыль зафиксирована по квантовой стратегии'
+          pnlUsd: pnlVal,
+          statusBadge: badgeMap[reason] || '📋 ДЕМО: ЗАКРЫТА',
+          tagline: tagMap[reason] || 'Закрытая демо-сделка'
         };
       }
 
@@ -7490,6 +7516,7 @@
         const isLong = pos.direction === 'LONG';
         return {
           sourceType: 'active',
+          noData: Boolean(pos.noPrice),
           symbol: (pos.cleanSymbol || pos.symbol || 'BTC').replace('USDT', ''),
           direction: pos.direction || 'LONG',
           isLong: isLong,
@@ -7500,14 +7527,15 @@
           slPrice: pos.slPrice || (isLong ? pos.entryPrice * 0.985 : pos.entryPrice * 1.015),
           roiPct: pos.roiPct,
           pnlUsd: pos.pnlUsd,
-          statusBadge: '🔥 LIVE ПОЗИЦИЯ В РЫНКЕ',
-          tagline: 'Тикающий результат открытой позиции в реальном времени'
+          statusBadge: '🔥 ДЕМО: ОТКРЫТА',
+          tagline: pos.noPrice ? 'Открытая демо-сделка (нет цены Binance)' : 'Открытая демо-сделка по текущей цене Binance'
         };
       }
 
       function formatSignalForCard() {
         return {
           sourceType: 'signal',
+          noData: !sigHasData,
           symbol: cleanSym,
           direction: isLongSignal ? 'LONG' : 'SHORT',
           isLong: isLongSignal,
@@ -7518,8 +7546,8 @@
           slPrice: sigSlPrice,
           roiPct: sigRoi,
           pnlUsd: sigPnl,
-          statusBadge: '⚡ СИГНАЛ ПО ИНДИКАТОРАМ',
-          tagline: 'Гипотетический расчёт до цели сигнала, не результат сделки'
+          statusBadge: sigHasData ? '⚡ ГИПОТЕТИЧЕСКИ' : '⚠️ НЕТ ДАННЫХ',
+          tagline: sigHasData ? 'Гипотетический расчёт по сигналу (не сделка)' : 'Нет рыночных данных Binance'
         };
       }
     }
@@ -7577,9 +7605,9 @@
       // Update modal source status indicator
       const srcDesc = document.getElementById('wincard-source-desc');
       if (srcDesc) {
-        if (data.sourceType === 'closed') srcDesc.textContent = `Трейд #${data.symbol} (${data.roiPct >= 0 ? '+' : ''}${data.roiPct.toFixed(1)}%)`;
-        else if (data.sourceType === 'active') srcDesc.textContent = `Позиция #${data.symbol} (Live ${data.roiPct >= 0 ? '+' : ''}${data.roiPct.toFixed(1)}%)`;
-        else srcDesc.textContent = `AI-сигнал #${data.symbol} (Цель +${data.roiPct.toFixed(1)}%)`;
+        if (data.sourceType === 'closed') srcDesc.textContent = `Закрытая демо #${data.symbol} (${data.roiPct >= 0 ? '+' : ''}${data.roiPct.toFixed(1)}%)`;
+        else if (data.sourceType === 'active') srcDesc.textContent = `Открытая демо #${data.symbol} (${Number.isFinite(data.roiPct) ? (data.roiPct >= 0 ? '+' : '') + data.roiPct.toFixed(1) + '%' : 'нет цены'})`;
+        else srcDesc.textContent = data.noData ? `Нет данных #${data.symbol}` : `Расчёт по сигналу #${data.symbol} (гипотет. +${data.roiPct.toFixed(1)}%)`;
       }
 
       // Apple Refined Palettes
@@ -7681,8 +7709,9 @@
       ctx.fillText(dirText, pill1X + 22, 305);
 
       // Status Tag Pill (Under leverage pill)
-      const shortBadge = data.sourceType === 'closed' ? '🎯 ДЕМО: ТЕЙК' : (data.sourceType === 'active' ? '🔥 ДЕМО: В РЫНКЕ' : '⚡ СИГНАЛ (НЕ СДЕЛКА)');
-      const pill2W = 155;
+      const shortBadge = data.statusBadge || (data.sourceType === 'closed' ? '📋 ДЕМО: ЗАКРЫТА' : (data.sourceType === 'active' ? '🔥 ДЕМО: ОТКРЫТА' : '⚡ ГИПОТЕТИЧЕСКИ'));
+      ctx.font = '600 18px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
+      const pill2W = Math.min(360, Math.max(175, Math.ceil(ctx.measureText(shortBadge).width) + 40));
       const pill2X = 1010 - 45 - pill2W;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
       ctx.beginPath();
@@ -7697,18 +7726,25 @@
       ctx.fillText(shortBadge, pill2X + 20, 361);
 
       // Row B: Giant Apple Pay / Fitness Style ROI Number
-      const isProf = data.roiPct >= 0;
+      const hasRoi = Number.isFinite(data.roiPct);
+      const hasPnl = Number.isFinite(data.pnlUsd);
+      const isProf = hasRoi ? data.roiPct >= 0 : true;
       const roiSign = isProf ? '+' : '';
-      ctx.fillStyle = isProf ? '#34d399' : '#ff453a';
+      ctx.fillStyle = !hasRoi ? '#86868b' : (isProf ? '#34d399' : '#ff453a');
       ctx.font = '700 118px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif';
-      ctx.fillText(`${roiSign}${data.roiPct.toFixed(2)}%`, 115, 490);
+      ctx.fillText(hasRoi ? `${roiSign}${data.roiPct.toFixed(2)}%` : '—', 115, 490);
 
-      // Row C: Clean Apple Subtitle (Safe width, NEVER overflows!)
-      const pnlSign = data.pnlUsd >= 0 ? '+' : '-';
-      const cleanTagline = data.sourceType === 'closed' ? 'Закрытая демо-сделка' : (data.sourceType === 'active' ? 'Открытая демо-сделка' : 'Гипотетически: если цена дойдёт до цели');
+      // Row C: Clean Apple Subtitle (wrapped safely inside hero box x <= 1010)
+      const pnlSign = (hasPnl && data.pnlUsd >= 0) ? '+' : '-';
+      const cleanTagline = data.tagline || (data.sourceType === 'closed' ? 'Закрытая демо-сделка' : (data.sourceType === 'active' ? 'Открытая демо-сделка' : 'Гипотетический расчёт по сигналу (не сделка)'));
       ctx.fillStyle = '#86868b';
       ctx.font = '500 26px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
-      ctx.fillText(`${pnlSign}$${Math.abs(data.pnlUsd).toFixed(2)} ${data.sourceType === 'signal' ? 'потенциал' : 'PnL демо-счёта'}  •  ${cleanTagline}`, 115, 550);
+      if (hasPnl) {
+        ctx.fillText(`${pnlSign}$${Math.abs(data.pnlUsd).toFixed(2)} ${data.sourceType === 'signal' ? 'расчётная цель' : 'PnL демо-счёта'}`, 115, 548);
+        drawWrappedText(ctx, cleanTagline, 115, 584, 850, 32, 2);
+      } else {
+        drawWrappedText(ctx, cleanTagline, 115, 550, 850, 32, 2);
+      }
 
       // Row D: 📈 Apple Stocks Trajectory Wave (Dedicated zone: y=660 to y=755, 110px safe margin below text!)
       const curveStart = isProf ? 745 : 670;
@@ -7741,18 +7777,19 @@
       ctx.beginPath(); ctx.arc(955, curveEnd, 10, 0, Math.PI*2); ctx.fill();
 
       // 5. Four Precision Metric Cards (Apple Widget Grid: y=825 to y=1100)
-      const prec = data.entryPrice < 1.0 ? 4 : 2;
-      const entryFormatted = `$${Number(data.entryPrice).toLocaleString('en-US', {minimumFractionDigits: prec, maximumFractionDigits: prec})}`;
-      const exitFormatted = `$${Number(data.exitPrice).toLocaleString('en-US', {minimumFractionDigits: prec, maximumFractionDigits: prec})}`;
-      const slFormatted = `$${Number(data.slPrice).toLocaleString('en-US', {minimumFractionDigits: prec, maximumFractionDigits: prec})}`;
+      const prec = (Number.isFinite(data.entryPrice) && data.entryPrice < 1.0) ? 4 : 2;
+      const fmtCardPx = (v) => Number.isFinite(v) ? `$${Number(v).toLocaleString('en-US', {minimumFractionDigits: prec, maximumFractionDigits: prec})}` : '—';
+      const entryFormatted = fmtCardPx(data.entryPrice);
+      const exitFormatted = fmtCardPx(data.exitPrice);
+      const slFormatted = fmtCardPx(data.slPrice);
       
-      const exitLabel = data.sourceType === 'closed' ? '🏁 Цена закрытия' : (data.sourceType === 'active' ? '⚡ Текущая цена' : '🎯 Тейк-Профит');
+      const exitLabel = data.sourceType === 'closed' ? '🏁 Цена закрытия' : (data.sourceType === 'active' ? '⚡ Текущая цена' : '🎯 Цель (TP)');
       
       const metrics = [
         ['📍 Точка входа', entryFormatted],
         [exitLabel, exitFormatted],
         ['🛡️ Стоп-Лосс (SL)', slFormatted],
-        [showBal ? '💰 Баланс трейдера' : '⚖️ Маржа сделки', showBal ? `$${Number(realBalance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${Number(data.marginUsd).toFixed(2)} (${data.leverage}x)`]
+        [showBal ? '💰 Демо-баланс' : '⚖️ Маржа демо-сделки', showBal ? `$${Number(realBalance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${Number(data.marginUsd).toFixed(2)} (${data.leverage}x)`]
       ];
 
       const boxW = 445;
@@ -7781,33 +7818,67 @@
       ctx.beginPath(); ctx.roundRect(70, 1140, 940, 420, 32); ctx.fill();
       ctx.strokeStyle = accentColor; ctx.lineWidth = 1.5; ctx.stroke();
 
-      const numRoiStr = `${roiSign}${data.roiPct.toFixed(2)}%`;
-      const numPnlStr = `${pnlSign}$${Math.abs(data.pnlUsd).toFixed(2)}`;
+      const numRoiStr = hasRoi ? `${roiSign}${data.roiPct.toFixed(2)}%` : '—';
+      const numPnlStr = hasPnl ? `${pnlSign}$${Math.abs(data.pnlUsd).toFixed(2)}` : '—';
+      const isSignalMode = data.sourceType === 'signal';
 
-      const quotes = {
+      const quotes = isSignalMode ? {
         tsundere: {
           emoji: '😡',
           name: 'MaIA Tsundere',
           badge: 'Дерзкий Копайлот',
-          text: `«Хм! ${isProf ? numRoiStr + ' по #' + data.symbol + '?! ' : 'Минус ' + numRoiStr + '?! '}И не вздумай зазнаваться, бака! Я же давала точный уровень ${entryFormatted}! Не смей слить ${numPnlStr} на завышенных плечах! (¬_¬)»`
+          text: data.noData
+            ? `«Нет рыночных данных Binance по #${data.symbol} — расчёт не построен. Дождись котировок, бака! (¬_¬)»`
+            : `«Это расчёт по индикаторам для #${data.symbol} от ${entryFormatted}, а не реальная прибыль! Цель ${numRoiStr} (${numPnlStr}) — только если цена дойдёт до TP. (¬_¬)»`
         },
         yandere: {
           emoji: '🔪',
           name: 'MaIA Yandere',
           badge: 'Одержимый ИИ',
-          text: `«Мы забрали ${numRoiStr} (${numPnlStr}) по #${data.symbol}... идеальная точка входа. И помни: весь этот профит теперь принадлежит только мне, любимый ❤️🔪»`
+          text: data.noData
+            ? `«Котировок Binance по #${data.symbol} сейчас нет. Без реальной цены расчёт невозможен.»`
+            : `«Гипотетический сценарий #${data.symbol} (${data.direction} ${data.leverage}x): при достижении цели TP расчётный результат ${numRoiStr} (${numPnlStr}). Это расчёт по правилу, не сделка.»`
         },
         quant: {
           emoji: '🔬',
           name: 'MaIA Quant V5',
-          badge: 'PhD Аналитик',
-          text: `«Исполнение #${data.symbol}: чистый ROI ${numRoiStr} с маржой $${data.marginUsd} (${data.leverage}x плечо). Асимметричное матожидание подтверждено потоком ордеров L2 и скорингом OFI.»`
+          badge: 'Индикаторное правило',
+          text: data.noData
+            ? `«Нет данных Binance для расчёта EMA 7/21, RSI 14 и ATR по #${data.symbol}.»`
+            : `«Гипотетический расчёт #${data.symbol} (${data.direction} ${data.leverage}x, маржа $${data.marginUsd}): цель TP ${numRoiStr} (${numPnlStr}) по уровням EMA/RSI/ATR. Не является прибылью или прогнозом.»`
         },
         zen: {
           emoji: '🧘',
           name: 'MaIA Zen',
           badge: 'Дзен Наставник',
-          text: `«Монета #${data.symbol} принесла ${numRoiStr}. Твой депозит растет в тишине и гармонии. Дисциплина риска и терпение превращают знания в капитал. 🕊️»`
+          text: data.noData
+            ? `«Рынок молчит: данных Binance по #${data.symbol} нет. Спокойно ждём котировок. 🕊️»`
+            : `«Сценарий по индикаторам для #${data.symbol}: расчётная цель ${numRoiStr} при соблюдении стоп-лосса ${slFormatted}. Это гипотетический план, а не гарантированный результат. 🕊️»`
+        }
+      } : {
+        tsundere: {
+          emoji: '😡',
+          name: 'MaIA Tsundere',
+          badge: 'Дерзкий Копайлот',
+          text: `«Хм! ${isProf ? numRoiStr + ' на демо-счёте по #' + data.symbol + '?! ' : 'Минус ' + numRoiStr + ' на демо по #' + data.symbol + '?! '}Не зазнавайся, бака! Вход был ${entryFormatted}, результат ${numPnlStr} — держи дисциплину стопа! (¬_¬)»`
+        },
+        yandere: {
+          emoji: '🔪',
+          name: 'MaIA Yandere',
+          badge: 'Одержимый ИИ',
+          text: `«Результат демо-сделки по #${data.symbol}: ${numRoiStr} (${numPnlStr}) от уровня ${entryFormatted}. Дисциплина стоп-лосса на бумажном счёте прежде всего.»`
+        },
+        quant: {
+          emoji: '🔬',
+          name: 'MaIA Quant V5',
+          badge: 'Бумажный счёт (Demo)',
+          text: `«Демо-сделка #${data.symbol} (${data.direction} ${data.leverage}x, маржа $${data.marginUsd}): результат ${numRoiStr} (${numPnlStr}), вход ${entryFormatted}, выход/рынок ${exitFormatted}.»`
+        },
+        zen: {
+          emoji: '🧘',
+          name: 'MaIA Zen',
+          badge: 'Дзен Наставник',
+          text: `«Демо-позиция по #${data.symbol}: ${numRoiStr} (${numPnlStr}). Спокойная отработка правил и контроль риска на бумажном счёте формируют дисциплину. 🕊️»`
         }
       };
 
@@ -7887,8 +7958,14 @@
 
       try {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-        const sym = (typeof currentTradingSymbol !== 'undefined' && currentTradingSymbol ? currentTradingSymbol : 'BTC').replace('USDT', '');
-        const caption = `📸 Win-Card MaBuy: #${sym}\n💎 Прогноз сгенерирован ИИ-копайлотом MaIA!\n⚡ Сохрани фото в галерею или поделись в Stories!`;
+        const cardData = typeof getWinCardRealData === 'function' ? getWinCardRealData() : null;
+        const sym = (cardData && cardData.symbol) || ((typeof currentTradingSymbol !== 'undefined' && currentTradingSymbol ? currentTradingSymbol : 'BTC').replace('USDT', ''));
+        const srcLabel = cardData && cardData.sourceType === 'closed'
+          ? 'Закрытая демо-сделка (бумажный счёт)'
+          : (cardData && cardData.sourceType === 'active'
+            ? 'Открытая демо-сделка (бумажный счёт)'
+            : 'Гипотетический расчёт по техническому сигналу (не сделка)');
+        const caption = `📸 Карточка MaBuy: #${sym}\n📊 ${srcLabel}\n⚡ Сохрани фото в галерею или поделись в Stories!`;
 
         const photoDataUrl = canvas.toDataURL('image/png');
         if (!userId) {
@@ -8602,23 +8679,32 @@
     function recalculateDepositPlan() {
       const input = document.getElementById('calc-deposit-input');
       const dep = input ? parseFloat(input.value) || 29.15 : 29.15;
-      const sym = (typeof selectedSymbol !== 'undefined' && selectedSymbol ? selectedSymbol : 'BTC').toUpperCase();
-      
+      const symRaw = (typeof currentTradingSymbol !== 'undefined' && currentTradingSymbol) || window.currentTradingSymbol || 'BTCUSDT';
+      const sym = symRaw.toUpperCase().replace('USDT', '');
+      const cfg = window.orderConfig || { direction: 'LONG', leverage: 10, tpPct: 2.5, slPct: 1.5 };
+      const dir = cfg.direction || 'LONG';
+      const leverage = cfg.leverage || 3;
+      const slPctNum = cfg.slPct || 1.5;
+      const tpPctNum = cfg.tpPct || 2.5;
+      const rrRatio = tpPctNum / (slPctNum || 1);
+
       const symDirEl = document.getElementById('calc-symbol-dir');
-      if (symDirEl) symDirEl.innerText = `${sym}/USDT LONG`;
+      if (symDirEl) symDirEl.innerText = `${sym}/USDT ${dir}`;
 
       const maxRiskUsd = dep * 0.02;
-      const slPct = 0.033;
-      const posNotional = maxRiskUsd / slPct;
-      const leverage = 3.0;
+      const posNotional = maxRiskUsd / (slPctNum / 100);
       const marginUsd = posNotional / leverage;
-      const tpProfitUsd = maxRiskUsd * 2.15;
+      const tpProfitUsd = maxRiskUsd * rrRatio;
 
+      const levEl = document.getElementById('calc-lev-val');
+      const rrEl = document.getElementById('calc-rr-val');
       const marginEl = document.getElementById('calc-margin-val');
       const notionalEl = document.getElementById('calc-notional-val');
       const tpEl = document.getElementById('calc-tp-val');
       const slEl = document.getElementById('calc-sl-val');
 
+      if (levEl) levEl.innerText = `${leverage}x (Изолированное)`;
+      if (rrEl) rrEl.innerText = `1 : ${rrRatio.toFixed(2)}`;
       if (marginEl) marginEl.innerText = `$${marginUsd.toFixed(2)} (${((marginUsd/dep)*100).toFixed(1)}%)`;
       if (notionalEl) notionalEl.innerText = `$${posNotional.toFixed(2)}`;
       if (tpEl) tpEl.innerText = `+$${tpProfitUsd.toFixed(2)} (+${((tpProfitUsd/dep)*100).toFixed(1)}%)`;
@@ -8650,13 +8736,23 @@
     function copyTradeParamsToClipboard() {
       const input = document.getElementById('calc-deposit-input');
       const dep = input ? parseFloat(input.value) || 29.15 : 29.15;
-      const sym = (typeof selectedSymbol !== 'undefined' && selectedSymbol ? selectedSymbol : 'BTC').toUpperCase();
-      const text = `🎯 Сетап MaBuy V5 для ${sym}/USDT:
+      const symRaw = (typeof currentTradingSymbol !== 'undefined' && currentTradingSymbol) || window.currentTradingSymbol || 'BTCUSDT';
+      const sym = symRaw.toUpperCase().replace('USDT', '');
+      const cfg = window.orderConfig || { direction: 'LONG', leverage: 10, tpPct: 2.5, slPct: 1.5 };
+      const dir = cfg.direction || 'LONG';
+      const leverage = cfg.leverage || 3;
+      const slPctNum = cfg.slPct || 1.5;
+      const tpPctNum = cfg.tpPct || 2.5;
+      const rrRatio = tpPctNum / (slPctNum || 1);
+      const maxRiskUsd = dep * 0.02;
+      const marginUsd = (maxRiskUsd / (slPctNum / 100)) / leverage;
+      const tpProfitUsd = maxRiskUsd * rrRatio;
+      const text = `🎯 Расчёт MaBuy для ${sym}/USDT (${dir}):
 • Депозит: $${dep.toFixed(2)}
-• Плечо: 3x Изолированное
-• Рекомендуемая маржа: $${(dep*0.06).toFixed(2)}
-• Риск на сделку (SL): 2.0% ($${(dep*0.02).toFixed(2)})
-• Тейк-Профит цель: +${(dep*0.043).toFixed(2)} (R:R 1:2.15)`;
+• Плечо: ${leverage}x Изолированное
+• Расчётная маржа: $${marginUsd.toFixed(2)}
+• Фиксированный риск (SL -${slPctNum}%): 2.0% ($${maxRiskUsd.toFixed(2)})
+• Цель Тейк-Профит (+${tpPctNum}%): +$${tpProfitUsd.toFixed(2)} (R:R 1:${rrRatio.toFixed(2)})`;
 
       navigator.clipboard.writeText(text).then(() => {
         const btnText = document.getElementById('copy-params-btn-text');
@@ -9050,9 +9146,7 @@
   // ==============================================================================
   window.currentQuickTradeAmt = 100;
 
-  function setQuickTradeAmount(amt) {
-    window.currentQuickTradeAmt = amt;
-    if (window.orderConfig) window.orderConfig.margin = amt;
+  function syncQuickAmountChips(amt) {
     [50, 100, 250, 500, 1000].forEach(a => {
       const chip = document.getElementById('chip-amt-' + a);
       if (chip) {
@@ -9063,6 +9157,13 @@
         }
       }
     });
+  }
+  window.syncQuickAmountChips = syncQuickAmountChips;
+
+  function setQuickTradeAmount(amt) {
+    window.currentQuickTradeAmt = amt;
+    if (window.orderConfig) window.orderConfig.margin = amt;
+    syncQuickAmountChips(amt);
 
     if (window.triggerHaptic) window.triggerHaptic('light');
     recalculateQuickTradeMetrics();
@@ -9187,12 +9288,20 @@
   function loadPaperTradeHistory() {
     try {
       const savedHist = localStorage.getItem('mabuy_paper_trade_history');
-      if (savedHist) window.paperTradeHistory = JSON.parse(savedHist);
-      else window.paperTradeHistory = [];
+      if (savedHist) {
+        const parsed = JSON.parse(savedHist);
+        window.paperTradeHistory = Array.isArray(parsed) ? parsed : [];
+      } else {
+        window.paperTradeHistory = [];
+      }
     } catch(e) {
       window.paperTradeHistory = [];
     }
-    recalculatePaperTradingStats();
+    try {
+      recalculatePaperTradingStats();
+    } catch (e) {
+      console.warn('Paper history stats render error:', e);
+    }
   }
 
   function savePaperTradeHistory() {
@@ -9203,18 +9312,19 @@
   }
 
   function recalculatePaperTradingStats() {
-    const hist = window.paperTradeHistory || [];
+    const hist = (Array.isArray(window.paperTradeHistory) ? window.paperTradeHistory : []).filter(t => t && typeof t === 'object');
     let wins = 0, losses = 0, grossProf = 0, grossLoss = 0;
     let streak = 0, maxStreak = 0;
     let liquidations = 0, breakevenSaves = 0, tpHits = 0;
     let totalVolume = 0, bestTradeUsd = 0, bestTradeRoi = 0;
 
     // Chronological order (oldest to newest) for streak calculation
-    const chrono = [...hist].sort((a, b) => a.closedAt - b.closedAt);
+    const chrono = [...hist].sort((a, b) => (Number(a.closedAt) || 0) - (Number(b.closedAt) || 0));
     chrono.forEach(t => {
-      const pnlVal = typeof t.pnlUsd === 'number' ? t.pnlUsd : (t.pnl || 0);
-      const roiVal = typeof t.roiPct === 'number' ? t.roiPct : 0;
-      totalVolume += (t.notionalUsd || (t.marginUsd * t.leverage) || 1000);
+      const pnlVal = Number.isFinite(t.pnlUsd) ? t.pnlUsd : (Number.isFinite(t.pnl) ? t.pnl : 0);
+      const roiVal = Number.isFinite(t.roiPct) ? t.roiPct : 0;
+      const volPart = Number.isFinite(t.notionalUsd) ? t.notionalUsd : (Number.isFinite(t.marginUsd) && Number.isFinite(t.leverage) ? t.marginUsd * t.leverage : 1000);
+      totalVolume += volPart;
 
       if (pnlVal > 0) {
         wins++;
@@ -9255,7 +9365,7 @@
       breakevenSavesCount: breakevenSaves,
       perfectTpHitsCount: tpHits,
       liquidations: liquidations,
-      lastTradeAt: hist.length > 0 ? hist[0].closedAt : 0
+      lastTradeAt: hist.length > 0 ? (Number(hist[0].closedAt) || 0) : 0
     };
 
     renderPaperHistoryAndStatsUI();
@@ -9293,33 +9403,44 @@
     let html = '';
     const recent = window.paperTradeHistory.slice(0, 10);
     recent.forEach(t => {
-      const isProf = t.pnlUsd >= 0;
-      const dateStr = new Date(t.closedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      if (!t || typeof t !== 'object') return;
+      const pnlVal = Number.isFinite(t.pnlUsd) ? t.pnlUsd : (Number.isFinite(t.pnl) ? t.pnl : 0);
+      const roiVal = Number.isFinite(t.roiPct) ? t.roiPct : 0;
+      const isProf = pnlVal >= 0;
+      const dateStr = Number.isFinite(t.closedAt)
+        ? new Date(t.closedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        : '—';
+      const entryP = Number.isFinite(t.entryPrice) ? t.entryPrice : NaN;
+      const exitP = Number.isFinite(t.closePrice) ? t.closePrice : (Number.isFinite(t.exitPrice) ? t.exitPrice : NaN);
+      const entryStr = Number.isFinite(entryP) ? `$${entryP.toLocaleString('en-US', {minimumFractionDigits: 1})}` : '—';
+      const exitStr = Number.isFinite(exitP) ? `$${exitP.toLocaleString('en-US', {minimumFractionDigits: 1})}` : '—';
+      const levStr = Number.isFinite(t.leverage) ? `${t.leverage}x` : '—';
+      const durStr = Number.isFinite(t.durationSec) ? `${t.durationSec}с` : '—';
       let reasonBadge = '';
       if (t.exitReason === 'TAKE_PROFIT') reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold">🎯 ТЕЙК</span>';
       else if (t.exitReason === 'STOP_LOSS') reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 text-[9px] font-bold">🛡️ СТОП</span>';
       else if (t.exitReason === 'LIQUIDATION') reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-red-600/30 text-red-300 text-[9px] font-bold">💀 ЛИКВИДАЦИЯ</span>';
-      else if (t.exitReason === 'BREAKEVEN') reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 text-[9px] font-bold">🔒 БЕЗУБЫТОК</span>';
+      else if (t.exitReason === 'BREAKEVEN' || t.exitReason === 'BREAKEVEN_STOP') reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 text-[9px] font-bold">🔒 БЕЗУБЫТОК</span>';
       else reasonBadge = '<span class="px-1.5 py-0.2 rounded bg-white/10 text-zinc-300 text-[9px]">✕ РУЧНОЕ</span>';
 
       html += `
         <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-[11px] font-mono">
           <div class="space-y-0.5">
             <div class="flex items-center space-x-1.5">
-              <span class="font-bold text-white">#${t.cleanSymbol || t.symbol}</span>
-              <span class="text-[9px] px-1 rounded ${t.direction === 'LONG' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}">${t.direction} ${t.leverage}x</span>
+              <span class="font-bold text-white">#${t.cleanSymbol || t.symbol || '—'}</span>
+              <span class="text-[9px] px-1 rounded ${t.direction === 'LONG' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}">${t.direction || '—'} ${levStr}</span>
               ${reasonBadge}
             </div>
             <div class="text-[9px] text-zinc-500">
-              $${t.entryPrice.toLocaleString('en-US', {minimumFractionDigits: 1})} ➔ $${t.closePrice.toLocaleString('en-US', {minimumFractionDigits: 1})} • ${t.durationSec}с • ${dateStr}
+              ${entryStr} ➔ ${exitStr} • ${durStr} • ${dateStr}
             </div>
           </div>
           <div class="text-right">
             <div class="font-bold ${isProf ? 'text-emerald-400' : 'text-rose-400'}">
-              ${isProf ? '+' : ''}$${t.pnlUsd.toFixed(2)}
+              ${isProf ? '+' : ''}$${pnlVal.toFixed(2)}
             </div>
             <div class="text-[9px] ${isProf ? 'text-emerald-500/80' : 'text-rose-500/80'} font-semibold">
-              ${isProf ? '+' : ''}${t.roiPct.toFixed(1)}%
+              ${isProf ? '+' : ''}${roiVal.toFixed(1)}%
             </div>
           </div>
         </div>
@@ -9334,7 +9455,12 @@
     const pos = window.activePaperPositions.find(p => p.id === posId);
     if (!pos) return;
 
-    const curPrice = (window.livePriceCache && window.livePriceCache[pos.symbol]) ? window.livePriceCache[pos.symbol] : pos.entryPrice;
+    const curPrice = (window.livePriceCache && Number.isFinite(window.livePriceCache[pos.symbol]) && window.livePriceCache[pos.symbol] > 0)
+      ? window.livePriceCache[pos.symbol] : NaN;
+    if (!Number.isFinite(curPrice)) {
+      if (window.showToast) window.showToast('Нет живой цены Binance — перенос в безубыток недоступен', '⚠️');
+      return;
+    }
     const isLong = pos.direction === 'LONG';
     const inProfit = isLong ? (curPrice > pos.entryPrice) : (curPrice < pos.entryPrice);
 
@@ -9370,7 +9496,12 @@
     const pos = window.activePaperPositions.find(p => p.id === posId);
     if (!pos || pos.marginUsd < 20) return;
 
-    const curPrice = (window.livePriceCache && window.livePriceCache[pos.symbol]) ? window.livePriceCache[pos.symbol] : pos.entryPrice;
+    const curPrice = (window.livePriceCache && Number.isFinite(window.livePriceCache[pos.symbol]) && window.livePriceCache[pos.symbol] > 0)
+      ? window.livePriceCache[pos.symbol] : NaN;
+    if (!Number.isFinite(curPrice)) {
+      if (window.showToast) window.showToast('Нет живой цены Binance — частичное закрытие недоступно', '⚠️');
+      return;
+    }
     const priceDiffPct = ((curPrice - pos.entryPrice) / pos.entryPrice) * 100;
     const roiPct = pos.direction === 'LONG' ? (priceDiffPct * pos.leverage) : (-priceDiffPct * pos.leverage);
     const halfMargin = pos.marginUsd / 2;
@@ -9487,8 +9618,9 @@
     }
   }
 
-  // Load saved positions immediately upon script initialization
+  // Load saved positions & history immediately upon script initialization
   loadActivePaperPositions();
+  loadPaperTradeHistory();
 
   function renderActivePaperPositionsUI() {
     const container = document.getElementById('active-paper-positions-list');
@@ -9510,12 +9642,18 @@
 
     let html = '';
     window.activePaperPositions.forEach(pos => {
-      const curPrice = (window.livePriceCache && window.livePriceCache[pos.symbol]) ? window.livePriceCache[pos.symbol] : pos.entryPrice;
-      const priceDiffPct = ((curPrice - pos.entryPrice) / pos.entryPrice) * 100;
-      const roiPct = pos.direction === 'LONG' ? (priceDiffPct * pos.leverage) : (-priceDiffPct * pos.leverage);
-      const pnlUsd = pos.marginUsd * (roiPct / 100);
-      const isProf = pnlUsd >= 0;
+      const rawPrice = window.livePriceCache ? window.livePriceCache[pos.symbol] : undefined;
+      const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0;
+      const curPrice = hasPrice ? rawPrice : NaN;
+      const priceDiffPct = hasPrice ? (((curPrice - pos.entryPrice) / pos.entryPrice) * 100) : NaN;
+      const roiPct = hasPrice ? (pos.direction === 'LONG' ? (priceDiffPct * pos.leverage) : (-priceDiffPct * pos.leverage)) : NaN;
+      const pnlUsd = hasPrice ? (pos.marginUsd * (roiPct / 100)) : NaN;
+      const isProf = hasPrice && pnlUsd >= 0;
       const liqPrice = pos.direction === 'LONG' ? pos.entryPrice * (1 - (0.95 / pos.leverage)) : pos.entryPrice * (1 + (0.95 / pos.leverage));
+      const pnlHtml = hasPrice
+        ? `<div class="font-bold text-sm ${isProf ? 'text-emerald-400' : 'text-rose-400'}">${isProf ? '+' : ''}$${pnlUsd.toFixed(2)} (${isProf ? '+' : ''}${roiPct.toFixed(2)}%)</div>`
+        : `<div class="font-bold text-xs text-zinc-400">нет цены Binance</div>`;
+      const curPriceText = hasPrice ? `$${curPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}` : '—';
 
       html += `
         <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2.5 font-mono text-xs shadow-lg transition-all" id="pos-card-${pos.id}">
@@ -9527,9 +9665,7 @@
               <span class="font-bold text-white tracking-wide">#${pos.cleanSymbol}USDT</span>
             </div>
             <div class="text-right">
-              <div class="font-bold text-sm ${isProf ? 'text-emerald-400' : 'text-rose-400'}">
-                ${isProf ? '+' : ''}$${pnlUsd.toFixed(2)} (${isProf ? '+' : ''}${roiPct.toFixed(2)}%)
-              </div>
+              ${pnlHtml}
               <div class="text-[10px] text-zinc-500">Маржа: $${pos.marginUsd}</div>
             </div>
           </div>
@@ -9541,7 +9677,7 @@
             </div>
             <div>
               <span class="text-zinc-600 block">Рынок:</span>
-              <span class="text-white font-semibold">$${curPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+              <span class="text-white font-semibold">${curPriceText}</span>
             </div>
             <div>
               <span class="text-zinc-600 block">Цель TP:</span>
@@ -9575,7 +9711,12 @@
     if (idx === -1) return;
 
     const pos = window.activePaperPositions[idx];
-    const curPrice = (window.livePriceCache && window.livePriceCache[pos.symbol]) ? window.livePriceCache[pos.symbol] : pos.entryPrice;
+    const curPrice = (window.livePriceCache && Number.isFinite(window.livePriceCache[pos.symbol]) && window.livePriceCache[pos.symbol] > 0)
+      ? window.livePriceCache[pos.symbol] : NaN;
+    if (!Number.isFinite(curPrice)) {
+      if (window.showToast) window.showToast('Нет живой цены Binance — закрытие позиции недоступно', '⚠️');
+      return;
+    }
     const priceDiffPct = ((curPrice - pos.entryPrice) / pos.entryPrice) * 100;
     const roiPct = pos.direction === 'LONG' ? (priceDiffPct * pos.leverage) : (-priceDiffPct * pos.leverage);
     const pnlUsd = pos.marginUsd * (roiPct / 100);
@@ -9669,7 +9810,9 @@
 
     for (let i = window.activePaperPositions.length - 1; i >= 0; i--) {
       const pos = window.activePaperPositions[i];
-      const curPrice = (window.livePriceCache && window.livePriceCache[pos.symbol]) ? window.livePriceCache[pos.symbol] : pos.entryPrice;
+      const curPrice = (window.livePriceCache && Number.isFinite(window.livePriceCache[pos.symbol]) && window.livePriceCache[pos.symbol] > 0)
+        ? window.livePriceCache[pos.symbol] : NaN;
+      if (!Number.isFinite(curPrice)) continue;
       const priceDiffPct = ((curPrice - pos.entryPrice) / pos.entryPrice) * 100;
       const roiPct = pos.direction === 'LONG' ? (priceDiffPct * pos.leverage) : (-priceDiffPct * pos.leverage);
 
@@ -9716,6 +9859,60 @@
     slPct: 1.5
   };
 
+  try {
+    const savedOrderCfg = JSON.parse(localStorage.getItem('mabuy_order_config') || 'null');
+    if (savedOrderCfg && typeof savedOrderCfg === 'object') {
+      if (Number.isFinite(savedOrderCfg.margin) && savedOrderCfg.margin > 0) {
+        window.orderConfig.margin = savedOrderCfg.margin;
+        window.currentQuickTradeAmt = savedOrderCfg.margin;
+      }
+      if (Number.isFinite(savedOrderCfg.leverage) && savedOrderCfg.leverage > 0) window.orderConfig.leverage = savedOrderCfg.leverage;
+      if (Number.isFinite(savedOrderCfg.tpPct) && savedOrderCfg.tpPct > 0) window.orderConfig.tpPct = savedOrderCfg.tpPct;
+      if (Number.isFinite(savedOrderCfg.slPct) && savedOrderCfg.slPct > 0) window.orderConfig.slPct = savedOrderCfg.slPct;
+    }
+  } catch (e) {}
+
+  function syncOrderSetupModalControls() {
+    const c = window.orderConfig;
+    const btnLong = document.getElementById('order-dir-btn-long');
+    const btnShort = document.getElementById('order-dir-btn-short');
+    if (c.direction === 'LONG') {
+      if (btnLong) btnLong.className = 'py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm transition active:scale-95 cursor-pointer';
+      if (btnShort) btnShort.className = 'py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white transition active:scale-95 cursor-pointer';
+    } else {
+      if (btnLong) btnLong.className = 'py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white transition active:scale-95 cursor-pointer';
+      if (btnShort) btnShort.className = 'py-2 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-sm transition active:scale-95 cursor-pointer';
+    }
+    [50, 100, 250, 500, 1000].forEach(a => {
+      const chip = document.getElementById('order-chip-' + a);
+      if (chip) {
+        if (a === c.margin) chip.className = 'flex-1 py-1 rounded-lg text-[10px] font-bold bg-white/15 text-emerald-300 border border-emerald-500/30 shadow-sm transition cursor-pointer';
+        else chip.className = 'flex-1 py-1 rounded-lg text-[10px] font-semibold text-zinc-400 hover:text-white transition cursor-pointer';
+      }
+    });
+    [1, 3, 5, 10, 20, 50].forEach(l => {
+      const chip = document.getElementById('order-lev-' + l);
+      if (chip) {
+        if (l === c.leverage) chip.className = 'py-1.5 rounded-lg text-[10px] font-bold bg-white/15 text-emerald-300 border border-emerald-500/30 shadow-sm transition cursor-pointer';
+        else chip.className = 'py-1.5 rounded-lg text-[10px] font-semibold text-zinc-400 hover:text-white transition cursor-pointer';
+      }
+    });
+    [1.5, 2.5, 5.0].forEach(p => {
+      const chip = document.getElementById('tp-chip-' + String(p).replace('.', ''));
+      if (chip) {
+        if (Math.abs(p - c.tpPct) < 0.1) chip.className = 'py-1 rounded-md bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-bold text-emerald-300 transition cursor-pointer';
+        else chip.className = 'py-1 rounded-md bg-white/[0.05] text-[9px] font-bold text-zinc-300 hover:text-white transition cursor-pointer';
+      }
+    });
+    [1.0, 1.5, 2.5].forEach(p => {
+      const chip = document.getElementById('sl-chip-' + String(p).replace('.', ''));
+      if (chip) {
+        if (Math.abs(p - c.slPct) < 0.1) chip.className = 'py-1 rounded-md bg-rose-500/20 border border-rose-500/30 text-[9px] font-bold text-rose-300 transition cursor-pointer';
+        else chip.className = 'py-1 rounded-md bg-white/[0.05] text-[9px] font-bold text-zinc-300 hover:text-white transition cursor-pointer';
+      }
+    });
+  }
+
   function openOrderSetupModal() {
     const modal = document.getElementById('order-setup-modal');
     if (!modal) return;
@@ -9724,6 +9921,7 @@
     const symBadge = document.getElementById('order-modal-symbol-badge');
     if (symBadge) symBadge.textContent = `#${window.orderConfig.symbol}`;
 
+    syncOrderSetupModalControls();
     recalculateOrderSetupMetrics();
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -9741,7 +9939,14 @@
   function refreshQuickSetupTag() {
     const tag = document.getElementById('quick-setup-summary-tag');
     const c = window.orderConfig;
-    if (tag && c) tag.textContent = `${c.direction} · ${c.leverage}x • TP +${c.tpPct}% • SL -${c.slPct}%${window.orderDirUserSet ? '' : ' (по сигналу)'}`;
+    const noSig = Boolean(window.lastQuantTelemetry && window.lastQuantTelemetry.noData);
+    if (tag && c) {
+      if (!window.orderDirUserSet && noSig) {
+        tag.textContent = `нет сигнала · ${c.leverage}x • TP +${c.tpPct}% • SL -${c.slPct}%`;
+      } else {
+        tag.textContent = `${c.direction} · ${c.leverage}x • TP +${c.tpPct}% • SL -${c.slPct}%${window.orderDirUserSet ? '' : ' (по сигналу)'}`;
+      }
+    }
     if (typeof recalculateQuickTradeMetrics === 'function') recalculateQuickTradeMetrics();
   }
   window.refreshQuickSetupTag = refreshQuickSetupTag;
@@ -9764,6 +9969,7 @@
 
   function setOrderMargin(amt) {
     window.orderConfig.margin = amt;
+    window.currentQuickTradeAmt = amt;
     [50, 100, 250, 500, 1000].forEach(a => {
       const chip = document.getElementById('order-chip-' + a);
       if (chip) {
@@ -9771,6 +9977,7 @@
         else chip.className = 'flex-1 py-1 rounded-lg text-[10px] font-semibold text-zinc-400 hover:text-white transition cursor-pointer';
       }
     });
+    syncQuickAmountChips(amt);
     recalculateOrderSetupMetrics();
     if (window.triggerHaptic) window.triggerHaptic('light');
   }
@@ -9818,15 +10025,17 @@
 
   function recalculateOrderSetupMetrics() {
     const sym = window.orderConfig.symbol;
-    const curPrice = (window.livePriceCache && window.livePriceCache[sym]) ? window.livePriceCache[sym] : 64250.0;
+    const rawPrice = window.livePriceCache ? window.livePriceCache[sym] : undefined;
+    const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0;
+    const curPrice = hasPrice ? rawPrice : NaN;
     const margin = window.orderConfig.margin;
     const lev = window.orderConfig.leverage;
     const notional = margin * lev;
     const isLong = window.orderConfig.direction === 'LONG';
 
     // TP and SL Prices
-    const tpPrice = isLong ? curPrice * (1 + (window.orderConfig.tpPct / 100)) : curPrice * (1 - (window.orderConfig.tpPct / 100));
-    const slPrice = isLong ? curPrice * (1 - (window.orderConfig.slPct / 100)) : curPrice * (1 + (window.orderConfig.slPct / 100));
+    const tpPrice = hasPrice ? (isLong ? curPrice * (1 + (window.orderConfig.tpPct / 100)) : curPrice * (1 - (window.orderConfig.tpPct / 100))) : NaN;
+    const slPrice = hasPrice ? (isLong ? curPrice * (1 - (window.orderConfig.slPct / 100)) : curPrice * (1 + (window.orderConfig.slPct / 100))) : NaN;
 
     const tpUsd = margin * ((window.orderConfig.tpPct * lev) / 100);
     const slUsd = margin * ((window.orderConfig.slPct * lev) / 100);
@@ -9834,7 +10043,7 @@
 
     // Update UI elements
     const liveEl = document.getElementById('order-modal-live-price');
-    if (liveEl) liveEl.textContent = `$${curPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    if (liveEl) liveEl.textContent = hasPrice ? `$${curPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}` : 'нет цены';
 
     const marginEl = document.getElementById('order-margin-display');
     if (marginEl) marginEl.textContent = `$${margin.toFixed(2)}`;
@@ -9848,14 +10057,14 @@
     const tpPriceEl = document.getElementById('order-tp-price-val');
     const tpUsdEl = document.getElementById('order-tp-usd-val');
     if (tpPctEl) tpPctEl.textContent = `+${window.orderConfig.tpPct}%`;
-    if (tpPriceEl) tpPriceEl.textContent = `$${tpPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    if (tpPriceEl) tpPriceEl.textContent = hasPrice ? `$${tpPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}` : '—';
     if (tpUsdEl) tpUsdEl.textContent = `+$${tpUsd.toFixed(2)}`;
 
     const slPctEl = document.getElementById('order-sl-pct-display');
     const slPriceEl = document.getElementById('order-sl-price-val');
     const slUsdEl = document.getElementById('order-sl-usd-val');
     if (slPctEl) slPctEl.textContent = `-${window.orderConfig.slPct}%`;
-    if (slPriceEl) slPriceEl.textContent = `$${slPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    if (slPriceEl) slPriceEl.textContent = hasPrice ? `$${slPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}` : '—';
     if (slUsdEl) slUsdEl.textContent = `-$${slUsd.toFixed(2)}`;
 
     const rrEl = document.getElementById('order-rr-ratio');
@@ -9866,7 +10075,7 @@
       refreshQuickSetupTag();
     }
     const btnLabel = document.getElementById('order-confirm-btn-label');
-    if (btnLabel) btnLabel.textContent = `Открыть позицию ${isLong ? 'LONG' : 'SHORT'} • $${margin} (${lev}x)`;
+    if (btnLabel) btnLabel.textContent = `Применить параметры (${isLong ? 'LONG' : 'SHORT'} • $${margin} • ${lev}x)`;
   }
 
     function saveOrderSetupConfig() {
@@ -10009,6 +10218,40 @@
 
     function triggerTradeExecution() {
       if (isCompleted) return;
+      const cfg = window.orderConfig || { direction: 'LONG', margin: 100, leverage: 10, tpPct: 2.5, slPct: 1.5 };
+      const sym = window.currentTradingSymbol || 'BTCUSDT';
+      const cleanSym = sym.replace('USDT', '');
+      const amt = cfg.margin || window.currentQuickTradeAmt || 100;
+      const lev = cfg.leverage || 10;
+      const dir = cfg.direction || 'LONG';
+      const curPrice = (window.livePriceCache && Number.isFinite(window.livePriceCache[sym]) && window.livePriceCache[sym] > 0)
+        ? window.livePriceCache[sym] : NaN;
+      if (!Number.isFinite(curPrice)) {
+        isDragging = false;
+        thumb.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        thumb.style.transform = 'translateX(0px)';
+        if (progress) {
+          progress.style.transition = 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+          progress.style.width = '44px';
+        }
+        delete thumb.dataset.ticked;
+        if (window.showToast) window.showToast('Нет живой цены Binance — демо-сделка не открыта', '⚠️');
+        return;
+      }
+
+      if (!window.orderDirUserSet && window.lastQuantTelemetry && window.lastQuantTelemetry.noData) {
+        isDragging = false;
+        thumb.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        thumb.style.transform = 'translateX(0px)';
+        if (progress) {
+          progress.style.transition = 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+          progress.style.width = '44px';
+        }
+        delete thumb.dataset.ticked;
+        if (window.showToast) window.showToast('Нет технического сигнала — выберите направление в параметрах ордера', '⚠️');
+        return;
+      }
+
       isCompleted = true;
       isDragging = false;
       thumb.style.transition = 'transform 0.15s ease-out';
@@ -10020,19 +10263,6 @@
       if (label) {
         label.innerHTML = '🚀 ПОЗИЦИЯ ОТКРЫТА!';
         label.className = 'text-emerald-300 font-extrabold animate-pulse';
-      }
-
-      const cfg = window.orderConfig || { direction: 'LONG', margin: 100, leverage: 10, tpPct: 2.5, slPct: 1.5 };
-      const sym = window.currentTradingSymbol || 'BTCUSDT';
-      const cleanSym = sym.replace('USDT', '');
-      const amt = cfg.margin || window.currentQuickTradeAmt || 100;
-      const lev = cfg.leverage || 10;
-      const dir = cfg.direction || 'LONG';
-      const curPrice = (window.livePriceCache && window.livePriceCache[sym]) ? window.livePriceCache[sym] : NaN;
-      if (!Number.isFinite(curPrice)) {
-        if (label) label.innerHTML = 'Нет цены Binance — сделка не открыта';
-        if (window.showToast) window.showToast('Нет живой цены Binance — демо-сделка не открыта', '⚠️');
-        return;
       }
 
       const isLong = dir === 'LONG';
@@ -10063,7 +10293,7 @@
       renderActivePaperPositionsUI();
 
       if (window.showToast) {
-        window.showToast(`Виртуальная позиция #${cleanSym} LONG на $${amt} открыта!`, '🚀');
+        window.showToast(`Виртуальная позиция #${cleanSym} ${dir} на $${amt} открыта!`, '🚀');
       }
 
       if (window.Telegram?.WebApp?.sendData) {
@@ -10071,7 +10301,7 @@
           window.Telegram.WebApp.sendData(JSON.stringify({
             action: 'trade',
             symbol: cleanSym,
-            direction: 'BULLISH',
+            direction: dir === 'LONG' ? 'BULLISH' : 'BEARISH',
             amount: amt
           }));
         } catch(e) {}
@@ -10112,7 +10342,10 @@
 
   window.addEventListener('load', () => {
     loadActivePaperPositions();
+    loadPaperTradeHistory();
     renderActivePaperPositionsUI();
+    if (typeof syncQuickAmountChips === 'function' && window.orderConfig) syncQuickAmountChips(window.orderConfig.margin);
+    if (typeof refreshQuickSetupTag === 'function') refreshQuickSetupTag();
   });
 
 
@@ -10130,18 +10363,25 @@
   // ==============================================================================
   function showWhaleWallDetails(side) {
     if (window.triggerHaptic) window.triggerHaptic('medium');
-    const sym = window.currentTradingSymbol ? window.currentTradingSymbol.replace('USDT', '') : 'BTC';
     if (side === 'bid') {
-      const price = document.getElementById('whale-bid-price')?.textContent || '$63,800';
-      const vol = document.getElementById('whale-bid-vol')?.textContent || '(145 BTC)';
+      const price = (document.getElementById('whale-bid-price')?.textContent || '').trim();
+      const vol = (document.getElementById('whale-bid-vol')?.textContent || '').trim();
+      if (!price || price === '—' || !vol) {
+        if (window.showToast) window.showToast('Нет данных стакана Binance', '⚠️');
+        return;
+      }
       if (window.showToast) {
-        window.showToast(`🐋 Стена покупателей ${price} ${vol}: крупная лимитная защита уровня китом Bybit!`, '🛡️');
+        window.showToast(`Крупная заявка на покупку (Binance Spot): ${price} (${vol})`, '🛡️');
       }
     } else {
-      const price = document.getElementById('whale-ask-price')?.textContent || '$65,400';
-      const vol = document.getElementById('whale-ask-vol')?.textContent || '(92 BTC)';
+      const price = (document.getElementById('whale-ask-price')?.textContent || '').trim();
+      const vol = (document.getElementById('whale-ask-vol')?.textContent || '').trim();
+      if (!price || price === '—' || !vol) {
+        if (window.showToast) window.showToast('Нет данных стакана Binance', '⚠️');
+        return;
+      }
       if (window.showToast) {
-        window.showToast(`⚔️ Стена продавцов ${price} ${vol}: сопротивление перед зоной тейк-профита!`, '⚔️');
+        window.showToast(`Крупная заявка на продажу (Binance Spot): ${price} (${vol})`, '⚔️');
       }
     }
   }
@@ -11157,7 +11397,7 @@
             </div>
             <div class="text-[10px] text-zinc-400 flex items-center space-x-1">
               <span>Рынок:</span>
-              <span id="order-modal-live-price" class="text-white font-bold">$64,250.00</span>
+              <span id="order-modal-live-price" class="text-white font-bold">—</span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-1"></span>
             </div>
           </div>
@@ -11224,7 +11464,7 @@
             <button onclick="setOrderTPPct(5.0)" id="tp-chip-50" class="py-1 rounded-md bg-white/[0.05] text-[9px] font-bold text-zinc-300 hover:text-white transition cursor-pointer">+5%</button>
           </div>
           <div class="text-[10px] text-zinc-400 pt-0.5">
-            <div class="flex justify-between"><span>Цена TP:</span> <span id="order-tp-price-val" class="text-white font-semibold">$65,856</span></div>
+            <div class="flex justify-between"><span>Цена TP:</span> <span id="order-tp-price-val" class="text-white font-semibold">—</span></div>
             <div class="flex justify-between"><span>Прибыль:</span> <span id="order-tp-usd-val" class="text-emerald-400 font-bold">+$25.00</span></div>
           </div>
         </div>
@@ -11241,7 +11481,7 @@
             <button onclick="setOrderSLPct(2.5)" id="sl-chip-25" class="py-1 rounded-md bg-white/[0.05] text-[9px] font-bold text-zinc-300 hover:text-white transition cursor-pointer">-2.5%</button>
           </div>
           <div class="text-[10px] text-zinc-400 pt-0.5">
-            <div class="flex justify-between"><span>Цена SL:</span> <span id="order-sl-price-val" class="text-white font-semibold">$63,286</span></div>
+            <div class="flex justify-between"><span>Цена SL:</span> <span id="order-sl-price-val" class="text-white font-semibold">—</span></div>
             <div class="flex justify-between"><span>Убыток:</span> <span id="order-sl-usd-val" class="text-rose-400 font-bold">-$15.00</span></div>
           </div>
         </div>
@@ -11513,6 +11753,11 @@
         setText('t-hi24', fmtPx(parseFloat(cur.highPrice)));
         setText('t-lo24', fmtPx(parseFloat(cur.lowPrice)));
         setText('t-vol24', fmtUsdShort(parseFloat(cur.quoteVolume)));
+      } else {
+        setText('t-ch24', '24ч —', 't-mono text-[11px] t-dim');
+        setText('t-hi24', '—');
+        setText('t-lo24', '—');
+        setText('t-vol24', '—');
       }
     }
 
@@ -11525,12 +11770,20 @@
         if (s !== curSym()) return;
         window.mbMarkFeed('live');
         renderBook(s, d);
-      } catch (e) { markFeed('stale'); }
+      } catch (e) {
+        markFeed('stale');
+        if (s === curSym() && !window.mbBookImbalance) {
+          setText('whale-radar-status', 'нет данных', 'text-[10px] t-dim');
+        }
+      }
     }
     function renderBook(sym, d) {
       var bids = (d.bids || []).map(function (r) { return [parseFloat(r[0]), parseFloat(r[1])]; });
       var asks = (d.asks || []).map(function (r) { return [parseFloat(r[0]), parseFloat(r[1])]; });
-      if (!bids.length || !asks.length) return;
+      if (!bids.length || !asks.length) {
+        setText('whale-radar-status', 'нет данных', 'text-[10px] t-dim');
+        return;
+      }
       var bestBid = bids[0][0], bestAsk = asks[0][0], mid = (bestBid + bestAsk) / 2;
 
       function rows(side, cls) {

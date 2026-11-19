@@ -31,11 +31,12 @@ export default async function handler(req, res) {
 
     if (user_id && botToken && symbol && (action === 'add' || action === 'remove')) {
       try {
+        const safeSym = String(symbol).replace(/[<>&]/g, '');
         const text = action === 'add'
-          ? 🔔 <b>#</b> добавлен на радар 24/7 из WebApp!
-          : 🔕 <b>#</b> снят с мониторинга из WebApp.;
+          ? `🔔 <b>#${safeSym}</b> добавлен на радар 24/7 из WebApp!`
+          : `🔕 <b>#${safeSym}</b> снят с мониторинга из WebApp.`;
 
-        await fetch(https://api.telegram.org/bot/sendMessage, {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
