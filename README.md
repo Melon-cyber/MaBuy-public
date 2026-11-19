@@ -39,8 +39,8 @@ flowchart LR
     API --> MOB["Expo mobile client<br/>mobile/"]
     WEB["Web dashboard (Telegram WebApp)<br/>public/ + Vercel functions api/"] --> BIN
     WEB --> GROQ["Groq LLM via api/maia.js"]
-    RUST["Rust core src/native/engine_core.rs<br/>(builds & 16 unit tests pass; standalone CLI, PyO3 not wired)"]
-    RUST -.- RISK
+    RUST["Rust core src/native/engine_core.rs<br/>(cdylib + ctypes bridge; Hurst & L2/OFI accelerated with Python fallback)"]
+    RUST --> RISK
 ```
 
 The web dashboard reads market data directly from Binance's public API and does not use the FastAPI backend.
@@ -50,7 +50,7 @@ The web dashboard reads market data directly from Binance's public API and does 
 | Path | Contents |
 |---|---|
 | `src/domain/` | Entities and about 50 domain services: risk gates (Hurst regime, funding crowding, volatility circuit breaker, correlation), sizing, signal logic |
-| `src/native/` | Standalone Rust microstructure crate (`engine_core.rs`, `Cargo.toml`, `bin/engine_cli.rs`, `parity/check_parity.py`); zero default deps, 16 unit tests; PyO3 optional feature not built offline |
+| `src/native/` | Standalone Rust microstructure crate (`engine_core.rs`, `Cargo.toml`, `rust_bridge.py`, `bin/engine_cli.rs`, `parity/`); zero default deps, builds `cdylib`+`rlib` offline, 20 Rust unit tests + Python `ctypes` bridge with transparent Python fallback |
 | `src/infrastructure/` | Binance data fetchers, execution on Binance futures, SQLite persistence, ML (gradient boosting, PyTorch LSTM), MLOps, LLM client |
 | `src/application/`, `src/presentation/` | Use cases, the FastAPI app (`src/presentation/api/main.py`), the Telegram bot |
 | `scripts/` | Entry points: bot launcher, trading daemon, backtests, maintenance tools |
@@ -111,15 +111,17 @@ cp .env.example .env            # fill in only what you need; leave REAL_TRADING
 python -m pytest -q
 ```
 
-Optional Rust core (offline, zero external dependencies):
+Optional Rust core (offline, zero external dependencies, `cdylib` + `ctypes` bridge):
 
 ```bash
 cargo test --manifest-path src/native/Cargo.toml --offline
 cargo build --manifest-path src/native/Cargo.toml --release --offline
+python -m pytest -q tests/unit/native/test_rust_bridge.py
+python src/native/parity/bench_integration.py
 python src/native/parity/check_parity.py --bench
 ```
 
-Python runtime services do not import the Rust core via PyO3 yet; `check_parity.py` verifies parity against Python via `engine_cli` and documents where definitions differ (single-scale Rust R/S Hurst vs 3-chunk OLS `HurstRegimeService`, incremental USD OFI vs snapshot OBI).
+`HurstRegimeService.calculate_hurst_rs` and `HurstRegimeDetector.calculate_hurst_from_prices` automatically use the compiled Rust `cdylib` when present and fall back transparently to pure Python if the shared library is missing or `MABUY_DISABLE_RUST=1` is set. For `OrderFlowImbalanceService.calculate_obi`, typical 20-level Python `list[list]` snapshots remain in pure Python (marshaling 20 rows across `ctypes` is slower than Python), while 2D `np.ndarray` inputs and high-frequency batched L2 + incremental OFI updates (`NativeMicrostructureSession.apply_l2_batch`) run in Rust.
 
 Test status of this snapshot (Windows, Python 3.13, 18 November 2026):
 - **345 passed, 13 failed** out of 358 collected tests;

@@ -1,6 +1,10 @@
 import math
 from typing import Dict, List, Tuple, Any, Optional
 
+import numpy as np
+
+from src.native import rust_bridge
+
 class OrderFlowImbalanceService:
     """
     Microstructure Order Flow Imbalance (OFI) and Order Book Imbalance (OBI) Service.
@@ -22,7 +26,7 @@ class OrderFlowImbalanceService:
         microprice = (P_ask * Q_bid + P_bid * Q_ask) / (Q_bid + Q_ask)
         If book is empty, returns 0.0.
         """
-        if not bids or not asks:
+        if bids is None or asks is None or len(bids) == 0 or len(asks) == 0:
             return 0.0
         try:
             bid_p = float(bids[0][0])
@@ -42,7 +46,7 @@ class OrderFlowImbalanceService:
         Calculates multi-level liquidity-weighted microprice across top N levels:
         microprice_N = sum(P_ask_i * Q_bid_i + P_bid_i * Q_ask_i) / sum(Q_bid_i + Q_ask_i)
         """
-        if not bids or not asks:
+        if bids is None or asks is None or len(bids) == 0 or len(asks) == 0:
             return 0.0
         try:
             num_bids = min(len(bids), levels)
@@ -68,15 +72,40 @@ class OrderFlowImbalanceService:
         except (IndexError, ValueError, TypeError):
             return 0.0
 
+    def _format_summary(
+        self,
+        obi_score: float,
+        has_bid_wall: bool,
+        bid_wall_price: Optional[float],
+        has_ask_wall: bool,
+        ask_wall_price: Optional[float],
+    ) -> str:
+        if obi_score >= self.confirmation_threshold:
+            summary = f"🟢 Доминирование покупателей (+{round(obi_score * 100, 1)}%)"
+            if has_bid_wall and bid_wall_price is not None:
+                summary += f" | Плотная стенка поддержки на ${bid_wall_price:,.2f}"
+            return summary
+        if obi_score <= -self.confirmation_threshold:
+            summary = f"🔴 Давление продавцов ({round(obi_score * 100, 1)}%)"
+            if has_ask_wall and ask_wall_price is not None:
+                summary += f" | Крупная стенка сопротивления на ${ask_wall_price:,.2f}"
+            return summary
+        return f"⚖️ Сбалансированный стакан ({round(obi_score * 100, 1)}%)"
+
     def calculate_obi(self, bids: List[List[Any]], asks: List[List[Any]], min_wall_usd: Optional[float] = None) -> Dict[str, Any]:
         """
         Calculates Order Book Imbalance (OBI) on N depth levels.
-        bids: list of [price, quantity]
-        asks: list of [price, quantity]
+        bids: list (or 2D ndarray) of [price, quantity]
+        asks: list (or 2D ndarray) of [price, quantity]
         Returns dict with OBI score in [-1.0, +1.0], total bid/ask volume, microprice, and wall analysis.
+
+        Note: 20-level Python `list[list]` snapshot OBI intentionally executes in pure Python rather
+        than ctypes FFI (marshaling 20 rows across FFI is ~1.7x slower than pure Python); NumPy
+        2D `(N, 2)` array inputs route through Rust FFI when available, and high-frequency stateful
+        L2 + incremental OFI batches use `NativeMicrostructureSession.apply_l2_batch`.
         """
         wall_thresh = min_wall_usd if min_wall_usd is not None else self.min_wall_usd
-        if not bids or not asks:
+        if bids is None or asks is None or len(bids) == 0 or len(asks) == 0:
             return {
                 "obi_score": 0.0,
                 "microprice": 0.0,
@@ -89,6 +118,19 @@ class OrderFlowImbalanceService:
                 "wall_price": None,
                 "summary": "Нейтральный стакан (нет данных)"
             }
+
+        if isinstance(bids, np.ndarray) and isinstance(asks, np.ndarray):
+            native_res = rust_bridge._obi_snapshot_raw(bids, asks, min_wall_usd=wall_thresh)
+            if native_res is not None:
+                native_obi, raw_obi_score = native_res
+                native_obi["summary"] = self._format_summary(
+                    raw_obi_score,
+                    native_obi["has_bid_wall"],
+                    native_obi["bid_wall_price"],
+                    native_obi["has_ask_wall"],
+                    native_obi["ask_wall_price"],
+                )
+                return native_obi
 
         total_bid_vol = 0.0
         total_ask_vol = 0.0
@@ -130,17 +172,13 @@ class OrderFlowImbalanceService:
                     ask_wall_price = p
                     break
 
-        # Summary text
-        if obi_score >= self.confirmation_threshold:
-            summary = f"🟢 Доминирование покупателей (+{round(obi_score * 100, 1)}%)"
-            if has_bid_wall:
-                summary += f" | Плотная стенка поддержки на ${bid_wall_price:,.2f}"
-        elif obi_score <= -self.confirmation_threshold:
-            summary = f"🔴 Давление продавцов ({round(obi_score * 100, 1)}%)"
-            if has_ask_wall:
-                summary += f" | Крупная стенка сопротивления на ${ask_wall_price:,.2f}"
-        else:
-            summary = f"⚖️ Сбалансированный стакан ({round(obi_score * 100, 1)}%)"
+        summary = self._format_summary(
+            obi_score,
+            has_bid_wall,
+            bid_wall_price,
+            has_ask_wall,
+            ask_wall_price,
+        )
 
         top_microprice = self.calculate_microprice(bids, asks)
         depth_microprice = self.calculate_depth_microprice(bids, asks, levels=5)

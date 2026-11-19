@@ -15,6 +15,7 @@ from src.infrastructure.ml.baseline_model import BaselineGBDTModelEngine
 from src.infrastructure.ml.pytorch.attention_lstm import MultiHorizonAttentionLSTM
 from src.infrastructure.ml.pytorch.causal_sequence_buffer import MultiAssetSequenceBufferManager
 from src.infrastructure.nlp.rss_sentiment_analyzer import RSSSentimentAnalyzer
+from src.native import rust_bridge
 
 logger = logging.getLogger("MaBuyV4EnsembleEngine")
 
@@ -48,6 +49,9 @@ class HurstRegimeDetector:
         """Computes Hurst Exponent H in [0.05, 0.95] from price array using 2-scale R/S."""
         if prices is None or len(prices) < min_len:
             return 0.50
+        native_res = rust_bridge.hurst_2scale(prices, min_len=min_len)
+        if native_res is not None:
+            return native_res
         try:
             arr = np.asarray(prices, dtype=float)
             arr = arr[arr > 0]

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from src.infrastructure.data_fetchers.binance_fetcher import CryptoDataFetcher
+from src.native import rust_bridge
 
 logger = logging.getLogger("HurstRegimeService")
 
@@ -53,6 +54,10 @@ class HurstRegimeService:
 
     @staticmethod
     def calculate_hurst_rs(prices: Sequence[float], min_chunk: int = 8) -> float:
+        native_res = rust_bridge.hurst_rs_multiscale(prices, min_chunk=min_chunk)
+        if native_res is not None:
+            return native_res
+
         arr = np.asarray(prices, dtype=np.float64)
         valid = arr[arr > 0]
         if len(valid) < 20:

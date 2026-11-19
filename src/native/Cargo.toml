@@ -7,6 +7,7 @@ description = "MaBuy Rust microstructure engine core"
 [lib]
 name = "mabuy_engine_core"
 path = "engine_core.rs"
+crate-type = ["rlib", "cdylib"]
 
 [[bin]]
 name = "engine_cli"
