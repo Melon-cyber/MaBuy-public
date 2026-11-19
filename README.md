@@ -39,7 +39,7 @@ flowchart LR
     API --> MOB["Expo mobile client<br/>mobile/"]
     WEB["Web dashboard (Telegram WebApp)<br/>public/ + Vercel functions api/"] --> BIN
     WEB --> GROQ["Groq LLM via api/maia.js"]
-    RUST["Rust core src/native/engine_core.rs<br/>(experimental: does not compile yet, not called from Python)"]
+    RUST["Rust core src/native/engine_core.rs<br/>(builds & 16 unit tests pass; standalone CLI, PyO3 not wired)"]
     RUST -.- RISK
 ```
 
@@ -50,6 +50,7 @@ The web dashboard reads market data directly from Binance's public API and does 
 | Path | Contents |
 |---|---|
 | `src/domain/` | Entities and about 50 domain services: risk gates (Hurst regime, funding crowding, volatility circuit breaker, correlation), sizing, signal logic |
+| `src/native/` | Standalone Rust microstructure crate (`engine_core.rs`, `Cargo.toml`, `bin/engine_cli.rs`, `parity/check_parity.py`); zero default deps, 16 unit tests; PyO3 optional feature not built offline |
 | `src/infrastructure/` | Binance data fetchers, execution on Binance futures, SQLite persistence, ML (gradient boosting, PyTorch LSTM), MLOps, LLM client |
 | `src/application/`, `src/presentation/` | Use cases, the FastAPI app (`src/presentation/api/main.py`), the Telegram bot |
 | `scripts/` | Entry points: bot launcher, trading daemon, backtests, maintenance tools |
@@ -109,6 +110,16 @@ pip install -r requirements.txt
 cp .env.example .env            # fill in only what you need; leave REAL_TRADING_ENABLED=false
 python -m pytest -q
 ```
+
+Optional Rust core (offline, zero external dependencies):
+
+```bash
+cargo test --manifest-path src/native/Cargo.toml --offline
+cargo build --manifest-path src/native/Cargo.toml --release --offline
+python src/native/parity/check_parity.py --bench
+```
+
+Python runtime services do not import the Rust core via PyO3 yet; `check_parity.py` verifies parity against Python via `engine_cli` and documents where definitions differ (single-scale Rust R/S Hurst vs 3-chunk OLS `HurstRegimeService`, incremental USD OFI vs snapshot OBI).
 
 Test status of this snapshot (Windows, Python 3.13, 18 November 2026):
 - **345 passed, 13 failed** out of 358 collected tests;

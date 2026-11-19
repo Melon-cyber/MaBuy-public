@@ -1,4 +1,3 @@
-use core::cmp::Ordering;
 use std::sync::atomic::{AtomicU64, AtomicU8, Ordering as AtomicOrdering};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -335,7 +334,7 @@ impl OfiCalculator {
     pub fn observe_change(&mut self, change: DepthChange, tick_size_usd: f64) -> f64 {
         if !change.applied {
             self.last_increment_usd = 0.0;
-            return 0.0;
+            return self.cumulative_usd;
         }
 
         let price_usd = change.price_ticks as f64 * tick_size_usd;
@@ -435,9 +434,9 @@ impl<const WINDOW: usize> HurstKernel<WINDOW> {
         let standard_deviation = variance.sqrt();
         let start = if self.len == WINDOW { self.head } else { 0 };
 
-        let mut cumulative = 0.0;
-        let mut minimum = 0.0;
-        let mut maximum = 0.0;
+        let mut cumulative = 0.0_f64;
+        let mut minimum = 0.0_f64;
+        let mut maximum = 0.0_f64;
         let mut offset = 0;
 
         while offset < self.len {
@@ -481,14 +480,14 @@ unsafe fn sum_and_squares_sse2(values: *const f64, len: usize) -> (f64, f64) {
     #[cfg(target_arch = "x86_64")]
     use std::arch::x86_64::*;
 
-    let mut sum = unsafe { _mm_setzero_pd() };
-    let mut squares = unsafe { _mm_setzero_pd() };
+    let mut sum = _mm_setzero_pd();
+    let mut squares = _mm_setzero_pd();
     let mut index = 0;
 
     while index + 2 <= len {
         let value = unsafe { _mm_loadu_pd(values.add(index)) };
-        sum = unsafe { _mm_add_pd(sum, value) };
-        squares = unsafe { _mm_add_pd(squares, _mm_mul_pd(value, value)) };
+        sum = _mm_add_pd(sum, value);
+        squares = _mm_add_pd(squares, _mm_mul_pd(value, value));
         index += 2;
     }
 
@@ -645,7 +644,7 @@ impl RiskState {
     }
 
     #[inline(always)]
-    pub const fn allows_open(self, side: Side) -> bool {
+    pub fn allows_open(self, side: Side) -> bool {
         match self {
             Self::Normal => true,
             Self::LongRestricted => side == Side::Ask,
@@ -1372,6 +1371,471 @@ mod tests {
         assert!(engine.book.best_ask().is_some());
         assert!(engine.ofi.cumulative_usd().is_finite());
         assert!(engine.telemetry.len_approx() > 0);
+    }
+
+    #[test]
+    fn order_book_insert_update_delete_and_ask_sorting() {
+        let mut book = L2OrderBook::<4, 8>::new(0.5);
+
+        assert!(book.best_bid().is_none());
+        assert!(book.best_ask().is_none());
+        assert!(book.mid_price_usd().is_none());
+
+        // Asks sort ascending (lowest ask is best_ask)
+        book.apply_delta(L2Delta {
+            side: Side::Ask,
+            price_ticks: 205,
+            quantity: 4.0,
+            timestamp_ns: 1,
+        })
+        .unwrap();
+        book.apply_delta(L2Delta {
+            side: Side::Ask,
+            price_ticks: 201,
+            quantity: 2.0,
+            timestamp_ns: 2,
+        })
+        .unwrap();
+        book.apply_delta(L2Delta {
+            side: Side::Ask,
+            price_ticks: 203,
+            quantity: 3.0,
+            timestamp_ns: 3,
+        })
+        .unwrap();
+
+        assert_eq!(book.ask_count(), 3);
+        assert_eq!(book.asks()[0].price_ticks, 201);
+        assert_eq!(book.asks()[1].price_ticks, 203);
+        assert_eq!(book.asks()[2].price_ticks, 205);
+
+        // Update existing ask level
+        let upd = book
+            .apply_delta(L2Delta {
+                side: Side::Ask,
+                price_ticks: 201,
+                quantity: 5.5,
+                timestamp_ns: 4,
+            })
+            .unwrap();
+        assert!(upd.applied);
+        assert_eq!(upd.old_quantity, 2.0);
+        assert_eq!(upd.new_quantity, 5.5);
+        assert_eq!(book.best_ask().unwrap().quantity, 5.5);
+        assert_eq!(book.best_ask().unwrap().timestamp_ns, 4);
+
+        // Add best bid and check mid_price_usd
+        book.apply_delta(L2Delta {
+            side: Side::Bid,
+            price_ticks: 199,
+            quantity: 1.0,
+            timestamp_ns: 5,
+        })
+        .unwrap();
+        // (199 * 0.5 + 201 * 0.5) * 0.5 = 100.0
+        assert!((book.mid_price_usd().unwrap() - 100.0).abs() < 1e-12);
+
+        // Delete best ask
+        let del = book
+            .apply_delta(L2Delta {
+                side: Side::Ask,
+                price_ticks: 201,
+                quantity: 0.0,
+                timestamp_ns: 6,
+            })
+            .unwrap();
+        assert!(del.applied);
+        assert_eq!(del.old_quantity, 5.5);
+        assert_eq!(del.new_quantity, 0.0);
+        assert_eq!(book.ask_count(), 2);
+        assert_eq!(book.best_ask().unwrap().price_ticks, 203);
+    }
+
+    #[test]
+    fn order_book_depth_overflow_and_delta_ring_wraparound() {
+        let mut book = L2OrderBook::<3, 4>::new(1.0);
+
+        for (i, price) in [100, 102, 101].iter().enumerate() {
+            book.apply_delta(L2Delta {
+                side: Side::Bid,
+                price_ticks: *price,
+                quantity: 1.0,
+                timestamp_ns: (i + 1) as u64,
+            })
+            .unwrap();
+        }
+        assert_eq!(book.bid_count(), 3);
+
+        // Worse than worst bid (100) when full -> ignored (applied = false)
+        let ignored = book
+            .apply_delta(L2Delta {
+                side: Side::Bid,
+                price_ticks: 99,
+                quantity: 10.0,
+                timestamp_ns: 4,
+            })
+            .unwrap();
+        assert!(!ignored.applied);
+        assert_eq!(book.bid_count(), 3);
+        assert_eq!(book.bids()[2].price_ticks, 100);
+
+        // Better than worst bid -> inserts and evicts worst (100)
+        let inserted = book
+            .apply_delta(L2Delta {
+                side: Side::Bid,
+                price_ticks: 103,
+                quantity: 2.0,
+                timestamp_ns: 5,
+            })
+            .unwrap();
+        assert!(inserted.applied);
+        assert_eq!(book.bid_count(), 3);
+        assert_eq!(book.bids()[0].price_ticks, 103);
+        assert_eq!(book.bids()[1].price_ticks, 102);
+        assert_eq!(book.bids()[2].price_ticks, 101);
+
+        // Delta ring buffer capacity is 4, 5 deltas pushed -> wrapped
+        assert_eq!(book.delta_count(), 4);
+        assert_eq!(book.latest_delta(0).unwrap().timestamp_ns, 5);
+        assert_eq!(book.latest_delta(3).unwrap().timestamp_ns, 2);
+        assert!(book.latest_delta(4).is_none());
+    }
+
+    #[test]
+    fn order_book_edge_cases_invalid_and_zero_volume() {
+        let mut book = L2OrderBook::<4, 4>::new(0.01);
+
+        assert_eq!(
+            book.apply_delta(L2Delta {
+                side: Side::Bid,
+                price_ticks: 0,
+                quantity: 1.0,
+                timestamp_ns: 1,
+            })
+            .unwrap_err(),
+            BookError::InvalidPrice
+        );
+        assert_eq!(
+            book.apply_delta(L2Delta {
+                side: Side::Ask,
+                price_ticks: -5,
+                quantity: 1.0,
+                timestamp_ns: 1,
+            })
+            .unwrap_err(),
+            BookError::InvalidPrice
+        );
+
+        for bad_qty in [-0.1, f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            assert_eq!(
+                book.apply_delta(L2Delta {
+                    side: Side::Bid,
+                    price_ticks: 100,
+                    quantity: bad_qty,
+                    timestamp_ns: 2,
+                })
+                .unwrap_err(),
+                BookError::InvalidQuantity
+            );
+        }
+
+        // Zero quantity on missing price level is a no-op
+        let noop = book
+            .apply_delta(L2Delta {
+                side: Side::Bid,
+                price_ticks: 100,
+                quantity: 0.0,
+                timestamp_ns: 3,
+            })
+            .unwrap();
+        assert!(!noop.applied);
+        assert_eq!(book.bid_count(), 0);
+    }
+
+    #[test]
+    fn ofi_sign_magnitude_unapplied_and_reset() {
+        let mut ofi = OfiCalculator::default();
+        let tick = 0.01;
+
+        // Bid add: + 10000 * 0.01 * (3 - 0) = +300
+        let c1 = ofi.observe_change(
+            DepthChange {
+                side: Side::Bid,
+                price_ticks: 10_000,
+                old_quantity: 0.0,
+                new_quantity: 3.0,
+                applied: true,
+            },
+            tick,
+        );
+        assert!((c1 - 300.0).abs() < 1e-12);
+        assert!((ofi.last_increment_usd() - 300.0).abs() < 1e-12);
+
+        // Bid reduce: + 10000 * 0.01 * (1 - 3) = -200 -> cum = 100
+        let c2 = ofi.observe_change(
+            DepthChange {
+                side: Side::Bid,
+                price_ticks: 10_000,
+                old_quantity: 3.0,
+                new_quantity: 1.0,
+                applied: true,
+            },
+            tick,
+        );
+        assert!((c2 - 100.0).abs() < 1e-12);
+        assert!((ofi.last_increment_usd() + 200.0).abs() < 1e-12);
+
+        // Ask add: - 10100 * 0.01 * (2 - 0) = -202 -> cum = -102
+        let c3 = ofi.observe_change(
+            DepthChange {
+                side: Side::Ask,
+                price_ticks: 10_100,
+                old_quantity: 0.0,
+                new_quantity: 2.0,
+                applied: true,
+            },
+            tick,
+        );
+        assert!((c3 + 102.0).abs() < 1e-12);
+
+        // Ask delete: - 10100 * 0.01 * (0 - 2) = +202 -> cum = 100
+        let c4 = ofi.observe_change(
+            DepthChange {
+                side: Side::Ask,
+                price_ticks: 10_100,
+                old_quantity: 2.0,
+                new_quantity: 0.0,
+                applied: true,
+            },
+            tick,
+        );
+        assert!((c4 - 100.0).abs() < 1e-12);
+
+        // Unapplied change must keep cumulative_usd and zero last_increment_usd
+        let c5 = ofi.observe_change(DepthChange::none(Side::Bid, 9_999), tick);
+        assert!((c5 - 100.0).abs() < 1e-12);
+        assert_eq!(ofi.last_increment_usd(), 0.0);
+        assert!((ofi.cumulative_usd() - 100.0).abs() < 1e-12);
+
+        // Non-finite tick size must not poison cumulative_usd
+        let c6 = ofi.observe_change(
+            DepthChange {
+                side: Side::Bid,
+                price_ticks: 10_000,
+                old_quantity: 0.0,
+                new_quantity: 1.0,
+                applied: true,
+            },
+            f64::INFINITY,
+        );
+        assert!((c6 - 100.0).abs() < 1e-12);
+        assert_eq!(ofi.last_increment_usd(), 0.0);
+
+        ofi.reset();
+        assert_eq!(ofi.cumulative_usd(), 0.0);
+        assert_eq!(ofi.last_increment_usd(), 0.0);
+    }
+
+    #[test]
+    fn hurst_distinguishes_trending_random_walk_and_mean_reverting() {
+        let mut trend = HurstKernel::<256>::new();
+        let mut rw = HurstKernel::<256>::new();
+        let mut mr = HurstKernel::<256>::new();
+
+        let mut state = 0x9E37_79B9_7F4A_7C15_u64;
+        let mut next_noise = || -> f64 {
+            state = state
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1_442_695_040_888_963_407);
+            ((state >> 11) as f64 / ((u64::MAX >> 11) as f64)) - 0.5
+        };
+
+        let mut r_trend = 0.0;
+        let mut r_mr = 0.0;
+        for _ in 0..256 {
+            let eps = next_noise() * 0.01;
+            r_trend = 0.80 * r_trend + eps;
+            r_mr = -0.80 * r_mr + eps;
+            trend.push(r_trend);
+            rw.push(eps);
+            mr.push(r_mr);
+        }
+
+        let h_trend = trend.estimate().unwrap();
+        let h_rw = rw.estimate().unwrap();
+        let h_mr = mr.estimate().unwrap();
+
+        assert!(h_trend > 0.65, "expected persistent H > 0.65, got {h_trend}");
+        assert!(
+            h_rw > 0.40 && h_rw < 0.70,
+            "expected random-walk H near 0.5, got {h_rw}"
+        );
+        assert!(h_mr < 0.40, "expected anti-persistent H < 0.40, got {h_mr}");
+        assert!(h_mr < h_rw && h_rw < h_trend);
+    }
+
+    #[test]
+    fn hurst_edge_cases_and_ring_wraparound() {
+        let mut k = HurstKernel::<16>::new();
+        assert!(k.estimate().is_none());
+
+        for i in 0..7 {
+            k.push(i as f64 * 0.01);
+        }
+        assert_eq!(k.len(), 7);
+        assert!(k.estimate().is_none());
+
+        // Non-finite values are ignored
+        k.push(f64::NAN);
+        k.push(f64::INFINITY);
+        k.push(f64::NEG_INFINITY);
+        assert_eq!(k.len(), 7);
+
+        // Zero-variance series returns None
+        let mut zero_k = HurstKernel::<16>::new();
+        for _ in 0..16 {
+            zero_k.push(0.0);
+        }
+        assert!(zero_k.estimate().is_none());
+
+        // Wraparound consistency: pushing 32 samples into WINDOW=16 matches fresh WINDOW=16 with last 16
+        let mut wrapped = HurstKernel::<16>::new();
+        let mut fresh = HurstKernel::<16>::new();
+        let series: Vec<f64> = (0..32).map(|i| ((i as f64) * 0.37).sin() * 0.01).collect();
+        for &v in &series {
+            wrapped.push(v);
+        }
+        for &v in &series[16..] {
+            fresh.push(v);
+        }
+        assert!(wrapped.is_full());
+        let h_wrapped = wrapped.estimate().unwrap();
+        let h_fresh = fresh.estimate().unwrap();
+        assert!((h_wrapped - h_fresh).abs() < 1e-12);
+    }
+
+    #[test]
+    fn rolling_volatility_matches_hand_computed_and_edge_cases() {
+        let mut vol = RollingVolatility::<4>::new();
+        assert!(vol.volatility().is_none());
+
+        vol.push_return(1.0);
+        assert!(vol.volatility().is_none());
+
+        // Non-finite returns are ignored
+        vol.push_return(f64::NAN);
+        vol.push_return(f64::INFINITY);
+        vol.push_return(f64::NEG_INFINITY);
+        assert_eq!(vol.len(), 1);
+
+        vol.push_return(2.0);
+        vol.push_return(3.0);
+        vol.push_return(4.0);
+        // [1, 2, 3, 4]: mean = 2.5, var = ((1+4+9+16)/4 - 6.25) = 1.25
+        let expected_std = 1.25_f64.sqrt();
+        assert!((vol.volatility().unwrap() - expected_std).abs() < 1e-12);
+
+        // Evict 1.0, push 5.0 -> [2, 3, 4, 5], var = 1.25
+        vol.push_return(5.0);
+        assert!((vol.volatility().unwrap() - expected_std).abs() < 1e-12);
+
+        // Zero volatility
+        let mut zero_vol = RollingVolatility::<4>::new();
+        zero_vol.push_return(0.0);
+        zero_vol.push_return(0.0);
+        zero_vol.push_return(0.0);
+        assert_eq!(zero_vol.volatility(), Some(0.0));
+    }
+
+    #[test]
+    fn risk_gate_state_transitions_and_allows_open() {
+        let gate = AtomicRiskGate::new(RiskConfig::default());
+        assert_eq!(gate.state(), RiskState::ReduceOnly);
+        assert_eq!(gate.regime(), HurstRegime::Neutral);
+
+        // Deadband [0.52, 0.58] stays Neutral -> ReduceOnly
+        assert_eq!(gate.evaluate(0.55, 0.0, 0.005), RiskState::ReduceOnly);
+        assert_eq!(gate.regime(), HurstRegime::Neutral);
+
+        // Enter Trending -> Normal
+        assert_eq!(gate.evaluate(0.59, 0.0, 0.005), RiskState::Normal);
+        assert_eq!(gate.regime(), HurstRegime::Trending);
+        assert!(gate.allows_open(Side::Bid));
+        assert!(gate.allows_open(Side::Ask));
+
+        // Positive funding bias >= 0.0005 -> LongRestricted (only Ask allowed)
+        assert_eq!(gate.evaluate(0.60, 0.0005, 0.005), RiskState::LongRestricted);
+        assert!(!gate.allows_open(Side::Bid));
+        assert!(gate.allows_open(Side::Ask));
+
+        // Negative funding bias <= -0.0005 -> ShortRestricted (only Bid allowed)
+        assert_eq!(gate.evaluate(0.60, -0.0005, 0.005), RiskState::ShortRestricted);
+        assert!(gate.allows_open(Side::Bid));
+        assert!(!gate.allows_open(Side::Ask));
+
+        // Hysteresis: hurst inside deadband keeps Trending
+        assert_eq!(gate.evaluate(0.55, 0.0, 0.005), RiskState::Normal);
+        assert_eq!(gate.regime(), HurstRegime::Trending);
+
+        // Drop <= 0.52 switches to MeanReverting -> ReduceOnly
+        assert_eq!(gate.evaluate(0.51, 0.0, 0.005), RiskState::ReduceOnly);
+        assert_eq!(gate.regime(), HurstRegime::MeanReverting);
+        assert!(!gate.allows_open(Side::Bid));
+        assert!(!gate.allows_open(Side::Ask));
+
+        // Non-finite hurst or funding_rate -> ReduceOnly
+        assert_eq!(gate.evaluate(f64::NAN, 0.0, 0.005), RiskState::ReduceOnly);
+        assert_eq!(gate.evaluate(0.70, f64::INFINITY, 0.005), RiskState::ReduceOnly);
+
+        // Non-finite volatility trips Halted
+        assert_eq!(gate.evaluate(0.70, 0.0, f64::NAN), RiskState::Halted);
+        assert!(!gate.allows_open(Side::Bid));
+        assert!(!gate.allows_open(Side::Ask));
+        assert!(gate.clear_circuit_breaker());
+        assert!(!gate.clear_circuit_breaker());
+        assert_eq!(gate.state(), RiskState::ReduceOnly);
+
+        let snap = gate.snapshot();
+        assert_eq!(snap.state, RiskState::ReduceOnly);
+        assert!(snap.generation > 0);
+    }
+
+    #[test]
+    fn engine_edge_cases_unapplied_l2_and_invalid_trades() {
+        let mut engine =
+            MicrostructureEngine::<4, 8, 16, 16, 16>::new(0.01, RiskConfig::default());
+
+        engine
+            .apply_l2(L2Delta {
+                side: Side::Bid,
+                price_ticks: 10_000,
+                quantity: 2.0,
+                timestamp_ns: 1,
+            })
+            .unwrap();
+        // Deleting missing level is unapplied; telemetry OFI must stay 200.0, not drop to 0.0
+        let noop = engine
+            .apply_l2(L2Delta {
+                side: Side::Ask,
+                price_ticks: 10_500,
+                quantity: 0.0,
+                timestamp_ns: 2,
+            })
+            .unwrap();
+        assert!(!noop.applied);
+
+        let ev1 = engine.telemetry.try_pop().unwrap();
+        let ev2 = engine.telemetry.try_pop().unwrap();
+        assert!((ev1.value2 - 200.0).abs() < 1e-12);
+        assert!((ev2.value2 - 200.0).abs() < 1e-12);
+
+        // Invalid trade prices do not poison Hurst/Volatility
+        engine.observe_trade(1, 0.0);
+        engine.observe_trade(2, -10.0);
+        engine.observe_trade(3, f64::NAN);
+        engine.observe_trade(4, f64::INFINITY);
+        assert_eq!(engine.hurst.len(), 0);
+        assert_eq!(engine.volatility.len(), 0);
     }
 }
 

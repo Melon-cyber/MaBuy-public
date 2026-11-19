@@ -93,3 +93,7 @@ temp_*
 *.log.*
 .gemini/
 
+# ─── Rust Build Artifacts ─────────────────────────────────────────────────────
+src/native/target/
+
+

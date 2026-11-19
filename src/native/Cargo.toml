@@ -1,0 +1,22 @@
+[package]
+name = "mabuy_engine_core"
+version = "0.1.0"
+edition = "2021"
+description = "MaBuy Rust microstructure engine core"
+
+[lib]
+name = "mabuy_engine_core"
+path = "engine_core.rs"
+
+[[bin]]
+name = "engine_cli"
+path = "bin/engine_cli.rs"
+
+[features]
+default = []
+# Optional PyO3 bindings (requires crates.io / online resolution):
+# When building with PyO3 online, add `pyo3 = { version = "0.20", optional = true }`
+# under [dependencies] and set `python = ["dep:pyo3"]`.
+# Declared empty here so `cargo build --offline` succeeds with zero external dependencies.
+python = []
+nightly_bench = []
